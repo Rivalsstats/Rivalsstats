@@ -37,4 +37,15 @@ for rank, values in latest_data.items():
         # Append only if the value has changed
         if historical_data[rank][key]["current"] != value:
             historical_data[rank][key]["historic"].append({
-                "timestamp
+                "timestamp": timestamp,
+                "value": historical_data[rank][key]["current"]
+            })
+
+        # Update the current population count
+        historical_data[rank][key]["current"] = value
+
+# Save updated historical data
+with open(historical_file, "w", encoding="utf-8") as f:
+    json.dump(historical_data, f, indent=4, ensure_ascii=False)
+
+print(f"✅ Updated rank population history.")
