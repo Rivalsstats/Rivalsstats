@@ -1,0 +1,33 @@
+name: Update Marvel Rivals Rank Population
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # Runs every 6 hours
+  workflow_dispatch:  # Allows manual execution
+
+jobs:
+  update_rank_population:
+    runs-on: ubuntu-latest
+    env:
+      RANKS_URL: "https://mrapi.org/api/ranks"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure data directory exists
+        run: mkdir -p data
+
+      - name: Fetch Rank Population Data
+        run: |
+          curl -X GET "${RANKS_URL}" -o data/latest_ranks.json
+
+      - name: Merge Rank Data
+        run: python merge_rank_population.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add data/
+          git commit -m "Updated heroes"
+          git push
