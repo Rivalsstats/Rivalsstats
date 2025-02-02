@@ -35,17 +35,20 @@ jobs:
       - name: Ensure data directory exists
         run: mkdir -p data
 
-      - name: Fetch Marvel Rivals Stats
+      - name: Fetch Marvel Rivals Hero Stats
         run: |
           curl -X GET "${BASE_URL}${HEROES_URL}" \
           -H "x-api-key: ${API_TOKEN}" \
-          -o data/heroes.json
+          -o data/latest_heroes.json
+
+      - name: Merge with historical hero data
+        run: python merge_hero_stats.py
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add data/
-          git commit -m "Updated heroes.json"
+          git commit -m "Updated heroes"
           git push
      
