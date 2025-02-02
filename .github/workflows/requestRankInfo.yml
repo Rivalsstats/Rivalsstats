@@ -14,9 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Ensure data directory exists
-        run: mkdir -p data
-
       - name: Fetch Rank Population Data
         run: |
           curl -X GET "${RANKS_URL}" -o data/latest/latest_ranks.json
