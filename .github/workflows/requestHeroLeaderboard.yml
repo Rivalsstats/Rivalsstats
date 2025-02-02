@@ -2,7 +2,7 @@ name: Update Marvel Rivals Hero Stats & Leaderboards
 
 on:
   schedule:
-    - cron: "15 */6 * * *"  # Runs every 6 hours
+    - cron: "15 0 * * *"  # Runs once per day
   workflow_dispatch:  # Allows manual execution
 
 jobs:
