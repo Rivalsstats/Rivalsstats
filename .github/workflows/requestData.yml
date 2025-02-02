@@ -43,7 +43,13 @@ jobs:
         run: |
           curl -X GET "${BASE_URL}${STATS_URL}${USER_TO_CHECK}" \
           -H "x-api-key: ${API_TOKEN}" \
-          -o data/${USER_TO_CHECK}.json
+          -o data/latest.json
+
+      - name: Merge with historical data
+        env:
+          USER_TO_CHECK: ${{ env.USER_TO_CHECK }}  # Pass the variable to the script
+        run: python merge_stats.py
+
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions"
