@@ -16,12 +16,12 @@ jobs:
         run: mkdir -p data/heroes
       - name: Fetch All Heroes
         run: |
-          curl -X GET "https://mrapi.org/api/heroes" -o data/heroes/all_heroes.json
+          curl -X GET "https://mrapi.org/api/heroes" -o data/latest/heroes/all_heroes.json
 
       - name: Extract Hero Slugs
         id: extract_heroes
         run: |
-          HEROES=$(jq -c '[.[] | .slug]' data/heroes/all_heroes.json)
+          HEROES=$(jq -c '[.[] | .slug]' data/latest/heroes/all_heroes.json)
           echo "heroes=$HEROES" >> $GITHUB_ENV
           echo "::set-output name=heroes::$HEROES"
 
@@ -41,11 +41,11 @@ jobs:
           git pull
       - name: Fetch Hero Stats
         run: |
-          curl -X GET "${BASE_URL}heroes" -o data/heroes/latest_heroes.json
+          curl -X GET "${BASE_URL}heroes" -o data/latest/heroes/latest_heroes.json
 
       - name: Fetch Leaderboard for Hero
         run: |
-          curl -X GET "${BASE_URL}leaderboard/${{ matrix.hero_slug }}" -o data/heroes/latest_leaderboard_${{ matrix.hero_slug }}.json
+          curl -X GET "${BASE_URL}leaderboard/${{ matrix.hero_slug }}" -o data/latest/heroes/latest_leaderboard_${{ matrix.hero_slug }}.json
 
       - name: Merge Hero Data
         run: python merge_hero_leaderboard.py ${{ matrix.hero_slug }}
