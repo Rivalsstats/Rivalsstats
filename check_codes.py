@@ -30,7 +30,7 @@ if new_codes:
     embeds = []
     for code in new_codes:
         expiring_date = code["expiringDate"]
-        expiring_timestamp = int(datetime.strptime(expiring_date, "%Y-%m-%d %H:%M:%S").timestamp())
+        expiring_timestamp = int(datetime.strptime(expiring_date, "%B %d, %Y %H:%M UTC").timestamp())
         embed = {
             "title": "New Marvel Rivals Code Available! 🎁",
             "description": f"**Code:** `{code['code']}`\n**Rewards:** {code['rewards']}\n**Expires:** <t:{expiring_timestamp}:R>",
