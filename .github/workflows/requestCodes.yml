@@ -41,6 +41,8 @@ jobs:
           -o data/latest_codes.json
 
       - name: Check for new codes
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.CODES_WEBHOOK}}  # Pass the variable to the script
         run: python check_codes.py
 
       - name: Commit and push changes
