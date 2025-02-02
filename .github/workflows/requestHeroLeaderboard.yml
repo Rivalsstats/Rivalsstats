@@ -1,0 +1,57 @@
+name: Update Marvel Rivals Hero Stats & Leaderboards
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # Runs every 6 hours
+  workflow_dispatch:  # Allows manual execution
+
+jobs:
+  get_heroes:
+    runs-on: ubuntu-latest
+    outputs:
+      heroes: ${{ steps.extract_heroes.outputs.heroes }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch All Heroes
+        run: |
+          curl -X GET "https://mrapi.org/api/heroes" -o data/all_heroes.json
+
+      - name: Extract Hero Slugs
+        id: extract_heroes
+        run: |
+          HEROES=$(jq -c '[.[] | .slug]' data/all_heroes.json)
+          echo "heroes=$HEROES" >> $GITHUB_ENV
+          echo "::set-output name=heroes::$HEROES"
+
+  fetch_hero_data:
+    needs: get_heroes
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        hero_slug: ${{ fromJson(needs.get_heroes.outputs.heroes) }}
+    env:
+      BASE_URL: "https://mrapi.org/api/"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch Hero Stats
+        run: |
+          curl -X GET "${BASE_URL}heroes" -o data/latest_heroes.json
+
+      - name: Fetch Leaderboard for Hero
+        run: |
+          curl -X GET "${BASE_URL}leaderboard/${{ matrix.hero_slug }}" -o data/latest_leaderboard_${{ matrix.hero_slug }}.json
+
+      - name: Merge Hero Data
+        run: python merge_hero_leaderboard.py ${{ matrix.hero_slug }}
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add data/
+          git commit -m "Updated codes" || echo "No changes to commit"
+          git push || echo "No changes to push"
+
+     
