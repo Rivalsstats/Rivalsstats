@@ -23,7 +23,7 @@ new_codes = [code for code in latest_codes if code["code"] not in historical_cod
 
 # Send notification if new codes are found
 if new_codes:
-    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+    webhook_urls = os.getenv("DISCORD_WEBHOOK_URLS", "").split(",")
     
     message = "**New Marvel Rivals Codes Available!** 🎁\n"
     embeds = []
@@ -43,12 +43,14 @@ if new_codes:
         }
         embeds.append(embed)
     payload = {"embeds": embeds} #"content": message
-    response = requests.post(webhook_url, json=payload)
+    for url in webhook_urls:
+        response = requests.post(url, json=payload)
 
-    if response.status_code == 204:
-        print("✅ Notification sent to Discord!")
-    else:
-        print(f"❌ Failed to send Discord notification: {response.status_code}, {response.text}")
+        if response.status_code == 204:
+            print("✅ Notification sent to Discord!")
+        else:
+            print(f"❌ Failed to send Discord notification: {response.status_code}, {response.text}")
+
 
 # Merge the latest codes into the historical dataset
 updated_codes = historical_codes + new_codes
