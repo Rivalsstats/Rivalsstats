@@ -7,8 +7,8 @@ user_to_check = os.getenv("USER_TO_CHECK", "default_user")  # Fallback to "defau
 
 # File paths (dynamic based on USER_TO_CHECK)
 historical_file = f"data/historical/{user_to_check}.json"
-latest_file = "data/latest/latest.json"
-output_file = f"data/historical/{user_to_check}_historical.json"  # The debug file
+latest_file = f"data/latest/users/{user_to_check}.json"
+output_file = f"data/historical/users/{user_to_check}_historical.json"  # The debug file
 
 # Load historical data if it exists
 if os.path.exists(historical_file):
