@@ -1,10 +1,10 @@
 import json
 import os
+from datetime import datetime
 
 # File paths
-historical_file = "data/heroes.json"
+historical_file = "data/heroes_historical.json"
 latest_file = "data/latest_heroes.json"
-output_file = "data/heroes_historical.json"  # Debug version
 
 # Load historical hero data if it exists
 if os.path.exists(historical_file):
@@ -17,50 +17,41 @@ else:
 with open(latest_file, "r", encoding="utf-8") as f:
     latest_data = json.load(f)
 
-# Convert historical data into a dictionary for quick lookup
-historical_dict = {hero["id"]: hero for hero in historical_data} if isinstance(historical_data, list) else {}
+# Get current timestamp
+timestamp = datetime.utcnow().isoformat()
 
 # Merge logic
-def merge_heroes(old_heroes, new_heroes):
-    """ Merge latest hero data with historical data while keeping track of changes. """
+def merge_heroes(historical, latest):
+    """ Merge latest hero data into historical data while keeping track of changes over time. """
 
-    for new_hero in new_heroes:
-        hero_id = new_hero["id"]
+    for category, heroes in latest.items():
+        if category not in historical:
+            historical[category] = {}
 
-        if hero_id in old_heroes:
-            # Hero exists, update dynamically
-            old_hero = old_heroes[hero_id]
+        for hero in heroes:
+            hero_name = hero["name"]
 
-            # Ensure name and role are always up to date
-            old_hero["name"] = new_hero["name"]
-            old_hero["role"] = new_hero["role"]
+            if hero_name not in historical[category]:
+                # Create a new hero entry with a history list
+                historical[category][hero_name] = {
+                    "role": hero["role"],
+                    "history": []
+                }
 
-            # Merge transformations dynamically
-            existing_trans_ids = {trans["id"] for trans in old_hero.get("transformations", [])}
-            new_trans = [trans for trans in new_hero.get("transformations", []) if trans["id"] not in existing_trans_ids]
-            old_hero.setdefault("transformations", []).extend(new_trans)
+            # Append the latest stats with a timestamp
+            historical[category][hero_name]["history"].append({
+                "timestamp": timestamp,
+                "pickRate": hero["pickRate"],
+                "winRate": hero["winRate"]
+            })
 
-            # Merge abilities dynamically
-            existing_ability_ids = {ability["id"] for ability in old_hero.get("abilities", [])}
-            new_abilities = [ability for ability in new_hero.get("abilities", []) if ability["id"] not in existing_ability_ids]
-            old_hero.setdefault("abilities", []).extend(new_abilities)
+    return historical
 
-            # Merge costumes dynamically
-            existing_costume_ids = {costume["id"] for costume in old_hero.get("costumes", [])}
-            new_costumes = [costume for costume in new_hero.get("costumes", []) if costume["id"] not in existing_costume_ids]
-            old_hero.setdefault("costumes", []).extend(new_costumes)
-
-        else:
-            # New hero, add them to the dataset
-            old_heroes[hero_id] = new_hero
-
-    return list(old_heroes.values())
-
-# Merge latest hero data into the historical dataset
-updated_heroes = merge_heroes(historical_dict, latest_data)
+# Merge the latest hero data into the historical dataset
+updated_heroes = merge_heroes(historical_data, latest_data)
 
 # Save updated data into the historical debug file
-with open(output_file, "w", encoding="utf-8") as f:
+with open(historical_file, "w", encoding="utf-8") as f:
     json.dump(updated_heroes, f, indent=4, ensure_ascii=False)
 
-print(f"Historical hero data written to {output_file} for debugging.")
+print(f"Historical hero data written to {historical_file} for debugging.")
