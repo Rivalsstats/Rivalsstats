@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: request Profile Data
 
 # Controls when the workflow will run
 on:
@@ -53,6 +53,6 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add data/
-          git commit -m "Updated stats.json"
+          git commit -m "Updated User: ${USER_TO_CHECK}"
           git push
      
