@@ -25,7 +25,6 @@ for rank, values in latest_data.items():
     if rank not in historical_data:
         historical_data[rank] = {}
 
-    # Handle rank subdivisions (1, 2, 3, or total)
     for key, value in values.items():
         if key == "image":
             historical_data[rank]["image"] = value
@@ -34,12 +33,11 @@ for rank, values in latest_data.items():
         if key not in historical_data[rank]:
             historical_data[rank][key] = {"current": value, "historic": []}
 
-        # Append only if the value has changed
-        if historical_data[rank][key]["current"] != value:
-            historical_data[rank][key]["historic"].append({
-                "timestamp": timestamp,
-                "value": historical_data[rank][key]["current"]
-            })
+        # Always append a new timestamped entry, even if the value is unchanged
+        historical_data[rank][key]["historic"].append({
+            "timestamp": timestamp,
+            "value": value
+        })
 
         # Update the current population count
         historical_data[rank][key]["current"] = value
