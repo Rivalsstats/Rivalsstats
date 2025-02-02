@@ -35,32 +35,51 @@ else:
 # Get timestamp
 timestamp = datetime.utcnow().isoformat()
 
-# Update hero stats
-if hero_data:
-    if hero_slug not in historical_data:
-        historical_data[hero_slug] = {
-            "name": hero_data["name"],
-            "role": hero_data["role"],
-            "meta_history": [],
-            "leaderboard_history": []
-        }
+# Initialize hero entry in historical data
+if hero_slug not in historical_data:
+    historical_data[hero_slug] = {
+        "name": hero_data["name"],
+        "role": hero_data["role"],
+        "meta_history": [],
+        "leaderboard_history": []
+    }
 
-    # Append latest hero meta stats (win rates & pick rates)
-    for meta_entry in hero_data.get("meta", []):
-        historical_data[hero_slug]["meta_history"].append({
+# Update hero meta history
+meta_entries = hero_data.get("meta", [])
+historical_meta = {f"{m['platform']}_{m['mode']}_{m['rank']}": m for m in historical_data[hero_slug]["meta_history"]}
+
+for meta_entry in meta_entries:
+    key = f"{meta_entry['platform']}_{meta_entry['mode']}_{meta_entry['rank']}"
+
+    if key in historical_meta:
+        # Append to historical list inside existing entry
+        historical_meta[key]["historical"].append({
             "timestamp": timestamp,
+            "appearance_rate": meta_entry["appearance_rate"],
+            "win_rate": meta_entry["win_rate"]
+        })
+    else:
+        # Create a new meta entry with a historical list
+        historical_data[hero_slug]["meta_history"].append({
             "platform": meta_entry["platform"],
             "mode": meta_entry["mode"],
             "rank": meta_entry["rank"],
             "appearance_rate": meta_entry["appearance_rate"],
-            "win_rate": meta_entry["win_rate"]
+            "win_rate": meta_entry["win_rate"],
+            "historical": [
+                {
+                    "timestamp": timestamp,
+                    "appearance_rate": meta_entry["appearance_rate"],
+                    "win_rate": meta_entry["win_rate"]
+                }
+            ]
         })
 
-    # Append latest leaderboard data
-    historical_data[hero_slug]["leaderboard_history"].append({
-        "timestamp": timestamp,
-        "top_players": latest_leaderboard
-    })
+# Append leaderboard history
+historical_data[hero_slug]["leaderboard_history"].append({
+    "timestamp": timestamp,
+    "top_players": latest_leaderboard
+})
 
 # Save updated historical data
 with open(historical_file, "w", encoding="utf-8") as f:
