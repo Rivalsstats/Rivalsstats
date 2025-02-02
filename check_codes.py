@@ -24,14 +24,40 @@ new_codes = [code for code in latest_codes if code["code"] not in historical_cod
 # Send notification if new codes are found
 if new_codes:
     webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
-
+    
     message = "**New Marvel Rivals Codes Available!** 🎁\n"
+    embeds = []
     for code in new_codes:
         message += f"**Code:** `{code['code']}`\n"
         message += f"**Rewards:** {code['rewards']}\n"
         message += f"**Expires:** {code['expiringDate']}\n\n"
-
-    payload = {"content": message}
+        embed = {
+            "title": "New Marvel Rivals Code Available! 🎁",
+            "description": f"**Code:** `{code['code']}`\n**Rewards:** {code['rewards']}\n**Expires:** {code['expiringDate']}",
+            "color": 0x00FF00,  # Green color
+            "fields": [
+                {
+                    "name": "Code",
+                    "value": code["code"],
+                    "inline": True
+                },
+                {
+                    "name": "Rewards",
+                    "value": code["rewards"],
+                    "inline": True
+                },
+                {
+                    "name": "Expires",
+                    "value": code["expiringDate"],
+                    "inline": True
+                }
+            ],
+            "footer": {
+                "text": "Marvel Rivals Codes"
+            }
+        }
+        embeds.append(embed)
+    payload = {"embeds": embeds} #"content": message
     response = requests.post(webhook_url, json=payload)
 
     if response.status_code == 204:
