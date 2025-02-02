@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+from datetime import datetime
 
 # File paths
 historical_file = "data/codes_historical.json"
@@ -28,12 +29,11 @@ if new_codes:
     message = "**New Marvel Rivals Codes Available!** 🎁\n"
     embeds = []
     for code in new_codes:
-        message += f"**Code:** `{code['code']}`\n"
-        message += f"**Rewards:** {code['rewards']}\n"
-        message += f"**Expires:** {code['expiringDate']}\n\n"
+        expiring_date = code["expiringDate"]
+        expiring_timestamp = int(datetime.strptime(expiring_date, "%Y-%m-%d %H:%M:%S").timestamp())
         embed = {
             "title": "New Marvel Rivals Code Available! 🎁",
-            "description": f"**Code:** `{code['code']}`\n**Rewards:** {code['rewards']}\n**Expires:** {code['expiringDate']}",
+            "description": f"**Code:** `{code['code']}`\n**Rewards:** {code['rewards']}\n**Expires:** <t:{expiring_timestamp}:R>",
             "color": 0x00FF00,  # Green color
             "fields": [
             ],
