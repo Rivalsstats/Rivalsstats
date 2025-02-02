@@ -8,7 +8,7 @@ hero_slug = sys.argv[1]
 
 # File paths
 historical_file = "data/historical/heroes_historical.json"
-latest_heroes_file = "data/latest/latest_heroes.json"
+latest_heroes_file = "data/latest/heroes/latest_heroes.json"
 latest_leaderboard_file = f"data/latest/heroes/latest_leaderboard_{hero_slug}.json"
 
 # Load existing historical data
