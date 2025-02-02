@@ -42,7 +42,7 @@ jobs:
 
       - name: Check for new codes
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.CODES_WEBHOOK}}  # Pass the variable to the script
+          DISCORD_WEBHOOK_URLS: ${{ secrets.CODES_WEBHOOK }},${{ secrets.CODES_WEBHOOK_SIBEL_SCREAMZZ }}   # Pass the variable to the script
         run: python check_codes.py
 
       - name: Commit and push changes
