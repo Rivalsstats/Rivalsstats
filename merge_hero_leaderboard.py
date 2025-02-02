@@ -1,26 +1,29 @@
 import json
 import os
 import sys
+import csv
 from datetime import datetime
 
 # Get hero slug from GitHub Actions job matrix
 hero_slug = sys.argv[1]
 
 # File paths
-historical_file = "data/historical/heroes_historical.json"
+historical_json = f"data/historical/heroes/{hero_slug}.json"  # Stores only latest stats
+meta_csv = "data/historical/meta_history.csv"  # Stores historical hero stats
+leaderboard_csv = "data/historical/leaderboard_history.csv"  # Stores leaderboard history
 latest_heroes_file = "data/latest/heroes/latest_heroes.json"
 latest_leaderboard_file = f"data/latest/heroes/latest_leaderboard_{hero_slug}.json"
 
-# Load existing historical data
-if os.path.exists(historical_file):
-    with open(historical_file, "r", encoding="utf-8") as f:
-        historical_data = json.load(f)
-else:
-    historical_data = {}
+# Ensure historical directory exists
+os.makedirs("data/historical/heroes", exist_ok=True)
 
 # Load latest hero data
-with open(latest_heroes_file, "r", encoding="utf-8") as f:
-    latest_heroes = json.load(f)
+if os.path.exists(latest_heroes_file):
+    with open(latest_heroes_file, "r", encoding="utf-8") as f:
+        latest_heroes = json.load(f)
+else:
+    print(f"⚠️ Error: {latest_heroes_file} not found.")
+    sys.exit(1)
 
 # Find the specific hero
 hero_data = next((h for h in latest_heroes if h["slug"] == hero_slug), None)
@@ -35,54 +38,53 @@ else:
 # Get timestamp
 timestamp = datetime.utcnow().isoformat()
 
-# Initialize hero entry in historical data
-if hero_slug not in historical_data:
-    historical_data[hero_slug] = {
-        "name": hero_data["name"],
-        "role": hero_data["role"],
-        "meta_history": [],
-        "leaderboard_history": []
-    }
+# Load existing JSON if available
+if os.path.exists(historical_json):
+    with open(historical_json, "r", encoding="utf-8") as f:
+        historical_data = json.load(f)
+else:
+    historical_data = {}
 
-# Update hero meta history
-meta_entries = hero_data.get("meta", [])
-historical_meta = {f"{m['platform']}_{m['mode']}_{m['rank']}": m for m in historical_data[hero_slug]["meta_history"]}
+# Update latest hero stats JSON
+historical_data = {
+    "name": hero_data["name"],
+    "role": hero_data["role"],
+    "latest_meta": hero_data.get("meta", []),  # Stores only current stats
+    "latest_leaderboard": latest_leaderboard  # Stores only current leaderboard
+}
 
-for meta_entry in meta_entries:
-    key = f"{meta_entry['platform']}_{meta_entry['mode']}_{meta_entry['rank']}"
-
-    if key in historical_meta:
-        # Append to historical list inside existing entry
-        historical_meta[key]["historical"].append({
-            "timestamp": timestamp,
-            "appearance_rate": meta_entry["appearance_rate"],
-            "win_rate": meta_entry["win_rate"]
-        })
-    else:
-        # Create a new meta entry with a historical list
-        historical_data[hero_slug]["meta_history"].append({
-            "platform": meta_entry["platform"],
-            "mode": meta_entry["mode"],
-            "rank": meta_entry["rank"],
-            "appearance_rate": meta_entry["appearance_rate"],
-            "win_rate": meta_entry["win_rate"],
-            "historical": [
-                {
-                    "timestamp": timestamp,
-                    "appearance_rate": meta_entry["appearance_rate"],
-                    "win_rate": meta_entry["win_rate"]
-                }
-            ]
-        })
-
-# Append leaderboard history
-historical_data[hero_slug]["leaderboard_history"].append({
-    "timestamp": timestamp,
-    "top_players": latest_leaderboard
-})
-
-# Save updated historical data
-with open(historical_file, "w", encoding="utf-8") as f:
+# Save latest JSON
+with open(historical_json, "w", encoding="utf-8") as f:
     json.dump(historical_data, f, indent=4, ensure_ascii=False)
 
-print(f"✅ Updated hero stats & leaderboard history for {hero_slug}")
+# Append historical data to CSV files
+
+# Save Hero Meta Data (Win Rate & Pick Rate)
+with open(meta_csv, "a", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    for meta_entry in hero_data.get("meta", []):
+        writer.writerow([
+            timestamp,
+            hero_slug,
+            meta_entry["platform"],
+            meta_entry["mode"],
+            meta_entry["rank"],
+            meta_entry["appearance_rate"],
+            meta_entry["win_rate"]
+        ])
+
+# Save Leaderboard Data
+with open(leaderboard_csv, "a", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    for player in latest_leaderboard:
+        writer.writerow([
+            timestamp,
+            hero_slug,
+            player["rank"],
+            player["player_name"],
+            player["score"],
+            player["matches"],
+            player["player_id"]
+        ])
+
+print(f"✅ Updated hero stats & leaderboard history for {hero_slug} (Stored in CSV).")
