@@ -39,6 +39,8 @@ jobs:
         run: |
           curl -X GET "${BASE_URL}${HEROES_URL}" \
           -o data/latest_heroes.json
+      - name: Merge with historical hero data
+        run: python merge_hero_stats.py
 
       - name: Commit and push changes
         run: |
