@@ -17,11 +17,18 @@ jobs:
       - name: Fetch All Heroes
         run: |
           curl -X GET "https://mrapi.org/api/heroes" -o data/latest/heroes/all_heroes.json
+          cat data/latest/heroes/all_heroes.json  # Print response for debugging
 
       - name: Extract Hero Slugs
         id: extract_heroes
         run: |
+          if [ ! -s data/latest/heroes/all_heroes.json ]; then
+            echo "⚠️ No heroes data found!"
+            echo "::set-output name=heroes::[]"
+            exit 1
+          fi
           HEROES=$(jq -c '[.[] | .slug]' data/latest/heroes/all_heroes.json)
+          echo "Extracted HEROES: $HEROES"  # Debugging output
           echo "heroes=$HEROES" >> $GITHUB_ENV
           echo "::set-output name=heroes::$HEROES"
 
