@@ -36,21 +36,6 @@ if new_codes:
             "description": f"**Code:** `{code['code']}`\n**Rewards:** {code['rewards']}\n**Expires:** {code['expiringDate']}",
             "color": 0x00FF00,  # Green color
             "fields": [
-                {
-                    "name": "Code",
-                    "value": code["code"],
-                    "inline": True
-                },
-                {
-                    "name": "Rewards",
-                    "value": code["rewards"],
-                    "inline": True
-                },
-                {
-                    "name": "Expires",
-                    "value": code["expiringDate"],
-                    "inline": True
-                }
             ],
             "footer": {
                 "text": "Marvel Rivals Codes"
