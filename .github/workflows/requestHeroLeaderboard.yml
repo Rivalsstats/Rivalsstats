@@ -35,7 +35,9 @@ jobs:
       BASE_URL: "https://mrapi.org/api/"
     steps:
       - uses: actions/checkout@v4
-
+      - name: pull changes from other matrix job
+        run: | 
+          git pull
       - name: Fetch Hero Stats
         run: |
           curl -X GET "${BASE_URL}heroes" -o data/latest_heroes.json
