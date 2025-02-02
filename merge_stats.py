@@ -5,9 +5,9 @@ import os
 user_to_check = os.getenv("USER_TO_CHECK", "default_user")  # Fallback to "default_user" if not set
 
 # File paths (dynamic based on USER_TO_CHECK)
-historical_file = f"data/historical/{user_to_check}.json"
-latest_file = "data/latest/latest.json"
-output_file = f"data/historical/{user_to_check}_historical.json"  # The debug file
+historical_file = f"data/historical/users/{user_to_check}.json"
+latest_file = "data/latest/users/{user_to_check}.json"
+output_file = f"data/historical/users/{user_to_check}_historical.json"  # The debug file
 
 # Load historical data if it exists
 if os.path.exists(historical_file):
@@ -22,7 +22,7 @@ with open(latest_file, "r", encoding="utf-8") as f:
 
 # Merge logic
 def merge_data(old, new):
-    """ Merges new data into historical data while keeping historical values intact """
+    #""" Merges new data into historical data while keeping historical values intact """
 
     # Update player info
     old["player"] = new["player"]
