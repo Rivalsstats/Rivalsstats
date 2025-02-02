@@ -36,7 +36,7 @@ jobs:
       - name: Fetch Marvel Rivals Hero Stats
         run: |
           curl -X GET "${BASE_URL}${HEROES_URL}" \
-          -o data/latest_heroes.json
+          -o data/latest/latest_heroes.json
       - name: Merge with historical hero data
         run: python merge_hero_stats.py
 

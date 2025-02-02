@@ -4,8 +4,8 @@ import requests
 from datetime import datetime
 
 # File paths
-historical_file = "data/codes_historical.json"
-latest_file = "data/latest_codes.json"
+historical_file = "data/historical/codes_historical.json"
+latest_file = "data/latest/latest_codes.json"
 
 # Load previous codes if they exist
 if os.path.exists(historical_file):

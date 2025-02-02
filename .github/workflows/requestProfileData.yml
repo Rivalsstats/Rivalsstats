@@ -41,7 +41,7 @@ jobs:
         run: |
           curl -X GET "${BASE_URL}${STATS_URL}${USER_TO_CHECK}" \
           -H "x-api-key: ${API_TOKEN}" \
-          -o data/latest.json
+          -o data/latest/latest.json
 
       - name: Merge with historical data
         env:

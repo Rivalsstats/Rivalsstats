@@ -3,8 +3,8 @@ import os
 from datetime import datetime
 
 # File paths
-historical_file = "data/ranks_historical.json"
-latest_file = "data/latest_ranks.json"
+historical_file = "data/historical/ranks_historical.json"
+latest_file = "data/latest/latest_ranks.json"
 
 # Load existing historical data
 if os.path.exists(historical_file):

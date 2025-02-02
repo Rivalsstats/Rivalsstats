@@ -1,12 +1,10 @@
 # This is a basic workflow to help you get started with Actions
 
-name: request Codes
+name: request Hero Data
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
-  schedule:
-    - cron: "55 23 * * *"  # Runs at 23:55 every day
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -20,7 +18,7 @@ jobs:
     env:
       BASE_URL: "https://mrapi.org/api/"
       API_TOKEN: ${{ secrets.API_KEY_RIVALS }}
-      CODES_URL: "codes"
+      HEROES_URL: "heroes-stats/pc"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -37,19 +35,16 @@ jobs:
 
       - name: Fetch Marvel Rivals Hero Stats
         run: |
-          curl -X GET "${BASE_URL}${CODES_URL}" \
-          -o data/latest/latest_codes.json
-
-      - name: Check for new codes
-        env:
-          DISCORD_WEBHOOK_URLS: ${{ secrets.CODES_WEBHOOK }},${{ secrets.CODES_WEBHOOK_SIBEL_SCREAMZZ }}   # Pass the variable to the script
-        run: python check_codes.py
+          curl -X GET "${BASE_URL}${HEROES_URL}" \
+          -o data/latest_heroes.json
+      - name: Merge with historical hero data
+        run: python merge_hero_stats.py
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add data/
-          git commit -m "Updated codes" || echo "No changes to commit"
-          git push || echo "No changes to push"
-               
+          git commit -m "Updated heroes"
+          git push
+     
