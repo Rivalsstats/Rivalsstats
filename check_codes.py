@@ -38,7 +38,7 @@ if new_codes:
             "fields": [
             ],
             "footer": {
-                "text": "Marvel Rivals Codes"
+                "text": "Marvel Rivals Codes by Jods"
             }
         }
         embeds.append(embed)
