@@ -18,9 +18,9 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     env:
-      BASE_URL: "https://marvelrivalsapi.com/api/v1/"
+      BASE_URL: "https://mrapi.org/api/"
       API_TOKEN: ${{ secrets.API_KEY_RIVALS }}
-      HEROES_URL: "heroes"
+      HEROES_URL: "heroes-stats/pc"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -38,11 +38,7 @@ jobs:
       - name: Fetch Marvel Rivals Hero Stats
         run: |
           curl -X GET "${BASE_URL}${HEROES_URL}" \
-          -H "x-api-key: ${API_TOKEN}" \
           -o data/latest_heroes.json
-
-      - name: Merge with historical hero data
-        run: python merge_hero_stats.py
 
       - name: Commit and push changes
         run: |
