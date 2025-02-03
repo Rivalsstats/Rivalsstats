@@ -1,17 +1,11 @@
+import csv
 import json
 import os
 from datetime import datetime
 
 # File paths
-historical_file = "data/historical/ranks_historical.json"
+historical_file = "data/historical/ranks_historical.csv"
 latest_file = "data/latest/latest_ranks.json"
-
-# Load existing historical data
-if os.path.exists(historical_file):
-    with open(historical_file, "r", encoding="utf-8") as f:
-        historical_data = json.load(f)
-else:
-    historical_data = {}
 
 # Load latest rank data
 with open(latest_file, "r", encoding="utf-8") as f:
@@ -20,30 +14,24 @@ with open(latest_file, "r", encoding="utf-8") as f:
 # Get current timestamp
 timestamp = datetime.utcnow().isoformat()
 
-# Merge logic
-for rank, values in latest_data.items():
-    if rank not in historical_data:
-        historical_data[rank] = {}
+# Check if historical CSV exists (to determine if headers are needed)
+file_exists = os.path.isfile(historical_file)
 
-    for key, value in values.items():
-        if key == "image":
-            historical_data[rank]["image"] = value
-            continue
+# Open CSV file in append mode
+with open(historical_file, "a", encoding="utf-8", newline="") as f:
+    writer = csv.writer(f)
 
-        if key not in historical_data[rank]:
-            historical_data[rank][key] = {"current": value, "historic": []}
+    # Write headers only if the file is new
+    if not file_exists:
+        writer.writerow(["timestamp", "rank", "division", "population_count"])
 
-        # Always append a new timestamped entry, even if the value is unchanged
-        historical_data[rank][key]["historic"].append({
-            "timestamp": timestamp,
-            "value": value
-        })
+    # Convert JSON structure to CSV rows
+    for rank, values in latest_data.items():
+        for key, value in values.items():
+            if key == "image":
+                continue  # Skip images
 
-        # Update the current population count
-        historical_data[rank][key]["current"] = value
+            # Write a new row for each rank/division entry
+            writer.writerow([timestamp, rank, key, value])
 
-# Save updated historical data
-with open(historical_file, "w", encoding="utf-8") as f:
-    json.dump(historical_data, f, indent=4, ensure_ascii=False)
-
-print(f"✅ Updated rank population history.")
+print(f"✅ Updated rank population history (saved to {historical_file}).")
