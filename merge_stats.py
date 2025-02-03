@@ -4,7 +4,7 @@ import csv
 from datetime import datetime
 
 # Get the username dynamically from the environment variable
-user_to_check = os.getenv("USER_TO_CHECK", "default_user")  # Fallback to "default_user" if not set
+user_to_check = os.getenv("USER_TO_CHECK", "Jodsderechte")  # Default to the given user
 
 # File paths (dynamic based on USER_TO_CHECK)
 latest_file = f"data/latest/users/{user_to_check}.json"
@@ -42,44 +42,65 @@ def append_to_csv(data, filename, headers, row_formatter):
 
 # Extract and append overall stats history
 if "overall_stats" in latest_data:
-    overall_stats = []
-    for category, stats in latest_data["overall_stats"].items():
-        if isinstance(stats, dict):
-            for stat, value in stats.items():
-                overall_stats.append([datetime.utcnow().isoformat(), category, stat, value])
-    append_to_csv(overall_stats, stats_csv, ["timestamp", "category", "stat", "value"], lambda x: x)
+    timestamp = datetime.utcnow().isoformat()
+    overall_stats = [
+        [
+            timestamp,
+            latest_data["overall_stats"]["ranked"].get("total_assists", 0),
+            latest_data["overall_stats"]["ranked"].get("total_deaths", 0),
+            latest_data["overall_stats"]["ranked"].get("total_kills", 0),
+            latest_data["overall_stats"]["ranked"].get("total_time_played", "0"),
+            latest_data["overall_stats"].get("ranked_matches", 0),
+            latest_data["overall_stats"].get("ranked_matches_wins", 0),
+            latest_data["overall_stats"].get("total_matches", 0),
+            latest_data["overall_stats"].get("total_wins", 0),
+            latest_data["overall_stats"]["unranked"].get("total_assists", 0),
+            latest_data["overall_stats"]["unranked"].get("total_deaths", 0),
+            latest_data["overall_stats"]["unranked"].get("total_kills", 0),
+            latest_data["overall_stats"]["unranked"].get("total_time_played", "0"),
+            latest_data["overall_stats"].get("unranked_matches", 0),
+            latest_data["overall_stats"].get("unranked_matches_wins", 0)
+        ]
+    ]
+    
+    append_to_csv(overall_stats, stats_csv, [
+        "timestamp", "ranked_assists", "ranked_deaths", "ranked_kills", "ranked_time_played", 
+        "ranked_matches", "ranked_matches_wins", "total_matches", "total_wins",
+        "unranked_assists", "unranked_deaths", "unranked_kills", "unranked_time_played", 
+        "unranked_matches", "unranked_matches_wins"
+    ], lambda x: x)
 
 # Extract and append rank history
 if "rank_history" in latest_data:
-    rank_history = [[entry["match_time_stamp"], entry["level_progression"]["from"], entry["level_progression"]["to"],
-                     entry["score_progression"]["add_score"], entry["score_progression"]["total_score"]] 
-                    for entry in latest_data["rank_history"]]
-    append_to_csv(rank_history, rank_csv, ["timestamp", "from_level", "to_level", "score_added", "total_score"], lambda x: x)
+    rank_history = [
+        [
+            entry["match_time_stamp"], entry["level_progression"]["from"], entry["level_progression"]["to"],
+            entry["score_progression"]["add_score"], entry["score_progression"]["total_score"]
+        ]
+        for entry in latest_data["rank_history"]
+    ]
+    append_to_csv(rank_csv, rank_history, ["timestamp", "from_level", "to_level", "score_added", "total_score"], lambda x: x)
 
 # Extract and append match history
 if "match_history" in latest_data:
-    match_history = [[entry["match_uid"], entry["match_time_stamp"], entry["map_id"], entry["duration"], entry["season"],
-                      entry["winner_side"], entry["player_performance"]["hero_id"], entry["player_performance"]["kills"],
-                      entry["player_performance"]["deaths"], entry["player_performance"]["assists"],
-                      entry["player_performance"]["score_change"], entry["player_performance"]["new_score"]] 
-                     for entry in latest_data["match_history"]]
-    append_to_csv(match_history, match_csv, ["match_uid", "timestamp", "map_id", "duration", "season", "winner_side", "hero_id", "kills", "deaths", "assists", "score_change", "new_score"], lambda x: x)
+    match_history = [
+        (
+            entry["match_uid"], entry["map_id"], entry["duration"], entry["season"], entry["winner_side"],
+            entry["mvp_uid"], entry["svp_uid"], entry["match_time_stamp"], entry["play_mode_id"], entry["game_mode_id"],
+            entry["score_info"].get("0", 0), entry["score_info"].get("1", 0),
+            entry["player_performance"]["player_uid"], entry["player_performance"]["hero_id"],
+            entry["player_performance"]["kills"], entry["player_performance"]["deaths"],
+            entry["player_performance"]["assists"], entry["player_performance"]["is_win"],
+            entry["player_performance"]["has_escaped"], entry["player_performance"]["camp"],
+            entry["player_performance"]["score_change"], entry["player_performance"]["level"],
+            entry["player_performance"]["new_level"], entry["player_performance"]["new_score"]
+        )
+        for entry in latest_data["match_history"]
+    ]
+    append_to_csv(match_history, match_csv, [
+        "match_uid", "map_id", "duration", "season", "winner_side", "mvp_uid", "svp_uid", "timestamp", 
+        "play_mode_id", "game_mode_id", "score_team_0", "score_team_1", "player_uid", "hero_id", "kills", "deaths", 
+        "assists", "is_win", "has_escaped", "camp", "score_change", "level", "new_level", "new_score"
+    ], lambda x: x)
 
-# Extract and append hero matchup history
-if "hero_matchups" in latest_data:
-    hero_matchups = [[datetime.utcnow().isoformat(), matchup["hero_id"], matchup["matches"], matchup["wins"]]
-                     for matchup in latest_data["hero_matchups"]]
-    append_to_csv(hero_matchups, hero_csv, ["timestamp", "hero_id", "matches", "wins"], lambda x: x)
-
-# Extract and append teammate history
-if "team_mates" in latest_data:
-    team_mates = [[datetime.utcnow().isoformat(), teammate["player_info"]["player_uid"], teammate["matches"], teammate["wins"]]
-                  for teammate in latest_data["team_mates"]]
-    append_to_csv(team_mates, teammates_csv, ["timestamp", "player_uid", "matches", "wins"], lambda x: x)
-
-print(f"Latest data appended to CSV files:")
-print(f"- Stats: {stats_csv}")
-print(f"- Rank History: {rank_csv}")
-print(f"- Match History: {match_csv}")
-print(f"- Hero Matchups: {hero_csv}")
-print(f"- Teammates: {teammates_csv}")
+print("Latest data appended to CSV files.")
