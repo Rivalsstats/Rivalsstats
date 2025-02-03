@@ -1,7 +1,7 @@
 import json
 import os
 import csv
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Get the username dynamically from the environment variable
 user_to_check = os.getenv("USER_TO_CHECK", "Jodsderechte")  # Default to the given user
@@ -42,7 +42,7 @@ def append_to_csv(data, filename, headers, row_formatter):
 
 # Extract and append overall stats history
 if "overall_stats" in latest_data:
-    timestamp = datetime.utcnow().isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
     overall_stats = [
         [
             timestamp,
