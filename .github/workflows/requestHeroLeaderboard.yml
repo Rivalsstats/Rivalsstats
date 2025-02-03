@@ -33,6 +33,7 @@ jobs:
           fi
           HEROES=$(jq -r '.[].slug' data/latest/heroes/all_heroes.json)
           echo "$HEROES" > heroes_list.txt
+          echo "$HEROES"
       
 
       - name: Fetch Data for All Heroes
