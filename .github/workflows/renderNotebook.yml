@@ -127,23 +127,23 @@ jobs:
             fi 
       # after rendering we want to commit
       # if we are on main create branch
-      - name: Create new branch for PR
-        if: github.ref == 'refs/heads/main'
-        run: |
-            BRANCH_NAME="rmarkdown-update"
-            git add ${{ env.FILE_PATH }}
-            git commit -m 'Re-build Rmarkdown files' || echo "No changes to commit"
-            git checkout -B $BRANCH_NAME  # Create or switch to branch
+      #- name: Create new branch for PR
+      #  if: github.ref == 'refs/heads/main'
+      #  run: |
+      #      BRANCH_NAME="rmarkdown-update"
+      #      git add ${{ env.FILE_PATH }}
+      #      git commit -m 'Re-build Rmarkdown files' || echo "No changes to commit"
+      #      git checkout -B $BRANCH_NAME  # Create or switch to branch
             # Check if the branch already exists on the remote and push
-            git push origin $BRANCH_NAME --force
+      #      git push origin $BRANCH_NAME --force
       # if we are on main create pr
-      - name: create pull request
-        if: github.ref == 'refs/heads/main'
-        run: |
-            gh pr create -B refs/heads/main --title 'Re-build Rmarkdown files' --body 'Created by Github action'
+      #- name: create pull request
+      #  if: github.ref == 'refs/heads/main'
+      #  run: |
+      #      gh pr create -B refs/heads/main --title 'Re-build Rmarkdown files' --body 'Created by Github action'
         #if we are not on main commit
       - name: commit results  
-        if: github.ref != 'refs/heads/main'
+        #if: github.ref != 'refs/heads/main'
         run: | 
             TARGET_BRANCH=${GITHUB_HEAD_REF}
             git add ${{ env.FILE_PATH }}
