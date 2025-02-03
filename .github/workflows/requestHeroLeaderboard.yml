@@ -36,7 +36,6 @@ jobs:
     needs: get_heroes
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 1
       matrix:
         hero_slug: ${{ fromJson(needs.get_heroes.outputs.heroes) }}
     env:
