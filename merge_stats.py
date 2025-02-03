@@ -18,7 +18,6 @@ teammates_csv = f"data/historical/{user_to_check}/teammates.csv"
 # Load latest data
 if os.path.exists(latest_file):
     with open(latest_file, "r", encoding="utf-8") as f:
-        print(latest_file)
         latest_data = json.load(f)
 else:
     print("No latest data available.")
@@ -27,6 +26,27 @@ else:
 os.makedirs(f"data/historical/{user_to_check}/", exist_ok=True)
 
 def append_to_csv(data, filename, headers, row_formatter):
+    """ Append new data to CSV, ensuring no duplicates. """
+    file_exists = os.path.exists(filename)
+    
+    with open(filename, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(headers)  # Write headers if file is new
+    
+    existing_rows = set()
+    if file_exists:
+        with open(filename, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            next(reader, None)  # Skip header
+            existing_rows = {tuple(row) for row in reader}
+    
+    new_rows = set(tuple(row_formatter(entry)) for entry in data) - existing_rows
+    if new_rows:
+        with open(filename, "a", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            for row in new_rows:
+                writer.writerow(row)
     """ Append new data to CSV, ensuring no duplicates. """
     existing_rows = set()
     if os.path.exists(filename):
@@ -81,7 +101,7 @@ if "rank_history" in latest_data:
         ]
         for entry in latest_data["rank_history"]
     ]
-    append_to_csv(rank_csv, rank_history, ["timestamp", "from_level", "to_level", "score_added", "total_score"], lambda x: x)
+    append_to_csv(rank_history, rank_csv, ["timestamp", "from_level", "to_level", "score_added", "total_score"], lambda x: x)
 
 # Extract and append match history
 if "match_history" in latest_data:
@@ -104,5 +124,23 @@ if "match_history" in latest_data:
         "play_mode_id", "game_mode_id", "score_team_0", "score_team_1", "player_uid", "hero_id", "kills", "deaths", 
         "assists", "is_win", "has_escaped", "camp", "score_change", "level", "new_level", "new_score"
     ], lambda x: x)
+
+# Extract and append hero matchup history
+if "hero_matchups" in latest_data:
+    hero_matchups = [
+        [timestamp, entry["hero_id"], entry["matches"], entry["wins"]]
+        for entry in latest_data["hero_matchups"]
+    ]
+    append_to_csv(hero_matchups, hero_csv, ["timestamp", "hero_id", "matches", "wins"], lambda x: x)
+
+# Extract and append teammate history
+if "team_mates" in latest_data:
+    team_mates = [
+        [timestamp, entry["player_info"]["player_uid"], entry["matches"], entry["wins"]]
+        for entry in latest_data["team_mates"]
+    ]
+    append_to_csv(team_mates, teammates_csv, ["timestamp", "player_uid", "matches", "wins"], lambda x: x)
+
+
 
 print("Latest data appended to CSV files.")
