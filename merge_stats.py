@@ -17,6 +17,8 @@ teammates_csv = f"data/historical/{user_to_check}/teammates.csv"
 # Load latest data
 if os.path.exists(latest_file):
     with open(latest_file, "r", encoding="utf-8") as f:
+        print(latest_file)
+        print(f)
         latest_data = json.load(f)
 else:
     print("No latest data available.")
