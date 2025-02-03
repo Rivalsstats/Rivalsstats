@@ -20,7 +20,7 @@ jobs:
     env:
       BASE_URL: "https://marvelrivalsapi.com/api/v1/"
       API_TOKEN: ${{ secrets.API_KEY_RIVALS }}
-      STATS_URL: "stats?username="
+      STATS_URL: "player?username"
       USER_TO_CHECK: "Jodsderechte"
       HEROES_URL: "heroes"
 
