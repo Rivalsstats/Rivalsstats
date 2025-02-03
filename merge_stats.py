@@ -1,6 +1,7 @@
 import json
 import os
 import csv
+import sys
 from datetime import datetime, timezone
 
 # Get the username dynamically from the environment variable
