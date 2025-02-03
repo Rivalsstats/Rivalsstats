@@ -2,8 +2,8 @@ import json
 import os
 import sys
 import csv
-import time
-import requests
+import asyncio
+import aiohttp
 from datetime import datetime
 
 # Get hero slug from GitHub Actions job matrix
@@ -87,19 +87,28 @@ leaderboard_headers = [
 ]
 ensure_csv_with_headers(leaderboard_csv, leaderboard_headers)
 
-# Fetch player stats from API
-def fetch_player_stats(player_id):
+# Async function to fetch player stats
+async def fetch_player_stats(session, player_id):
     url = f"https://mrapi.org/api/player/{player_id}"
     try:
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            print(f"⚠️ Error: API request failed for player {player_id} (Status {response.status_code})")
-            return None
-    except requests.RequestException as e:
+        async with session.get(url, timeout=5) as response:
+            if response.status == 200:
+                return await response.json()
+            else:
+                print(f"⚠️ Error: API request failed for player {player_id} (Status {response.status})")
+                return None
+    except Exception as e:
         print(f"⚠️ Error: API request failed for player {player_id} ({e})")
         return None
+
+# Async function to fetch all player stats in parallel
+async def fetch_all_players(leaderboard):
+    async with aiohttp.ClientSession() as session:
+        tasks = [fetch_player_stats(session, player["player_id"]) for player in leaderboard]
+        return await asyncio.gather(*tasks)
+
+# Fetch all player stats asynchronously
+player_stats_list = asyncio.run(fetch_all_players(latest_leaderboard))
 
 # Save Hero Meta Data (Win Rate & Pick Rate)
 with open(meta_csv, "a", newline="", encoding="utf-8") as f:
@@ -119,10 +128,7 @@ with open(meta_csv, "a", newline="", encoding="utf-8") as f:
 with open(leaderboard_csv, "a", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     
-    for player in latest_leaderboard:
-        player_stats = fetch_player_stats(player["player_id"])
-        time.sleep(1)  # Avoid API rate limiting
-
+    for player, player_stats in zip(latest_leaderboard, player_stats_list):
         # Extract hero-specific stats
         ranked_stats = {}
         matchup_stats = {}
