@@ -2,21 +2,26 @@ name: Update Marvel Rivals Hero Stats & Leaderboards
 
 on:
   schedule:
-    - cron: "15 0 * * *"  # Runs once per day
+    - cron: "0 1 * * *"  # Runs once per day
   workflow_dispatch:  # Allows manual execution
 
 jobs:
-  get_heroes:
+  update_hero_data:
     runs-on: ubuntu-latest
-    outputs:
-      heroes: ${{ steps.extract_heroes.outputs.heroes }}
+    env:
+      BASE_URL: "https://mrapi.org/api/"
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: pip install aiohttp
+      
       - name: Ensure heroes directory exists
         run: mkdir -p data/heroes
+
       - name: Fetch All Heroes
         run: |
-          curl -X GET "https://mrapi.org/api/heroes" -o data/latest/heroes/all_heroes.json
+          curl -X GET "${BASE_URL}heroes" -o data/latest/heroes/all_heroes.json
           cat data/latest/heroes/all_heroes.json  # Print response for debugging
 
       - name: Extract Hero Slugs
@@ -24,46 +29,25 @@ jobs:
         run: |
           if [ ! -s data/latest/heroes/all_heroes.json ]; then
             echo "⚠️ No heroes data found!"
-            echo "::set-output name=heroes::[]"
             exit 1
           fi
-          HEROES=$(jq -c '[.[] | .slug]' data/latest/heroes/all_heroes.json)
-          echo "Extracted HEROES: $HEROES"  # Debugging output
-          echo "heroes=$HEROES" >> $GITHUB_ENV
-          echo "::set-output name=heroes::$HEROES"
+          HEROES=$(jq -r '.[].slug' data/latest/heroes/all_heroes.json)
+          echo "$HEROES" > heroes_list.txt
+      
 
-  fetch_hero_data:
-    needs: get_heroes
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      matrix:
-        hero_slug: ${{ fromJson(needs.get_heroes.outputs.heroes) }}
-    env:
-      BASE_URL: "https://mrapi.org/api/"
-    steps:
-      - uses: actions/checkout@v4
-      - name: pull changes from other matrix job
-        run: | 
-          git pull
-      - name: Fetch Hero Stats
+      - name: Fetch Data for All Heroes
         run: |
-          curl -X GET "${BASE_URL}heroes" -o data/latest/heroes/latest_heroes.json
-
-      - name: Fetch Leaderboard for Hero
-        run: |
-          curl -X GET "${BASE_URL}leaderboard/${{ matrix.hero_slug }}" -o data/latest/heroes/latest_leaderboard_${{ matrix.hero_slug }}.json
-
-      - name: Merge Hero Data
-        run: python merge_hero_leaderboard.py ${{ matrix.hero_slug }}
+          while read -r HERO; do
+            echo "Processing: $HERO"
+            curl -X GET "${BASE_URL}leaderboard/$HERO" -o "data/latest/heroes/latest_leaderboard_$HERO.json"
+            python merge_hero_leaderboard.py "$HERO"
+          done < heroes_list.txt
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add data/
-          git commit -m "Updated ${{ matrix.hero_slug }}" || echo "No changes to commit"
-          git pull || echo "no changes to pull"
+          git commit -m "Updated all heroes" || echo "No changes to commit"
+          git pull --rebase || echo "No changes to pull"
           git push || echo "No changes to push"
-
-     
