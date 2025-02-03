@@ -11,13 +11,14 @@ hero_slug = sys.argv[1]
 
 # File paths
 historical_json = f"data/historical/heroes/{hero_slug}.json"
-meta_csv = f"data/historical/heroes/meta_history_{hero_slug}.csv"
-leaderboard_csv = f"data/historical/heroes/leaderboard_history_{hero_slug}.csv"
+meta_csv = f"data/historical/heroes/meta/{hero_slug}.csv"
+leaderboard_csv = f"data/historical/heroes/leaderboard/{hero_slug}.csv"
 latest_heroes_file = "data/latest/heroes/latest_heroes.json"
 latest_leaderboard_file = f"data/latest/heroes/latest_leaderboard_{hero_slug}.json"
 
 # Ensure historical directory exists
-os.makedirs("data/historical/heroes", exist_ok=True)
+os.makedirs("data/historical/heroes/meta", exist_ok=True)
+os.makedirs("data/historical/heroes/leaderboard", exist_ok=True)
 
 # Load latest hero data
 if os.path.exists(latest_heroes_file):
