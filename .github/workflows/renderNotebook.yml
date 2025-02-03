@@ -1,0 +1,153 @@
+# description of this workflow, can be anything you want
+name: RenderNotebook
+
+# we need to let GitHub know _when_ we want to run this workflow, typically only when we create a new tag.
+# this will target pushes to the master branch and pull request.
+# this part can be heavily customized to your liking, like targeting only tags that match a certain word,
+# other branches or even pullrequests.
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'MarvelRivalsData.html'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'MarvelRivalsData.html'  
+  workflow_dispatch: 
+
+# a workflow is built up as jobs, and within these jobs are steps
+jobs:
+
+  # "buildNotebook" is a job, you can name it anything you want
+  buildNotebook:
+
+    # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
+    runs-on: ubuntu-latest
+
+    # specify the environment variables used by the packager, matching the secrets from the project on GitHub
+    env:
+      GH_TOKEN: ${{ github.token }}
+      FILE_PATH: 'MarvelRivalsData.html'
+
+    # "steps" holds a list of all the steps needed to package and release our AddOn
+    steps:
+
+      # we first have to clone the project, this is a required step
+      - name: Clone project
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # gets git history for changelogs
+      - name: Set up pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+      # to run any r related things we need to first install it
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+      #plotly needs curl and curl needs libcurl so we install that  
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev pkg-config libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+
+        
+      - name: Install R systemfonts package
+        run: |
+            Rscript -e 'if (!requireNamespace("systemfonts", quietly = TRUE)) install.packages("systemfonts")'
+      #setup renv    
+      - uses: r-lib/actions/setup-renv@v2
+      - name: prepare git
+        run: | 
+            git config --local user.name "$GITHUB_ACTOR"
+            git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+            git config --global --add --bool push.autoSetupRemote true
+            TARGET_BRANCH=${GITHUB_HEAD_REF}
+            if ! git show-ref --quiet refs/heads/$TARGET_BRANCH; then
+                echo "Branch $TARGET_BRANCH does not exist locally, checking out from remote"
+                git checkout $TARGET_BRANCH
+            else
+                echo "Branch $TARGET_BRANCH exists locally"
+                git checkout $TARGET_BRANCH || git checkout -b $TARGET_BRANCH
+            fi
+            git pull 
+      # since packages in the rmd can change depending on what we're doing we want to detect them and print them (for debugging)
+      - name: Detect .Rmd files and log detected packages
+        run: |
+            ERROR_LOG=".github/detected_packages_log.txt"
+            touch $ERROR_LOG
+            
+            Rscript -e '
+              rmd_files <- list.files(pattern = "\\.Rmd$", recursive = TRUE)
+              if (length(rmd_files) == 0) {
+                cat("No .Rmd files found.\n")
+                writeLines("No .Rmd files found.", con="'$ERROR_LOG'")
+                quit(status = 1)
+              }
+              pkgs <- unique(unlist(lapply(rmd_files, function(f) {
+                lines <- readLines(f)
+                matches <- regmatches(lines, gregexpr("library\\(([^)]+)\\)|require\\(([^)]+)\\)", lines))
+                unlist(lapply(matches, function(x) gsub(".*\\(([^)]+)\\).*", "\\1", x)))
+              })))
+              if (length(pkgs) == 0) {
+                cat("No packages detected in .Rmd files.\n")
+                writeLines("No packages detected in .Rmd files.", con="'$ERROR_LOG'")
+                quit(status = 1)
+              }
+              writeLines(paste("Detected packages:", pkgs), con="'$ERROR_LOG'")
+            '
+      # this renders the markdown file as html and github_document and has some error handling to give more info if it fails
+      - name: Render Rmarkdown files
+        run: |
+            RMD_PATH=($(find . -type f -name '*.Rmd' -not -path './renv/*'))
+            if [ -z "${RMD_PATH[*]}" ]; then
+                echo "No .Rmd files to render."
+            else
+                echo "Rendering the following .Rmd files: ${RMD_PATH[*]}"
+
+                # Initialize error tracking
+                ERROR_LOG=".github/error_log.txt"
+                touch $ERROR_LOG
+              
+                # Run Rmarkdown render and capture errors if they occur
+                {
+                    Rscript -e 'for (f in commandArgs(TRUE)) {
+                        if (file.exists(f)) {
+                            tryCatch({
+                                rmarkdown::render(f, output_format = c("html_document"))
+                            }, error = function(e) {
+                                cat("Error in rendering:", f, "\n", conditionMessage(e), "\n", file=stderr())
+                                writeLines(paste("Error in rendering:", f, conditionMessage(e)), con="'$ERROR_LOG'")
+                                quit(status = 1)
+                            })
+                        }
+                    }' ${RMD_PATH[*]}
+                } || {
+                    echo "RMarkdown rendering failed. Check $ERROR_LOG for details." 
+                    exit 1
+                }
+            fi 
+      # after rendering we want to commit
+      # if we are on main create branch
+      - name: Create new branch for PR
+        if: github.ref == 'refs/heads/main'
+        run: |
+            BRANCH_NAME="rmarkdown-update"
+            git add ${{ env.FILE_PATH }}
+            git commit -m 'Re-build Rmarkdown files' || echo "No changes to commit"
+            git checkout -B $BRANCH_NAME  # Create or switch to branch
+            # Check if the branch already exists on the remote and push
+            git push origin $BRANCH_NAME --force
+      # if we are on main create pr
+      - name: create pull request
+        if: github.ref == 'refs/heads/main'
+        run: |
+            gh pr create -B refs/heads/main --title 'Re-build Rmarkdown files' --body 'Created by Github action'
+        #if we are not on main commit
+      - name: commit results  
+        if: github.ref != 'refs/heads/main'
+        run: | 
+            TARGET_BRANCH=${GITHUB_HEAD_REF}
+            git add ${{ env.FILE_PATH }}
+            git commit -m 'Re-build Rmarkdown files' || echo "No changes to commit"
+            git push origin || echo "No changes to push"  
+    
+      

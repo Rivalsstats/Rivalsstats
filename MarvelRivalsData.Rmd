@@ -1,0 +1,273 @@
+---
+title: "MarvelRivalsData"
+author: "Jods"
+date: "2025-02-03"
+output:
+  html_document:
+    includes:
+      after_body: footer.html
+    theme: cosmo
+    self_contained: true
+    code_folding: hide
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+library('readr')
+library('dplyr')
+library('plotly')
+library('lubridate')
+library('jsonlite')
+library('knitr')
+library('DT')
+```
+
+
+
+```{r rankSetup}
+ranks <- read.csv("data/historical/ranks_historical.csv")
+
+# Define a custom color palette for each rank
+rank_colors <- c(
+  "bronze" = "#cd7f32",
+  "bronze - 1" = "#cd7f32",
+  "bronze - 2" = "#cd7f32",
+  "bronze - 3" = "#cd7f32",
+  "silver" = "#c0c0c0",
+  "silver - 1" = "#c0c0c0",
+  "silver - 2" = "#c0c0c0",
+  "silver - 3" = "#c0c0c0",
+  "gold" = "#ffd700",
+  "gold - 1" = "#ffd700",
+  "gold - 2" = "#ffd700",
+  "gold - 3" = "#ffd700",
+  "platinum" = "#e5e4e2",
+  "platinum - 1" = "#e5e4e2",
+  "platinum - 2" = "#e5e4e2",
+  "platinum - 3" = "#e5e4e2",
+  "diamond" = "#b9f2ff",
+  "diamond - 1" = "#b9f2ff",
+  "diamond - 2" = "#b9f2ff",
+  "diamond - 3" = "#b9f2ff",
+  "grandmaster" = "#d3af37",
+  "grandmaster - 1" = "#d3af37",
+  "grandmaster - 2" = "#d3af37",
+  "grandmaster - 3" = "#d3af37",
+  "celestial" = "#8a2be2",
+  "celestial - 1" = "#8a2be2",
+  "celestial - 2" = "#8a2be2",
+  "celestial - 3" = "#8a2be2",
+  "eternity - total" = "#ff1493",
+  "one_above_all - total" = "#ff4500",
+  "eternity" = "#ff1493",
+  "one_above_all" = "#ff4500"
+)
+
+custom_rank_order <- c(  "bronze",
+  "bronze - 3",
+  "bronze - 2",
+  "bronze - 1",
+  "silver",
+  "silver - 3",
+  "silver - 2",
+  "silver - 1",
+  "gold",
+  "gold - 3",
+  "gold - 2",
+  "gold - 1",
+  "platinum",
+  "platinum - 3",
+  "platinum - 2",
+  "platinum - 1",
+  "diamond",
+  "diamond - 3",
+  "diamond - 2",
+  "diamond - 1",
+  "grandmaster",
+  "grandmaster - 3",
+  "grandmaster - 2",
+  "grandmaster - 1",
+  "celestial",
+  "celestial - 3",
+  "celestial - 2",
+  "celestial - 1",
+  "eternity - total",
+  "one_above_all - total")
+
+latest_rank_data <- fromJSON("data/latest/latest_ranks.json")
+
+
+ranks <- ranks %>%
+  mutate(timestamp = ymd_hms(timestamp)) %>%
+  arrange(timestamp)  # Sort by timestamp
+# Convert timestamp column to a proper datetime format
+ranks$timestamp <- ymd_hms(ranks$timestamp)
+
+# Shorten timestamps for readability (e.g., removing seconds)
+ranks$short_timestamp <- format(ranks$timestamp, "%Y-%m-%d %H:%M")
+
+# Create a new column combining rank + division to distinguish lines
+ranks <- ranks %>%
+  mutate(rank_division = paste(rank, division, sep = " - "))
+
+ranks$rank_division <- factor(ranks$rank_division, levels = custom_rank_order)
+
+ranks_total <- ranks %>%
+  group_by(timestamp, rank) %>%
+  summarise(total_population = sum(population_count), .groups = "drop")
+ranks_total$rank <- factor(ranks_total$rank, levels = custom_rank_order)
+```
+
+```{r RankHistory}
+
+# Create the plot
+fig <- plot_ly(ranks, 
+               x = ~timestamp,  
+               y = ~population_count, 
+               color = ~rank_division,  # Differentiate by rank + division
+               colors = rank_colors,
+               type = 'scatter', 
+               mode = 'lines+markers',
+               text = ~paste("Rank:", rank, "<br>Division:", division, "<br>Count:", population_count),
+               hoverinfo = "text")
+
+fig <- fig %>%
+  layout(title = "Population Count Over Time (by Division)",
+         xaxis = list(title = "Timestamp", tickangle = -45),
+         yaxis = list(title = "Population Count"),
+         legend = list(title = list(text = "Rank - Division")))
+
+fig
+
+```
+```{r RankHistoryCombined}
+
+fig_total <- plot_ly(ranks_total, 
+                     x = ~timestamp,  
+                     y = ~total_population, 
+                     color = ~rank,
+                     colors = rank_colors,
+                     type = 'scatter', 
+                     mode = 'lines+markers',
+                     text = ~paste("Rank:", rank, "<br>Total Count:", total_population),
+                     hoverinfo = "text")
+
+fig_total <- fig_total %>%
+  layout(title = "Total Population Count Over Time (Summed by Rank)",
+         xaxis = list(title = "Timestamp", tickangle = -45),
+         yaxis = list(title = "Total Population Count"),
+         legend = list(title = list(text = "Rank")))
+
+fig_total
+```
+```{r rankPopulation}
+
+# Example dataset (replace with your actual data)
+rank_population <- ranks %>%
+  group_by(rank_division) %>%
+  slice_max(timestamp, with_ties = FALSE) %>% 
+  rename(population = population_count) %>%
+  select(-timestamp, -short_timestamp) %>%
+  ungroup()
+
+# Total players (including Bronze 3)
+total_players_including <- sum(rank_population$population)
+
+# Total players (excluding Bronze 3)
+total_players_excluding <- sum(rank_population$population[rank_population$rank_division != "bronze - 3"])
+
+# Compute percentages
+rank_population <- rank_population %>% 
+  mutate(
+    percent_of_players_in_rank = round((population / total_players_including) * 100,2),
+    percent_of_players_in_rank_excluding = if_else(rank_division == "bronze - 3", 0,round((population / total_players_excluding) * 100,2)),
+  ) 
+rank_population <- rank_population %>% 
+  mutate(
+    percent_below_rank_including = round(cumsum(percent_of_players_in_rank)-percent_of_players_in_rank,2),  # Reverse cumulative sum
+    percent_below_rank_excluding =  round(cumsum(percent_of_players_in_rank_excluding)-percent_of_players_in_rank_excluding,2),
+  ) 
+
+
+```
+```{r AveragePlayer}
+get_rank_image <- function(rank_division) {
+  # Split the rank_division (e.g., "bronze - 1" to "bronze" and "1")
+  split_rank <- strsplit(rank_division, " - ")
+  rank <- split_rank[[1]][1]  # Get the rank (e.g., "bronze")
+  
+  # Return the corresponding image URL from the JSON data
+  return(latest_rank_data[[rank]]$image)
+}
+# Create a numeric rank system for easier calculations
+rank_to_numeric <- c("bronze - 3" = 1, "bronze - 2" = 2, "bronze - 1" = 3,
+                     "silver - 3" = 4, "silver - 2" = 5, "silver - 1" = 6,
+                     "gold - 3" = 7, "gold - 2" = 8, "gold - 1" = 9,
+                     "platinum - 3" = 10, "platinum - 2" = 11, "platinum - 1" = 12,
+                     "diamond - 3" = 13, "diamond - 2" = 14, "diamond - 1" = 15,
+                     "grandmaster - 3" = 16, "grandmaster - 2" = 17, "grandmaster - 1" = 18,
+                     "celestial - 3" = 19, "celestial - 2" = 20, "celestial - 1" = 21,
+                     "eternity - total" = 22, "one_above_all - total" = 23)
+
+# Apply the numeric rank conversion
+rank_population <- rank_population %>%
+  mutate(rank_numeric = rank_to_numeric[as.character(rank_division)])
+
+# Weighted average rank (including unranked players)
+average_rank_including <- sum(rank_population$rank_numeric * rank_population$population) / total_players_including
+
+# Weighted average rank (excluding unranked players)
+rank_population_excluding_unranked <- rank_population %>%
+  filter(rank_division != "bronze - 3")
+
+average_rank_excluding <- sum(rank_population_excluding_unranked$rank_numeric * rank_population_excluding_unranked$population) / total_players_excluding
+
+# Convert numeric ranks back to rank names
+numeric_to_rank <- names(rank_to_numeric)
+average_rank_including_name <- numeric_to_rank[floor(average_rank_including)] 
+average_rank_including_points <- round((average_rank_including - floor(average_rank_including))*100)
+average_rank_excluding_name <- numeric_to_rank[floor(average_rank_excluding)]
+average_rank_excluding_points <- round((average_rank_excluding - floor(average_rank_excluding))*100)
+
+rank_image <- get_rank_image(average_rank_including_name)
+rank_image_ex <- get_rank_image(average_rank_excluding_name)
+# Print the results
+
+```
+# Average Rank
+<img src="`r rank_image`" alt="`r average_rank_including_name` Image" width="50px" />
+`r average_rank_including_name` | `r average_rank_including_points` lp (including bronze 3/unranked)
+
+<img src="`r rank_image_ex`" alt="`r average_rank_excluding_name` Image" width="50px" />
+`r average_rank_excluding_name` | `r average_rank_excluding_points` lp (excluding bronze 3/unranked)
+
+
+```{r rankTable}
+
+rank_population$rank <- sapply(rank_population$rank, get_rank_image)
+
+# Convert image URLs to HTML <img> tags
+rank_population$rank <- paste0('<img src="', rank_population$rank, '" height="30px">')
+
+
+rank_population <- rank_population %>% 
+  select(-percent_of_players_in_rank_excluding) %>%
+  rename("% in Rank" = percent_of_players_in_rank,
+         "% below (with unranked)" = percent_below_rank_including,
+         "% below (w/o unranked)" = percent_below_rank_excluding
+         )
+
+# Print table
+datatable(rank_population, escape = FALSE,options = list(
+  pageLength = 25, autoWidth = TRUE,
+  columnDefs = list(
+    list(targets = c(4, 8), visible = FALSE)  # Adjust these numbers based on step 1
+  )
+  )
+) %>%
+  formatStyle(
+    columns = names(rank_population),  # Apply to all columns
+    `text-align` = "center"  # Center-align text
+  ) 
+
+```
