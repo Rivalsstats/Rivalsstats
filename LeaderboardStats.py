@@ -3,6 +3,7 @@ import csv
 import os
 import datetime
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # API Endpoints
 LEADERBOARD_URL = "https://mrapi.org/api/leaderboard"
@@ -15,6 +16,11 @@ PLAYER_ENCOUNTERS_FILE = "player_encounters.csv"
 MATCHES_FILE = "matches.csv"
 MATCH_PLAYERS_FILE = "match_players.csv"
 
+# Constants
+MAX_PARALLEL_REQUESTS = 10  # Limit to avoid exceeding 500 API calls per minute
+API_DELAY = 60 / 500  # 500 requests per minute = 1.2 requests per second
+
+
 # Function to fetch JSON data with retries
 def fetch_data(url, retries=3, delay=2):
     for attempt in range(retries):
@@ -22,13 +28,24 @@ def fetch_data(url, retries=3, delay=2):
             response = requests.get(url)
             if response.status_code == 200:
                 return response.json()
+            print(f"Error {response.status_code} fetching {url}")
         except Exception as e:
-            print(f"Error fetching {url}: {e}")
+            print(f"Exception fetching {url}: {e}")
         time.sleep(delay)
     return None
 
+
 # Function to append new rows to a CSV file
-def append_csv(filename, fieldnames, data):
+def append_csv(filename, fieldnames, data, seen_entries=None):
+    """
+    Appends data to a CSV file but avoids duplicate entries if seen_entries is provided.
+    """
+    if seen_entries is not None:
+        entry_key = (data["timestamp"], data["player_uid"])
+        if entry_key in seen_entries:
+            return  # Skip duplicate
+        seen_entries.add(entry_key)
+
     file_exists = os.path.isfile(filename)
     with open(filename, mode="a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -36,64 +53,161 @@ def append_csv(filename, fieldnames, data):
             writer.writeheader()
         writer.writerow(data)
 
+
 # Fetch leaderboard
 def fetch_leaderboard():
+    print("Fetching leaderboard data...")
     leaderboard = fetch_data(LEADERBOARD_URL)
     if not leaderboard:
         print("Failed to fetch leaderboard.")
         return
 
     timestamp = datetime.datetime.utcnow().isoformat()
-    
+    seen_players = set()  # Track players to prevent duplicate entries
+
+    print(f"Processing {len(leaderboard)} players from leaderboard...")
+
+    players_to_fetch = []
+
     for player in leaderboard:
         player_id = player["player_id"]
-        rank_score = None
 
-        # Fetch player details
-        player_data = fetch_data(PLAYER_API_URL.format(player_id))
-        if player_data and not player_data.get("is_profile_private", True):
-            rank_score = player_data["stats"]["rank"]["score"]
-        
-        # Append leaderboard data
-        append_csv(LEADERBOARD_FILE, 
-            ["timestamp", "rank", "player_name", "rank_name", "score", "matches", "player_id", "rank_score"], 
-            {
-                "timestamp": timestamp,
-                "rank": player["rank"],
-                "player_name": player["player_name"],
-                "rank_name": player["rank_name"],
-                "score": player["score"],
-                "matches": player["matches"],
-                "player_id": player_id,
-                "rank_score": rank_score
-            }
-        )
+        # Queue player for fetching details
+        players_to_fetch.append((player_id, timestamp, player, seen_players))
 
-        # Process encountered players (teammates + match history)
-        if player_data and not player_data.get("is_profile_private", True):
-            process_encountered_players(player_data, timestamp)
+    # Fetch all player details in parallel
+    fetch_player_details_parallel(players_to_fetch)
 
-# Fetch and store encountered players
-def process_encountered_players(player_data, timestamp):
+
+# Parallel fetching of player details
+def fetch_player_details_parallel(players_to_fetch):
+    print(f"Fetching details for {len(players_to_fetch)} players...")
+
+    with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
+        future_to_player = {
+            executor.submit(fetch_and_process_player, player_id, timestamp, player_data, seen_players): player_id
+            for player_id, timestamp, player_data, seen_players in players_to_fetch
+        }
+
+        for future in as_completed(future_to_player):
+            player_id = future_to_player[future]
+            try:
+                future.result()
+            except Exception as e:
+                print(f"Error processing player {player_id}: {e}")
+            time.sleep(API_DELAY)  # Rate limit enforcement
+
+
+# Fetch and process a single player's data
+def fetch_and_process_player(player_id, timestamp, leaderboard_entry, seen_players):
+    player_data = fetch_data(PLAYER_API_URL.format(player_id))
+    if not player_data:
+        return
+
+    print(f"Processing player {player_data['player_name']} ({player_id})...")
+
+    # Extract rank score (if available)
+    rank_score = None
+    if not player_data.get("is_profile_private", True):
+        rank_score = player_data["stats"]["rank"]["score"]
+
+    # Save leaderboard data with rank score
+    append_csv(
+        LEADERBOARD_FILE,
+        ["timestamp", "rank", "player_name", "rank_name", "score", "matches", "player_id", "rank_score"],
+        {
+            "timestamp": timestamp,
+            "rank": leaderboard_entry["rank"],
+            "player_name": leaderboard_entry["player_name"],
+            "rank_name": leaderboard_entry["rank_name"],
+            "score": leaderboard_entry["score"],
+            "matches": leaderboard_entry["matches"],
+            "player_id": player_id,
+            "rank_score": rank_score
+        },
+    )
+
+    # Save encountered players (teammates + match opponents)
+    process_encountered_players(player_data, timestamp, seen_players)
+
+
+# Process teammates and match history
+def process_encountered_players(player_data, timestamp, seen_players):
+    if player_data.get("is_profile_private", True):
+        return
+
     player_id = player_data["player_uid"]
-    
+    players_to_fetch = []
+
     # Process teammates
     if "teammates" in player_data:
         for teammate in player_data["teammates"]:
-            append_csv(PLAYER_ENCOUNTERS_FILE, 
-                ["timestamp", "player_uid", "player_name"], 
-                {
-                    "timestamp": timestamp,
-                    "player_uid": teammate["player_uid"],
-                    "player_name": teammate["name"]
-                }
-            )
-    
+            players_to_fetch.append((teammate["player_uid"], timestamp, seen_players))
+
+    # Fetch teammates' details in parallel
+    fetch_teammates_parallel(players_to_fetch)
+
     # Process match history
     if "match_history" in player_data:
         for match in player_data["match_history"]:
             match_id = match["match_uid"]
             fetch_match_data(match_id)
+
+
+# Fetch teammates' details in parallel
+def fetch_teammates_parallel(players_to_fetch):
+    if not players_to_fetch:
+        return
+
+    print(f"Fetching details for {len(players_to_fetch)} encountered players...")
+
+    with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
+        future_to_teammate = {
+            executor.submit(fetch_and_process_teammate, player_id, timestamp, seen_players): player_id
+            for player_id, timestamp, seen_players in players_to_fetch
+        }
+
+        for future in as_completed(future_to_teammate):
+            player_id = future_to_teammate[future]
+            try:
+                future.result()
+            except Exception as e:
+                print(f"Error processing encountered player {player_id}: {e}")
+            time.sleep(API_DELAY)  # Rate limit enforcement
+
+
+# Fetch and process a single teammate's data
+def fetch_and_process_teammate(player_id, timestamp, seen_players):
+    if (timestamp, player_id) in seen_players:
+        return  # Avoid duplicate entry for the same timestamp
+
+    player_data = fetch_data(PLAYER_API_URL.format(player_id))
+    if not player_data or player_data.get("is_profile_private", True):
+        return
+
+    print(f"Processing encountered player {player_data['player_name']} ({player_id})...")
+
+    # Extract relevant stats
+    player_name = player_data["player_name"]
+    score = player_data["stats"]["rank"]["score"]
+    total_matches = player_data["stats"]["total_matches"]
+    total_wins = player_data["stats"]["total_wins"]
+
+    # Save encountered player data
+    append_csv(
+        PLAYER_ENCOUNTERS_FILE,
+        ["timestamp", "player_uid", "player_name", "score", "matches", "wins"],
+        {
+            "timestamp": timestamp,
+            "player_uid": player_id,
+            "player_name": player_name,
+            "score": score,
+            "matches": total_matches,
+            "wins": total_wins
+        },
+        seen_entries=seen_players
+    )
+
 
 # Fetch match details and save data
 def fetch_match_data(match_id):
@@ -101,34 +215,20 @@ def fetch_match_data(match_id):
     if not match_data:
         return
 
+    print(f"Processing match {match_id}...")
+
     # Save match details
-    append_csv(MATCHES_FILE, 
-        ["match_uid", "replay_id", "gamemode"], 
+    append_csv(
+        MATCHES_FILE,
+        ["match_uid", "replay_id", "gamemode"],
         {
             "match_uid": match_data["match_uid"],
             "replay_id": match_data["replay_id"],
-            "gamemode": match_data["gamemode"]["name"]
-        }
+            "gamemode": match_data["gamemode"]["name"],
+        },
     )
 
-    # Save match players
-    for player in match_data["players"]:
-        append_csv(MATCH_PLAYERS_FILE, 
-            ["match_uid", "player_uid", "name", "hero_id", "is_win", "kills", "deaths", "assists", "hero_damage", "hero_healed", "damage_taken"], 
-            {
-                "match_uid": match_data["match_uid"],
-                "player_uid": player["player_uid"],
-                "name": player["name"],
-                "hero_id": player["hero_id"],
-                "is_win": player["is_win"],
-                "kills": player["kills"],
-                "deaths": player["deaths"],
-                "assists": player["assists"],
-                "hero_damage": player["hero_damage"],
-                "hero_healed": player["hero_healed"],
-                "damage_taken": player["damage_taken"]
-            }
-        )
 
 if __name__ == "__main__":
     fetch_leaderboard()
+    print("Data collection completed!")
