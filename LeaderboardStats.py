@@ -267,8 +267,8 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
     
     # Use R-friendly nil values
     rank_score = "NaN" if is_private else player_data["stats"]["rank"]["score"]
-    player_name = leaderboard_entry["player_name"] if not is_private else ""
-    rank_name = leaderboard_entry["rank_name"] if not is_private else ""
+    player_name = "" if leaderboard_entry["player_name"] is None else leaderboard_entry["player_name"]
+    rank_name = "" if leaderboard_entry["rank_name"] is None else leaderboard_entry["rank_name"]
 
     # Save leaderboard data, ensuring private profiles are logged
     append_csv(
@@ -367,14 +367,6 @@ def fetch_and_process_teammate(player_id):
     is_private = player_data is None or player_data.get("is_profile_private", True)
 
     if player_data is None:
-        print(f"Processing encountered player {player_id} - PRIVATE profile...")
-        encountered_players[player_id] = {
-            "player_name": "Unknown",
-            "highest_score": "NaN",
-            "latest_score": "NaN",
-            "matches": 0,
-            "wins": 0
-        }
         return  # ✅ Exit early to prevent `.get()` errors
     
     # ✅ Use safe defaults for private profiles
