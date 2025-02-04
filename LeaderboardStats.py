@@ -53,11 +53,16 @@ def rate_limited_fetch(url):
 
 def fetch_data(url, retries=3, delay=2):
     """Generic function to fetch JSON data with retries."""
+    global private_profile_count
     for attempt in range(retries):
         try:
             response = requests.get(url)
             if response.status_code == 200:
                 return response.json()
+            elif response.status_code == 500:
+                print(f"Private profile detected: {url}")
+                private_profile_count += 1
+                return None  # Don't retry on 500
             print(f"Error {response.status_code} fetching {url}")
         except Exception as e:
             print(f"Exception fetching {url}: {e}")
