@@ -42,6 +42,27 @@ def load_existing_matches():
     print(f"Loaded {len(existing_matches)} existing matches from matches.csv.")
     return existing_matches
 
+def load_existing_players():
+    """Loads existing players and their scores to avoid duplicates."""
+    if not os.path.exists(PLAYER_ENCOUNTERS_FILE):
+        return {}
+
+    players = {}
+    with open(PLAYER_ENCOUNTERS_FILE, "r", encoding="utf-8") as f:
+        next(f)  # Skip header
+        for line in f:
+            data = line.strip().split(",")
+            player_uid = data[0]
+            players[player_uid] = {
+                "player_name": data[1],
+                "highest_score": int(data[2]) if data[2] != "N/A" else None,
+                "latest_score": int(data[3]) if data[3] != "N/A" else None,
+                "matches": int(data[4]),
+                "wins": int(data[5])
+            }
+    print(f"Loaded {len(players)} existing encountered players.")
+    return players
+
 
 # deduplication
 queried_matches = load_existing_matches()  # Load past matches from file
@@ -297,34 +318,57 @@ def fetch_teammates_parallel(players_to_fetch):
             except Exception as e:
                 print(f"Error processing encountered player {player_id}: {e}")
 
+def save_encountered_players():
+    """Saves all encountered players to CSV (no duplicates)."""
+    with open(PLAYER_ENCOUNTERS_FILE, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["player_uid", "player_name", "highest_score", "latest_score", "matches", "wins"])
+        writer.writeheader()
+        for player_uid, data in encountered_players.items():
+            writer.writerow({
+                "player_uid": player_uid,
+                "player_name": data["player_name"],
+                "highest_score": data["highest_score"],
+                "latest_score": data["latest_score"],
+                "matches": data["matches"],
+                "wins": data["wins"]
+            })
+
 
 # Fetch and process a single teammate's data
-def fetch_and_process_teammate(player_id, timestamp):
+def fetch_and_process_teammate(player_id):
     player_data = rate_limited_fetch(PLAYER_API_URL.format(player_id))
     if not player_data or player_data.get("is_profile_private", True):
-        return
+        return  # Skip private profiles
 
     print(f"Processing encountered player {player_data['player_name']} ({player_id})...")
 
     # Extract relevant stats
     player_name = player_data["player_name"]
-    score = player_data["stats"]["rank"]["score"]
-    total_matches = player_data["stats"]["total_matches"]
-    total_wins = player_data["stats"]["total_wins"]
+    latest_score = int(player_data["stats"]["rank"]["score"])
+    matches = int(player_data["stats"]["total_matches"])
+    wins = int(player_data["stats"]["total_wins"])
 
-    # Save encountered player data
-    append_csv(
-        PLAYER_ENCOUNTERS_FILE,
-        ["timestamp", "player_uid", "player_name", "score", "matches", "wins"],
-        {
-            "timestamp": timestamp,
-            "player_uid": player_id,
+    # Check if the player already exists
+    if player_id in encountered_players:
+        encountered_players[player_id]["latest_score"] = latest_score
+        encountered_players[player_id]["matches"] = matches
+        encountered_players[player_id]["wins"] = wins
+        # Update highest score if this is a new record
+        if latest_score > encountered_players[player_id]["highest_score"]:
+            encountered_players[player_id]["highest_score"] = latest_score
+    else:
+        # Add new player
+        encountered_players[player_id] = {
             "player_name": player_name,
-            "score": score,
-            "matches": total_matches,
-            "wins": total_wins
-        },
-    )
+            "highest_score": latest_score,
+            "latest_score": latest_score,
+            "matches": matches,
+            "wins": wins
+        }
+
+    # Save updated player data to CSV
+    save_encountered_players()
+
 # Fetch matches in parallel (avoiding duplicates)
 def fetch_matches_parallel(matches_to_fetch):
     if not matches_to_fetch:
