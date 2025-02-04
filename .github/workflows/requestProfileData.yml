@@ -18,11 +18,9 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     env:
-      BASE_URL: "https://marvelrivalsapi.com/api/v1/"
-      API_TOKEN: ${{ secrets.API_KEY_RIVALS }}
-      STATS_URL: "player?username"
-      USER_TO_CHECK: "Jodsderechte"
-      HEROES_URL: "heroes"
+      BASE_URL: "https://mrapi.org/api/"
+      STATS_URL: "player/"
+      USER_TO_CHECK: "258927695"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -31,15 +29,30 @@ jobs:
 
       - name: Fetch Marvel Rivals Stats
         run: |
-          curl -X GET "${BASE_URL}${STATS_URL}${USER_TO_CHECK}" \
-          -H "x-api-key: ${API_TOKEN}" \
-          -o data/latest/users/${USER_TO_CHECK}.json
+          USERS=$(echo '${{ env.USERS_TO_CHECK }}' | jq -r '.[]')
+          for USER in $USERS; do
+            echo "Fetching data for user: $USER"
+            curl -X GET "${BASE_URL}${STATS_URL}${USER}" \
+              -H "x-api-key: ${API_TOKEN}" \
+              -o "data/latest/users/${USER}.json"
+          done
+
       - name: Print JSON File Content
-        run: cat data/latest/users/${USER_TO_CHECK}.json
+        run: |
+          USERS=$(echo '${{ env.USERS_TO_CHECK }}' | jq -r '.[]')
+          for USER in $USERS; do
+            echo "Contents of data/latest/users/${USER}.json:"
+            cat "data/latest/users/${USER}.json"
+          done
+          
       - name: Merge with historical data
-        env:
-          USER_TO_CHECK: ${{ env.USER_TO_CHECK }}  # Pass the variable to the script
-        run: python merge_stats.py
+        run: |
+          USERS=$(echo '${{ env.USERS_TO_CHECK }}' | jq -r '.[]')
+          for USER in $USERS; do
+            echo "Merging data for user: $USER"
+            USER_TO_CHECK=$USER
+            python merge_stats.py "$USER"
+          done
 
       - name: Commit and push changes
         run: |
