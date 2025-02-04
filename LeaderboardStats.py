@@ -349,4 +349,6 @@ def fetch_matches_parallel(matches_to_fetch):
 if __name__ == "__main__":
     fetch_leaderboard()
     print("Data collection completed!")
-    print(f"Fetched a total of {total_scanned_players} Players and  {total_scanned_matches} Matches")
+    print(f"Total Players Scanned: {total_scanned_players}")
+    print(f"Total Matches Scanned: {total_scanned_matches}")
+    print(f"Private Profiles Encountered: {private_profile_count}")
