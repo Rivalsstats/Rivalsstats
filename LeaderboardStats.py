@@ -4,6 +4,7 @@ import os
 import datetime
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
 
 # API Endpoints
 LEADERBOARD_URL = "https://mrapi.org/api/leaderboard"
