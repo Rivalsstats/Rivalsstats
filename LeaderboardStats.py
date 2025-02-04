@@ -57,10 +57,10 @@ def load_existing_players():
             player_uid = data[0]
             players[player_uid] = {
                 "player_name": data[1],
-                "highest_score": int(data[2]) if data[2] != "N/A" else None,
-                "latest_score": int(data[3]) if data[3] != "N/A" else None,
-                "matches": int(data[4]),
-                "wins": int(data[5])
+                "highest_score": int(data[2]) if data[2].isdigit() else 0,
+                "latest_score": int(data[3]) if data[3].isdigit() else 0,
+                "matches": int(data[4]) if data[4].isdigit() else 0,
+                "wins": int(data[5]) if data[5].isdigit() else 0
             }
     print(f"Loaded {len(players)} existing encountered players.")
     return players
@@ -378,14 +378,14 @@ def fetch_and_process_teammate(player_id):
 
     is_private = player_data is None or player_data.get("is_profile_private", True)
 
-    if player_data is None:
+    if is_private or player_data is None:
         return  # ✅ Exit early to prevent `.get()` errors
     
     # ✅ Use safe defaults for private profiles
-    latest_score = "NaN" if is_private else player_data["stats"]["rank"].get("score", "NaN")
+    latest_score = player_data["stats"]["rank"].get("score", 0)
     matches = 0 if is_private else player_data["stats"].get("total_matches", 0)
     wins = 0 if is_private else player_data["stats"].get("total_wins", 0)
-    player_name = "Unknown" if is_private else player_data["player_name"]
+    player_name = player_data["player_name"]
 
     print(f"Processing encountered player {player_id} - {'PRIVATE' if is_private else 'PUBLIC'} profile...")
 
@@ -395,7 +395,7 @@ def fetch_and_process_teammate(player_id):
         encountered_players[player_id]["matches"] = matches
         encountered_players[player_id]["wins"] = wins
         # Update highest score if this is a new record
-        if latest_score != "NaN" and (encountered_players[player_id]["highest_score"] == "NaN" or latest_score > encountered_players[player_id]["highest_score"]):
+        if latest_score != 0 and latest_score > encountered_players[player_id]["highest_score"]:
             encountered_players[player_id]["highest_score"] = latest_score
     else:
         # Add new player
