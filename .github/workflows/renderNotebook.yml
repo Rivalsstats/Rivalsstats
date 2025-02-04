@@ -8,12 +8,14 @@ name: RenderNotebook
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'MarvelRivalsData.html'
+    paths:
+      - 'data/**'              # Any file inside the /data/ folder
+      - 'MarvelRivalsData.Rmd' # The specific file
   pull_request:
     branches: [ main ]
-    paths-ignore:
-      - 'MarvelRivalsData.html'  
+    paths:
+      - 'data/**'              # Any file inside the /data/ folder
+      - 'MarvelRivalsData.Rmd' # The specific file 
   workflow_dispatch: 
 
 # a workflow is built up as jobs, and within these jobs are steps
