@@ -15,14 +15,43 @@ LEADERBOARD_FILE = "data/historical/leaderboard.csv"
 PLAYER_ENCOUNTERS_FILE = "data/historical/player_encounters.csv"
 MATCHES_FILE = "data/historical/matches.csv"
 MATCH_PLAYERS_FILE = "data/historical/match_players.csv"
-
 # Constants
-MAX_PARALLEL_REQUESTS = 10  # Limit to avoid exceeding 500 API calls per minute
-API_DELAY = 60 / 500  # 500 requests per minute = 1.2 requests per second
+MAX_PARALLEL_REQUESTS = 10  # Keep this low to avoid hitting API limits
+API_LIMIT = 500  # Max API calls per minute
+API_DELAY = 60 / API_LIMIT  # Time per request to stay within limits
+
+# Rate Limiting
+request_count = 0
+start_time = time.time()
+lock = Lock()
+
+def rate_limited_fetch(url):
+    """Fetch API data while ensuring global rate limits are not exceeded."""
+    global request_count, start_time
+
+    with lock:
+        elapsed_time = time.time() - start_time
+
+        # Reset counter if a minute has passed
+        if elapsed_time >= 60:
+            request_count = 0
+            start_time = time.time()
+
+        # If request limit is reached, wait until reset
+        if request_count >= API_LIMIT:
+            wait_time = 60 - elapsed_time
+            print(f"Rate limit reached! Sleeping for {wait_time:.2f} seconds...")
+            time.sleep(wait_time)
+            request_count = 0
+            start_time = time.time()
+
+        request_count += 1
+
+    return fetch_data(url)
 
 
-# Function to fetch JSON data with retries
 def fetch_data(url, retries=3, delay=2):
+    """Generic function to fetch JSON data with retries."""
     for attempt in range(retries):
         try:
             response = requests.get(url)
@@ -37,9 +66,7 @@ def fetch_data(url, retries=3, delay=2):
 
 # Function to append new rows to a CSV file
 def append_csv(filename, fieldnames, data, seen_entries=None):
-    """
-    Appends data to a CSV file but avoids duplicate entries if seen_entries is provided.
-    """
+    """Appends data to a CSV file but avoids duplicate entries if seen_entries is provided."""
     if seen_entries is not None:
         entry_key = (data["timestamp"], data["player_uid"])
         if entry_key in seen_entries:
@@ -57,7 +84,7 @@ def append_csv(filename, fieldnames, data, seen_entries=None):
 # Fetch leaderboard
 def fetch_leaderboard():
     print("Fetching leaderboard data...")
-    leaderboard = fetch_data(LEADERBOARD_URL)
+    leaderboard = rate_limited_fetch(LEADERBOARD_URL)
     if not leaderboard:
         print("Failed to fetch leaderboard.")
         return
@@ -95,12 +122,11 @@ def fetch_player_details_parallel(players_to_fetch):
                 future.result()
             except Exception as e:
                 print(f"Error processing player {player_id}: {e}")
-            time.sleep(API_DELAY)  # Rate limit enforcement
 
 
 # Fetch and process a single player's data
 def fetch_and_process_player(player_id, timestamp, leaderboard_entry, seen_players):
-    player_data = fetch_data(PLAYER_API_URL.format(player_id))
+    player_data = rate_limited_fetch(PLAYER_API_URL.format(player_id))
     if not player_data:
         return
 
@@ -136,7 +162,6 @@ def process_encountered_players(player_data, timestamp, seen_players):
     if player_data.get("is_profile_private", True):
         return
 
-    player_id = player_data["player_uid"]
     players_to_fetch = []
 
     # Process teammates
@@ -173,15 +198,11 @@ def fetch_teammates_parallel(players_to_fetch):
                 future.result()
             except Exception as e:
                 print(f"Error processing encountered player {player_id}: {e}")
-            time.sleep(API_DELAY)  # Rate limit enforcement
 
 
 # Fetch and process a single teammate's data
 def fetch_and_process_teammate(player_id, timestamp, seen_players):
-    if (timestamp, player_id) in seen_players:
-        return  # Avoid duplicate entry for the same timestamp
-
-    player_data = fetch_data(PLAYER_API_URL.format(player_id))
+    player_data = rate_limited_fetch(PLAYER_API_URL.format(player_id))
     if not player_data or player_data.get("is_profile_private", True):
         return
 
@@ -206,26 +227,6 @@ def fetch_and_process_teammate(player_id, timestamp, seen_players):
             "wins": total_wins
         },
         seen_entries=seen_players
-    )
-
-
-# Fetch match details and save data
-def fetch_match_data(match_id):
-    match_data = fetch_data(MATCH_API_URL.format(match_id))
-    if not match_data:
-        return
-
-    print(f"Processing match {match_id}...")
-
-    # Save match details
-    append_csv(
-        MATCHES_FILE,
-        ["match_uid", "replay_id", "gamemode"],
-        {
-            "match_uid": match_data["match_uid"],
-            "replay_id": match_data["replay_id"],
-            "gamemode": match_data["gamemode"]["name"],
-        },
     )
 
 
