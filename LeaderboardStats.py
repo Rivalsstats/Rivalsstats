@@ -25,6 +25,7 @@ API_DELAY = 60 / API_LIMIT  # Time per request to stay within limits
 request_count = 0
 start_time = time.time()
 lock = Lock()
+private_profile_count = 0
 
 def rate_limited_fetch(url):
     """Fetch API data while ensuring global rate limits are not exceeded."""
