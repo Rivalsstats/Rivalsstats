@@ -27,6 +27,10 @@ start_time = time.time()
 lock = Lock()
 private_profile_count = 0
 
+# deduplication
+queried_matches = set() 
+queried_players = set()  # Stores already fetched player IDs
+
 def rate_limited_fetch(url):
     """Fetch API data while ensuring global rate limits are not exceeded."""
     global request_count, start_time
@@ -97,7 +101,6 @@ def fetch_leaderboard():
         return
 
     timestamp = datetime.datetime.utcnow().isoformat()
-    seen_players = set()  # Track players to prevent duplicate entries
 
     print(f"Processing {len(leaderboard)} players from leaderboard...")
 
@@ -105,11 +108,12 @@ def fetch_leaderboard():
 
     for player in leaderboard:
         player_id = player["player_id"]
-
-        # Queue player for fetching details
-        players_to_fetch.append((player_id, timestamp, player, seen_players))
+        if player_id not in queried_players:  # Only fetch if not already queried
+            queried_players.add(player_id)
+            players_to_fetch.append((player_id, timestamp, player))
 
     # Fetch all player details in parallel
+    print(f"Fetching {len(players_to_fetch)} players")
     fetch_player_details_parallel(players_to_fetch)
 
 # Fetch match details and save data
@@ -184,7 +188,7 @@ def fetch_player_details_parallel(players_to_fetch):
 
 
 # Fetch and process a single player's data
-def fetch_and_process_player(player_id, timestamp, leaderboard_entry, seen_players):
+def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
     player_data = rate_limited_fetch(PLAYER_API_URL.format(player_id))
     if not player_data:
         return
@@ -212,30 +216,38 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry, seen_playe
         },
     )
 
-    # Save encountered players (teammates + match opponents)
-    process_encountered_players(player_data, timestamp, seen_players)
+    # Process encountered players (teammates + match opponents)
+    process_encountered_players(player_data, timestamp)
+
 
 
 # Process teammates and match history
-def process_encountered_players(player_data, timestamp, seen_players):
+def process_encountered_players(player_data, timestamp):
     if player_data.get("is_profile_private", True):
         return
 
     players_to_fetch = []
+    matches_to_fetch = []
 
     # Process teammates
     if "teammates" in player_data:
         for teammate in player_data["teammates"]:
-            players_to_fetch.append((teammate["player_uid"], timestamp, seen_players))
+            if teammate["player_uid"] not in queried_players:  # Avoid duplicate queries
+                queried_players.add(teammate["player_uid"])
+                players_to_fetch.append((teammate["player_uid"], timestamp))
 
-    # Fetch teammates' details in parallel
-    fetch_teammates_parallel(players_to_fetch)
-
-    # Process match history
+    # Process match history (only fetch unique matches)
     if "match_history" in player_data:
         for match in player_data["match_history"]:
             match_id = match["match_uid"]
-            fetch_match_data(match_id)
+            if match_id not in queried_matches:
+                queried_matches.add(match_id)
+                matches_to_fetch.append(match_id)
+
+    # Fetch teammates and matches in parallel
+    print(f"Fetching {len(players_to_fetch)} encountered players")
+    fetch_teammates_parallel(players_to_fetch)
+    fetch_matches_parallel(matches_to_fetch)
 
 
 # Fetch teammates' details in parallel
@@ -287,7 +299,25 @@ def fetch_and_process_teammate(player_id, timestamp, seen_players):
         },
         seen_entries=seen_players
     )
+# Fetch matches in parallel (avoiding duplicates)
+def fetch_matches_parallel(matches_to_fetch):
+    if not matches_to_fetch:
+        return
 
+    print(f"Fetching details for {len(matches_to_fetch)} unique matches...")
+
+    with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
+        future_to_match = {
+            executor.submit(fetch_match_data, match_id): match_id
+            for match_id in matches_to_fetch
+        }
+
+        for future in as_completed(future_to_match):
+            match_id = future_to_match[future]
+            try:
+                future.result()
+            except Exception as e:
+                print(f"Error processing match {match_id}: {e}")
 
 if __name__ == "__main__":
     fetch_leaderboard()
