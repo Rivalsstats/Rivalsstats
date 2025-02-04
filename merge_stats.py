@@ -38,14 +38,15 @@ def append_to_csv(data, filename, headers, row_formatter):
         with open(filename, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             next(reader, None)  # Skip header
-            existing_rows = {tuple(row) for row in reader}
+            existing_rows = {tuple(row) for row in reader if row}  # Ensure no empty rows
 
-    new_rows = set(tuple(row_formatter(entry)) for entry in data) - existing_rows
+    # Ensure new rows are formatted correctly
+    new_rows = {tuple(map(lambda x: str(x).strip(), row_formatter(entry))) for entry in data} - existing_rows
+
     if new_rows:
         with open(filename, "a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
-            for row in new_rows:
-                writer.writerow(row)
+            writer.writerows(new_rows)
 
 # Extract and append overall stats history
 if "stats" in latest_data:
