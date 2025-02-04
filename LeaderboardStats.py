@@ -7,6 +7,7 @@ import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 import pandas as pd
+import pyarrow.parquet as pq
 
 # API Endpoints
 LEADERBOARD_URL = "https://mrapi.org/api/leaderboard"
