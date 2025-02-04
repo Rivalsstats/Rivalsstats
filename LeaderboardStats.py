@@ -196,20 +196,22 @@ def fetch_player_details_parallel(players_to_fetch):
 # Fetch and process a single player's data
 def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
     player_data = rate_limited_fetch(PLAYER_API_URL.format(player_id))
-    if not player_data:
-        return
+    
+    # Default values for private profiles
+    rank_score = "N/A"
+    is_private = False
 
-    print(f"Processing player {player_data['player_name']} ({player_id})...")
+    if player_data:
+        if player_data.get("is_profile_private", True):  # Profile is private
+            print(f"Player {player_id} has a private profile. Logging with N/A values.")
+            is_private = True
+        else:  # Public profile, extract rank score
+            rank_score = player_data["stats"]["rank"]["score"]
 
-    # Extract rank score (if available)
-    rank_score = None
-    if not player_data.get("is_profile_private", True):
-        rank_score = player_data["stats"]["rank"]["score"]
-
-    # Save leaderboard data with rank score
+    # Save leaderboard data, ensuring private profiles are logged
     append_csv(
         LEADERBOARD_FILE,
-        ["timestamp", "rank", "player_name", "rank_name", "score", "matches", "player_id", "rank_score"],
+        ["timestamp", "rank", "player_name", "rank_name", "score", "matches", "player_id", "rank_score", "is_private"],
         {
             "timestamp": timestamp,
             "rank": leaderboard_entry["rank"],
@@ -218,7 +220,8 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
             "score": leaderboard_entry["score"],
             "matches": leaderboard_entry["matches"],
             "player_id": player_id,
-            "rank_score": rank_score
+            "rank_score": rank_score,  # N/A if private
+            "is_private": "Yes" if is_private else "No"
         },
     )
 
