@@ -5,6 +5,7 @@ import datetime
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
+import pandas as pd
 
 # API Endpoints
 LEADERBOARD_URL = "https://mrapi.org/api/leaderboard"
@@ -15,7 +16,8 @@ MATCH_API_URL = "https://mrapi.org/api/match/{}"
 LEADERBOARD_FILE = "data/historical/leaderboard.csv"
 PLAYER_ENCOUNTERS_FILE = "data/historical/player_encounters.csv"
 MATCHES_FILE = "data/historical/matches.csv"
-MATCH_PLAYERS_FILE = "data/historical/match_players.csv"
+MATCH_PLAYERS_FILE = "data/historical/match_players.parquet"
+
 # Constants
 MAX_PARALLEL_REQUESTS = 10  # Keep this low to avoid hitting API limits
 API_LIMIT = 480  # Max API calls per minute is 500 but we do 480 to be safe
@@ -159,6 +161,16 @@ def append_csv(filename, fieldnames, data, seen_entries=None):
             writer.writeheader()
         writer.writerow(data)
 
+def append_parquet(filename, data):
+    """Appends data to a Parquet file, creating it if necessary."""
+    df = pd.DataFrame([data])  # Convert single row to DataFrame
+
+    if os.path.exists(filename):
+        df_existing = pd.read_parquet(filename)  # Read existing file
+        df = pd.concat([df_existing, df], ignore_index=True)  # Append new data
+
+    df.to_parquet(filename, index=False, engine="pyarrow")  # Save to Parquet
+
 
 # Fetch leaderboard
 def fetch_leaderboard():
@@ -209,21 +221,20 @@ def fetch_match_data(match_id):
 
     # Save match players
     for player in match_data["players"]:
-        append_csv(
+        hero_data = [
+            {
+                "hero_id": hero["hero_id"],
+                "playtime": hero["playtime"]["raw"],
+                "kills": hero["kills"],
+                "deaths": hero["deaths"],
+                "assists": hero["assists"]
+                "hit_rate": hero["hit_rate"]
+            }
+            for hero in player.get("heroes", [])
+        ]
+        hero_data_str = json.dumps(hero_data, separators=(',', ':'))
+        append_parquet(
             MATCH_PLAYERS_FILE,
-            [
-                "match_uid",
-                "player_uid",
-                "name",
-                "hero_id",
-                "is_win",
-                "kills",
-                "deaths",
-                "assists",
-                "hero_damage",
-                "hero_healed",
-                "damage_taken",
-            ],
             {
                 "match_uid": match_data["match_uid"],
                 "player_uid": player["player_uid"],
@@ -236,6 +247,7 @@ def fetch_match_data(match_id):
                 "hero_damage": player["hero_damage"],
                 "hero_healed": player["hero_healed"],
                 "damage_taken": player["damage_taken"],
+                "hero_data": f'"{hero_data_str}"',
             },
         )
 
