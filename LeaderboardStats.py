@@ -264,6 +264,7 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
     
     is_private = player_data is None or player_data.get("is_profile_private", True)
 
+    
     # Use R-friendly nil values
     rank_score = "NaN" if is_private else player_data["stats"]["rank"]["score"]
     player_name = leaderboard_entry["player_name"] if not is_private else ""
@@ -276,8 +277,8 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
         {
             "timestamp": timestamp,
             "rank": leaderboard_entry["rank"],
-            "player_name": leaderboard_entry["player_name"],
-            "rank_name": leaderboard_entry["rank_name"],
+            "player_name": player_name,
+            "rank_name": rank_name,
             "score": leaderboard_entry["score"],
             "matches": leaderboard_entry["matches"],
             "player_id": player_id,
@@ -365,6 +366,17 @@ def fetch_and_process_teammate(player_id):
 
     is_private = player_data is None or player_data.get("is_profile_private", True)
 
+    if player_data is None:
+        print(f"Processing encountered player {player_id} - PRIVATE profile...")
+        encountered_players[player_id] = {
+            "player_name": "Unknown",
+            "highest_score": "NaN",
+            "latest_score": "NaN",
+            "matches": 0,
+            "wins": 0
+        }
+        return  # ✅ Exit early to prevent `.get()` errors
+    
     # ✅ Use safe defaults for private profiles
     latest_score = "NaN" if is_private else player_data["stats"]["rank"].get("score", "NaN")
     matches = 0 if is_private else player_data["stats"].get("total_matches", 0)
