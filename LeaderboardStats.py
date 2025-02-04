@@ -362,17 +362,16 @@ def save_encountered_players():
 def fetch_and_process_teammate(player_id):
     global encountered_players
     player_data = rate_limited_fetch(PLAYER_API_URL.format(player_id))
-    if not player_data or player_data.get("is_profile_private", True):
-        return  # Skip private profiles
 
-    print(f"Processing encountered player {player_data['player_name']} ({player_id})...")
+    is_private = player_data is None or player_data.get("is_profile_private", True)
 
-    # Extract relevant stats
-    player_name = player_data["player_name"]
-    latest_score = int(player_data["stats"]["rank"]["score"])
-    latest_score = latest_score if latest_score is not None else "NaN"  # Prevent int(None) error
-    matches = int(player_data["stats"]["total_matches"])
-    wins = int(player_data["stats"]["total_wins"])
+    # ✅ Use safe defaults for private profiles
+    latest_score = "NaN" if is_private else player_data["stats"]["rank"].get("score", "NaN")
+    matches = 0 if is_private else player_data["stats"].get("total_matches", 0)
+    wins = 0 if is_private else player_data["stats"].get("total_wins", 0)
+    player_name = "Unknown" if is_private else player_data["player_name"]
+
+    print(f"Processing encountered player {player_id} - {'PRIVATE' if is_private else 'PUBLIC'} profile...")
 
     # Check if the player already exists
     if player_id in encountered_players:
