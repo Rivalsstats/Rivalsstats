@@ -72,7 +72,7 @@ def load_existing_players():
 queried_matches = load_existing_matches()  # Load past matches from file
 queried_players = set()  # Stores already fetched player IDs
 encountered_players = load_existing_players()  # Load previously encountered players for teammates list
-
+match_players_data = []
 # stat collection
 
 total_scanned_matches = 0
@@ -163,17 +163,6 @@ def append_csv(filename, fieldnames, data, seen_entries=None):
             writer.writeheader()
         writer.writerow(data)
 
-def append_parquet(filename, data):
-    """Appends data to a Parquet file, creating it if necessary."""
-    df = pd.DataFrame([data])  # Convert single row to DataFrame
-
-    if os.path.exists(filename):
-        df_existing = pd.read_parquet(filename)  # Read existing file
-        df = pd.concat([df_existing, df], ignore_index=True)  # Append new data
-
-    df.to_parquet(filename, index=False, engine="pyarrow")  # Save to Parquet
-
-
 # Fetch leaderboard
 def fetch_leaderboard():
     global total_scanned_matches, total_scanned_players
@@ -204,6 +193,7 @@ def fetch_leaderboard():
 # Fetch match details and save data
 def fetch_match_data(match_id):
     """Fetch match details and save match/player data."""
+    global match_players_data
     match_data = rate_limited_fetch(MATCH_API_URL.format(match_id))
     if not match_data:
         return
@@ -235,8 +225,7 @@ def fetch_match_data(match_id):
             for hero in player.get("heroes", [])
         ]
         hero_data_str = json.dumps(hero_data, separators=(',', ':'))
-        append_parquet(
-            MATCH_PLAYERS_FILE,
+        match_players_data.append(
             {
                 "match_uid": match_data["match_uid"],
                 "player_uid": player["player_uid"],
@@ -427,11 +416,16 @@ def fetch_matches_parallel(matches_to_fetch):
             except Exception as e:
                 print(f"Error processing match {match_id}: {e}")
 
+def save_to_disk():
+    """Writes all collected data to files in one batch."""
+    pd.DataFrame(match_players_data).to_parquet(MATCH_PLAYERS_FILE, index=False, engine="pyarrow")
+
+
 if __name__ == "__main__":
     fetch_leaderboard()
     print(f"Saving {len(encountered_players)} encountered players to CSV...")
     save_encountered_players()
-
+    save_to_disk()
     print("Data collection completed!")
     print(f"Total Players Scanned: {total_scanned_players}")
     print(f"Total Matches Scanned: {total_scanned_matches}")
