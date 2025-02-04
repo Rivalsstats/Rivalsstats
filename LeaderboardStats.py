@@ -347,7 +347,6 @@ def fetch_matches_parallel(matches_to_fetch):
                 print(f"Error processing match {match_id}: {e}")
 
 if __name__ == "__main__":
-    global total_scanned_matches, total_scanned_players
     fetch_leaderboard()
     print("Data collection completed!")
     print(f"Fetched a total of {total_scanned_players} Players and  {total_scanned_matches} Matches")
