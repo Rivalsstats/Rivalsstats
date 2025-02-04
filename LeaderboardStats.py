@@ -27,15 +27,6 @@ start_time = time.time()
 lock = Lock()
 private_profile_count = 0
 
-# deduplication
-queried_matches = load_existing_matches()  # Load past matches from file
-queried_players = set()  # Stores already fetched player IDs
-
-# stat collection
-
-total_scanned_matches = 0
-total_scanned_players = 0
-
 def load_existing_matches():
     """Loads already recorded matches from matches.csv to prevent re-querying them."""
     if not os.path.exists(MATCHES_FILE):
@@ -50,6 +41,16 @@ def load_existing_matches():
     
     print(f"Loaded {len(existing_matches)} existing matches from matches.csv.")
     return existing_matches
+
+
+# deduplication
+queried_matches = load_existing_matches()  # Load past matches from file
+queried_players = set()  # Stores already fetched player IDs
+
+# stat collection
+
+total_scanned_matches = 0
+total_scanned_players = 0
 
 
 
