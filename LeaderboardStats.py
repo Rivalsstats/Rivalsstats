@@ -115,7 +115,10 @@ def fetch_data(url, retries=3, delay=2):
                 print(f"⚠️ Rate limit hit! Sleeping for {retry_after} seconds...")
                 time.sleep(retry_after)
                 continue  # Retry after sleep
-
+            elif response.status_code == 500:
+                print(f"Private profile detected: {url}")
+                private_profile_count += 1
+                return None  # Don't retry on 500
             # Detect API Errors (500, 403, etc.)
             if response.status_code >= 400:
                 print(f"⚠️ API Error {response.status_code}: Skipping {url}")
