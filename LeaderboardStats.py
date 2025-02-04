@@ -117,6 +117,7 @@ def append_csv(filename, fieldnames, data, seen_entries=None):
 
 # Fetch leaderboard
 def fetch_leaderboard():
+    global total_scanned_matches, total_scanned_players
     print("Fetching leaderboard data...")
     leaderboard = rate_limited_fetch(LEADERBOARD_URL)
     if not leaderboard:
@@ -250,6 +251,7 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
 
 # Process teammates and match history
 def process_encountered_players(player_data, timestamp):
+    global total_scanned_matches, total_scanned_players
     if player_data.get("is_profile_private", True):
         return
 
@@ -345,6 +347,7 @@ def fetch_matches_parallel(matches_to_fetch):
                 print(f"Error processing match {match_id}: {e}")
 
 if __name__ == "__main__":
+    global total_scanned_matches, total_scanned_players
     fetch_leaderboard()
     print("Data collection completed!")
     print(f"Fetched a total of {total_scanned_players} Players and  {total_scanned_matches} Matches")
