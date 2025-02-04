@@ -39,5 +39,6 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git add data/
           git commit -m "Updated Leaderboard data" || echo "No changes to commit"
+          git pull || echo "No changes to pull"
           git push || echo "No changes to push"
                
