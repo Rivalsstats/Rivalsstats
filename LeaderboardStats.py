@@ -31,6 +31,9 @@ start_time = time.time()
 lock = Lock()
 private_profile_count = 0
 
+#thread savety
+encountered_lock = Lock() 
+
 def load_existing_matches():
     """Loads already recorded matches from matches.csv to prevent re-querying them."""
     if not os.path.exists(MATCHES_FILE):
@@ -307,7 +310,7 @@ def process_encountered_players(player_data, timestamp):
     # Process teammates
     if "teammates" in player_data:
         for teammate in player_data["teammates"]:
-            if teammate["player_uid"] not in queried_players:  # Avoid duplicate queries
+            if teammate["player_uid"] not in queried_players and teammate["player_uid"] not in encountered_players:  # Avoid duplicate queries
                 queried_players.add(teammate["player_uid"])
                 players_to_fetch.append((teammate["player_uid"], timestamp))
 
@@ -379,24 +382,24 @@ def fetch_and_process_teammate(player_id):
     player_name = player_data["player_name"]
 
     print(f"Processing encountered player {player_id} - {'PRIVATE' if is_private else 'PUBLIC'} profile...")
-
-    # Check if the player already exists
-    if player_id in encountered_players:
-        encountered_players[player_id]["latest_score"] = latest_score
-        encountered_players[player_id]["matches"] = matches
-        encountered_players[player_id]["wins"] = wins
-        # Update highest score if this is a new record
-        if latest_score != 0 and latest_score > encountered_players[player_id]["highest_score"]:
-            encountered_players[player_id]["highest_score"] = latest_score
-    else:
-        # Add new player
-        encountered_players[player_id] = {
-            "player_name": player_name,
-            "highest_score": latest_score,
-            "latest_score": latest_score,
-            "matches": matches,
-            "wins": wins
-        }
+    with encountered_lock:
+        # Check if the player already exists
+        if player_id in encountered_players:
+            encountered_players[player_id]["latest_score"] = latest_score
+            encountered_players[player_id]["matches"] = matches
+            encountered_players[player_id]["wins"] = wins
+            # Update highest score if this is a new record
+            if latest_score != 0 and latest_score > encountered_players[player_id]["highest_score"]:
+                encountered_players[player_id]["highest_score"] = latest_score
+        else:
+            # Add new player
+            encountered_players[player_id] = {
+                "player_name": player_name,
+                "highest_score": latest_score,
+                "latest_score": latest_score,
+                "matches": matches,
+                "wins": wins
+            }
 
 # Fetch matches in parallel (avoiding duplicates)
 def fetch_matches_parallel(matches_to_fetch):
