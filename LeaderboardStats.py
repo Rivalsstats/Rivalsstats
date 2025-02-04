@@ -418,7 +418,14 @@ def fetch_matches_parallel(matches_to_fetch):
 
 def save_to_disk():
     """Writes all collected data to files in one batch."""
-    pd.DataFrame(match_players_data).to_parquet(MATCH_PLAYERS_FILE, index=False, engine="pyarrow")
+    if os.path.exists(MATCH_PLAYERS_FILE):
+        old_match_players_data = pd.read_parquet(MATCH_PLAYERS_FILE, engine="pyarrow")
+        combined_data = pd.concat([old_match_players_data, pd.DataFrame(match_players_data)])
+        combined_data.drop_duplicates(subset=["match_uid", "player_uid"], keep="last", inplace=True)
+    else:
+        combined_data = pd.DataFrame(match_players_data)
+
+    combined_data.to_parquet(MATCH_PLAYERS_FILE, index=False, engine="pyarrow")
 
 
 if __name__ == "__main__":
