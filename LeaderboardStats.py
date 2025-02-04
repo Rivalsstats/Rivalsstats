@@ -67,6 +67,7 @@ def load_existing_players():
 # deduplication
 queried_matches = load_existing_matches()  # Load past matches from file
 queried_players = set()  # Stores already fetched player IDs
+encountered_players = load_existing_players()  # Load previously encountered players for teammates list
 
 # stat collection
 
@@ -336,6 +337,7 @@ def save_encountered_players():
 
 # Fetch and process a single teammate's data
 def fetch_and_process_teammate(player_id):
+    global encountered_players
     player_data = rate_limited_fetch(PLAYER_API_URL.format(player_id))
     if not player_data or player_data.get("is_profile_private", True):
         return  # Skip private profiles
