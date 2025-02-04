@@ -307,7 +307,7 @@ def fetch_teammates_parallel(players_to_fetch):
 
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
         future_to_teammate = {
-            executor.submit(fetch_and_process_teammate, player_id, timestamp): player_id
+            executor.submit(fetch_and_process_teammate, player_id): player_id
             for player_id, timestamp in players_to_fetch
         }
 
