@@ -227,8 +227,8 @@ def fetch_match_data(match_id):
                 "playtime": hero["playtime"]["raw"],
                 "kills": hero["kills"],
                 "deaths": hero["deaths"],
-                "assists": hero["assists"]
-                "hit_rate": hero["hit_rate"]
+                "assists": hero["assists"],
+                "hit_rate": hero["hit_rate"],
             }
             for hero in player.get("heroes", [])
         ]
