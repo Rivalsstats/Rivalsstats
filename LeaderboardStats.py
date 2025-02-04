@@ -175,8 +175,8 @@ def fetch_player_details_parallel(players_to_fetch):
 
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
         future_to_player = {
-            executor.submit(fetch_and_process_player, player_id, timestamp, player_data, seen_players): player_id
-            for player_id, timestamp, player_data, seen_players in players_to_fetch
+            executor.submit(fetch_and_process_player, player_id, timestamp, player_data): player_id
+            for player_id, timestamp, player_data in players_to_fetch
         }
 
         for future in as_completed(future_to_player):
@@ -259,8 +259,8 @@ def fetch_teammates_parallel(players_to_fetch):
 
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
         future_to_teammate = {
-            executor.submit(fetch_and_process_teammate, player_id, timestamp, seen_players): player_id
-            for player_id, timestamp, seen_players in players_to_fetch
+            executor.submit(fetch_and_process_teammate, player_id, timestamp): player_id
+            for player_id, timestamp in players_to_fetch
         }
 
         for future in as_completed(future_to_teammate):
@@ -272,7 +272,7 @@ def fetch_teammates_parallel(players_to_fetch):
 
 
 # Fetch and process a single teammate's data
-def fetch_and_process_teammate(player_id, timestamp, seen_players):
+def fetch_and_process_teammate(player_id, timestamp):
     player_data = rate_limited_fetch(PLAYER_API_URL.format(player_id))
     if not player_data or player_data.get("is_profile_private", True):
         return
@@ -297,7 +297,6 @@ def fetch_and_process_teammate(player_id, timestamp, seen_players):
             "matches": total_matches,
             "wins": total_wins
         },
-        seen_entries=seen_players
     )
 # Fetch matches in parallel (avoiding duplicates)
 def fetch_matches_parallel(matches_to_fetch):
