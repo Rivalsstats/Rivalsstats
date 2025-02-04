@@ -11,10 +11,10 @@ PLAYER_API_URL = "https://mrapi.org/api/player/{}"
 MATCH_API_URL = "https://mrapi.org/api/match/{}"
 
 # Filenames
-LEADERBOARD_FILE = "leaderboard.csv"
-PLAYER_ENCOUNTERS_FILE = "player_encounters.csv"
-MATCHES_FILE = "matches.csv"
-MATCH_PLAYERS_FILE = "match_players.csv"
+LEADERBOARD_FILE = "data/historical/leaderboard.csv"
+PLAYER_ENCOUNTERS_FILE = "data/historical/player_encounters.csv"
+MATCHES_FILE = "data/historical/matches.csv"
+MATCH_PLAYERS_FILE = "data/historical/match_players.csv"
 
 # Constants
 MAX_PARALLEL_REQUESTS = 10  # Limit to avoid exceeding 500 API calls per minute
