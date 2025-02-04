@@ -31,6 +31,11 @@ private_profile_count = 0
 queried_matches = set() 
 queried_players = set()  # Stores already fetched player IDs
 
+# stat collection
+
+total_scanned_matches = 0
+total_scanned_players = 0
+
 def rate_limited_fetch(url):
     """Fetch API data while ensuring global rate limits are not exceeded."""
     global request_count, start_time
@@ -113,7 +118,9 @@ def fetch_leaderboard():
             players_to_fetch.append((player_id, timestamp, player))
 
     # Fetch all player details in parallel
+    total_scanned_players = total_scanned_players + len(players_to_fetch)
     print(f"Fetching {len(players_to_fetch)} players")
+
     fetch_player_details_parallel(players_to_fetch)
 
 # Fetch match details and save data
@@ -171,7 +178,6 @@ def fetch_match_data(match_id):
 
 # Parallel fetching of player details
 def fetch_player_details_parallel(players_to_fetch):
-    print(f"Fetching details for {len(players_to_fetch)} players...")
 
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
         future_to_player = {
@@ -245,7 +251,10 @@ def process_encountered_players(player_data, timestamp):
                 matches_to_fetch.append(match_id)
 
     # Fetch teammates and matches in parallel
-    print(f"Fetching {len(players_to_fetch)} encountered players")
+    total_scanned_matches = total_scanned_matches + len(matches_to_fetch)
+    total_scanned_players = total_scanned_players + len(players_to_fetch)
+    print(f"Fetching {len(players_to_fetch)} encountered players for a total of {total_scanned_players} and {len(matches_to_fetch)} encountered matches for a total of {total_scanned_matches}")
+    
     fetch_teammates_parallel(players_to_fetch)
     fetch_matches_parallel(matches_to_fetch)
 
@@ -254,8 +263,6 @@ def process_encountered_players(player_data, timestamp):
 def fetch_teammates_parallel(players_to_fetch):
     if not players_to_fetch:
         return
-
-    print(f"Fetching details for {len(players_to_fetch)} encountered players...")
 
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
         future_to_teammate = {
@@ -303,8 +310,6 @@ def fetch_matches_parallel(matches_to_fetch):
     if not matches_to_fetch:
         return
 
-    print(f"Fetching details for {len(matches_to_fetch)} unique matches...")
-
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
         future_to_match = {
             executor.submit(fetch_match_data, match_id): match_id
@@ -321,3 +326,4 @@ def fetch_matches_parallel(matches_to_fetch):
 if __name__ == "__main__":
     fetch_leaderboard()
     print("Data collection completed!")
+    print(f"Fetched a total of {total_scanned_players} Players and  {total_scanned_matches} Matches")
