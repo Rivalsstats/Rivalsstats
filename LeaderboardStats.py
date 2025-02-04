@@ -102,22 +102,42 @@ def rate_limited_fetch(url):
 
 
 def fetch_data(url, retries=3, delay=2):
-    """Generic function to fetch JSON data with retries."""
+    """Fetch JSON data safely, handling rate limits and corrupt responses."""
     global private_profile_count
+
     for attempt in range(retries):
         try:
             response = requests.get(url)
-            if response.status_code == 200:
-                return response.json()
-            elif response.status_code == 500:
-                print(f"Private profile detected: {url}")
-                private_profile_count += 1
-                return None  # Don't retry on 500
-            print(f"Error {response.status_code} fetching {url}")
-        except Exception as e:
-            print(f"Exception fetching {url}: {e}")
+
+            # Detect Rate Limiting (429 Error)
+            if response.status_code == 429:
+                retry_after = int(response.headers.get("Retry-After", 5))  # Default 5s if not provided
+                print(f"⚠️ Rate limit hit! Sleeping for {retry_after} seconds...")
+                time.sleep(retry_after)
+                continue  # Retry after sleep
+
+            # Detect API Errors (500, 403, etc.)
+            if response.status_code >= 400:
+                print(f"⚠️ API Error {response.status_code}: Skipping {url}")
+                return None
+
+            # Detect Non-JSON Responses
+            content_type = response.headers.get("Content-Type", "")
+            if "application/json" not in content_type:
+                print(f"⚠️ Warning: Non-JSON response from {url}. Skipping...")
+                return None
+
+            # Try parsing JSON safely
+            return response.json()
+
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Network error fetching {url}: {e}")
+        except ValueError:
+            print(f"⚠️ Invalid JSON response from {url}, skipping...")
         time.sleep(delay)
-    return None
+
+    return None  # If all retries fail
+
 
 
 # Function to append new rows to a CSV file
@@ -347,6 +367,7 @@ def fetch_and_process_teammate(player_id):
     # Extract relevant stats
     player_name = player_data["player_name"]
     latest_score = int(player_data["stats"]["rank"]["score"])
+    latest_score = latest_score if latest_score is not None else "NaN"  # Prevent int(None) error
     matches = int(player_data["stats"]["total_matches"])
     wins = int(player_data["stats"]["total_wins"])
 
@@ -356,7 +377,7 @@ def fetch_and_process_teammate(player_id):
         encountered_players[player_id]["matches"] = matches
         encountered_players[player_id]["wins"] = wins
         # Update highest score if this is a new record
-        if latest_score > encountered_players[player_id]["highest_score"]:
+        if latest_score != "NaN" and (encountered_players[player_id]["highest_score"] == "NaN" or latest_score > encountered_players[player_id]["highest_score"]):
             encountered_players[player_id]["highest_score"] = latest_score
     else:
         # Add new player
@@ -367,9 +388,6 @@ def fetch_and_process_teammate(player_id):
             "matches": matches,
             "wins": wins
         }
-
-    # Save updated player data to CSV
-    save_encountered_players()
 
 # Fetch matches in parallel (avoiding duplicates)
 def fetch_matches_parallel(matches_to_fetch):
@@ -391,6 +409,9 @@ def fetch_matches_parallel(matches_to_fetch):
 
 if __name__ == "__main__":
     fetch_leaderboard()
+    print(f"Saving {len(encountered_players)} encountered players to CSV...")
+    save_encountered_players()
+
     print("Data collection completed!")
     print(f"Total Players Scanned: {total_scanned_players}")
     print(f"Total Matches Scanned: {total_scanned_matches}")
