@@ -18,7 +18,7 @@ MATCHES_FILE = "data/historical/matches.csv"
 MATCH_PLAYERS_FILE = "data/historical/match_players.csv"
 # Constants
 MAX_PARALLEL_REQUESTS = 10  # Keep this low to avoid hitting API limits
-API_LIMIT = 500  # Max API calls per minute
+API_LIMIT = 480  # Max API calls per minute is 500 but we do 480 to be safe
 API_DELAY = 60 / API_LIMIT  # Time per request to stay within limits
 
 # Rate Limiting
