@@ -212,20 +212,17 @@ def fetch_player_details_parallel(players_to_fetch):
                 print(f"Error processing player {player_id}: {e}")
 
 
+
 # Fetch and process a single player's data
 def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
     player_data = rate_limited_fetch(PLAYER_API_URL.format(player_id))
     
-    # Default values for private profiles
-    rank_score = "N/A"
-    is_private = False
+    is_private = player_data is None or player_data.get("is_profile_private", True)
 
-    if player_data:
-        if player_data.get("is_profile_private", True):  # Profile is private
-            print(f"Player {player_id} has a private profile. Logging with N/A values.")
-            is_private = True
-        else:  # Public profile, extract rank score
-            rank_score = player_data["stats"]["rank"]["score"]
+    # Use R-friendly nil values
+    rank_score = "NaN" if is_private else player_data["stats"]["rank"]["score"]
+    player_name = leaderboard_entry["player_name"] if not is_private else ""
+    rank_name = leaderboard_entry["rank_name"] if not is_private else ""
 
     # Save leaderboard data, ensuring private profiles are logged
     append_csv(
