@@ -28,13 +28,30 @@ lock = Lock()
 private_profile_count = 0
 
 # deduplication
-queried_matches = set() 
+queried_matches = load_existing_matches()  # Load past matches from file
 queried_players = set()  # Stores already fetched player IDs
 
 # stat collection
 
 total_scanned_matches = 0
 total_scanned_players = 0
+
+def load_existing_matches():
+    """Loads already recorded matches from matches.csv to prevent re-querying them."""
+    if not os.path.exists(MATCHES_FILE):
+        return set()  # If file doesn’t exist, return an empty set
+
+    existing_matches = set()
+    with open(MATCHES_FILE, "r", encoding="utf-8") as f:
+        next(f)  # Skip header
+        for line in f:
+            match_uid = line.strip().split(",")[0]  # Match UID is the first column
+            existing_matches.add(match_uid)
+    
+    print(f"Loaded {len(existing_matches)} existing matches from matches.csv.")
+    return existing_matches
+
+
 
 def rate_limited_fetch(url):
     """Fetch API data while ensuring global rate limits are not exceeded."""
