@@ -4,16 +4,18 @@ import csv
 import sys
 from datetime import datetime, timezone
 
-# Get the username dynamically from the environment variable
-user_to_check = os.getenv("USER_TO_CHECK", "Jodsderechte")  # Default to the given user
+
+user_to_check = sys.argv[1]  # Get the user ID from the command-line argument
+
+
 
 # File paths (dynamic based on USER_TO_CHECK)
 latest_file = f"data/latest/users/{user_to_check}.json"
-stats_csv = f"data/historical/{user_to_check}/stats.csv"
-rank_csv = f"data/historical/{user_to_check}/rank_history.csv"
-match_csv = f"data/historical/{user_to_check}/match_history.csv"
-hero_csv = f"data/historical/{user_to_check}/hero_matchups.csv"
-teammates_csv = f"data/historical/{user_to_check}/teammates.csv"
+stats_csv = f"data/historical/users/{user_to_check}/stats.csv"
+rank_csv = f"data/historical/users/{user_to_check}/rank_history.csv"
+match_csv = f"data/historical/users/{user_to_check}/match_history.csv"
+hero_csv = f"data/historical/users/{user_to_check}/hero_matchups.csv"
+teammates_csv = f"data/historical/users/{user_to_check}/teammates.csv"
 
 # Load latest data
 if os.path.exists(latest_file):
