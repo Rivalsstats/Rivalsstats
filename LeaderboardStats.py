@@ -106,6 +106,58 @@ def fetch_leaderboard():
     # Fetch all player details in parallel
     fetch_player_details_parallel(players_to_fetch)
 
+# Fetch match details and save data
+def fetch_match_data(match_id):
+    """Fetch match details and save match/player data."""
+    match_data = rate_limited_fetch(MATCH_API_URL.format(match_id))
+    if not match_data:
+        return
+
+    print(f"Processing match {match_id}...")
+
+    # Save match details
+    append_csv(
+        MATCHES_FILE,
+        ["match_uid", "replay_id", "gamemode"],
+        {
+            "match_uid": match_data["match_uid"],
+            "replay_id": match_data["replay_id"],
+            "gamemode": match_data["gamemode"]["name"],
+        },
+    )
+
+    # Save match players
+    for player in match_data["players"]:
+        append_csv(
+            MATCH_PLAYERS_FILE,
+            [
+                "match_uid",
+                "player_uid",
+                "name",
+                "hero_id",
+                "is_win",
+                "kills",
+                "deaths",
+                "assists",
+                "hero_damage",
+                "hero_healed",
+                "damage_taken",
+            ],
+            {
+                "match_uid": match_data["match_uid"],
+                "player_uid": player["player_uid"],
+                "name": player["name"],
+                "hero_id": player["hero_id"],
+                "is_win": player["is_win"],
+                "kills": player["kills"],
+                "deaths": player["deaths"],
+                "assists": player["assists"],
+                "hero_damage": player["hero_damage"],
+                "hero_healed": player["hero_healed"],
+                "damage_taken": player["damage_taken"],
+            },
+        )
+
 
 # Parallel fetching of player details
 def fetch_player_details_parallel(players_to_fetch):
