@@ -48,7 +48,8 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+          git config pull.rebase true   # rebase
           git add data/
-          git commit -m "Updated all heroes" || echo "No changes to commit"
-          git pull --rebase || echo "No changes to pull"
+          git commit -m "Updated Leaderboard data" || echo "No changes to commit"
+          git pull || echo "No changes to pull"
           git push || echo "No changes to push"
