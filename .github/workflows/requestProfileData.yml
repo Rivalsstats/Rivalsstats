@@ -58,7 +58,9 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+          git config pull.rebase true   # rebase
           git add data/
-          git commit -m "Updated Users: ${USERS_TO_CHECK}"
-          git push
+          git commit -m "Updated Users: ${USERS_TO_CHECK}" || echo "No changes to commit"
+          git pull || echo "No changes to pull"
+          git push || echo "No changes to push"
      
