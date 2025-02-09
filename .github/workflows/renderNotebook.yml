@@ -73,32 +73,7 @@ jobs:
             fi
             git pull 
       # since packages in the rmd can change depending on what we're doing we want to detect them and print them (for debugging)
-      - name: Detect .Rmd files and log detected packages
-        shell: bash  # Force Bash instead of PowerShell
-        run: |
-            choco install r.project
-            ERROR_LOG=".github/detected_packages_log.txt"
-            touch $ERROR_LOG
-            
-            Rscript -e '
-              rmd_files <- list.files(pattern = "\\.Rmd$", recursive = TRUE)
-              if (length(rmd_files) == 0) {
-                cat("No .Rmd files found.\n")
-                writeLines("No .Rmd files found.", con="'$ERROR_LOG'")
-                quit(status = 1)
-              }
-              pkgs <- unique(unlist(lapply(rmd_files, function(f) {
-                lines <- readLines(f)
-                matches <- regmatches(lines, gregexpr("library\\(([^)]+)\\)|require\\(([^)]+)\\)", lines))
-                unlist(lapply(matches, function(x) gsub(".*\\(([^)]+)\\).*", "\\1", x)))
-              })))
-              if (length(pkgs) == 0) {
-                cat("No packages detected in .Rmd files.\n")
-                writeLines("No packages detected in .Rmd files.", con="'$ERROR_LOG'")
-                quit(status = 1)
-              }
-              writeLines(paste("Detected packages:", pkgs), con="'$ERROR_LOG'")
-            '
+    
       # this renders the markdown file as html and github_document and has some error handling to give more info if it fails
       - name: Render Rmarkdown files
         shell: bash  # Force Bash instead of PowerShell
