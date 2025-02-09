@@ -78,56 +78,33 @@ jobs:
         run: |
           Rscript -e 'rmarkdown::render("MarvelRivalsData.Rmd", output_format = "html_document")'
       # this renders the markdown file as html and github_document and has some error handling to give more info if it fails
-      - name: Render Rmarkdown files
-        shell: bash  # Force Bash instead of PowerShell
+      - name: Safe Render Loop
+        shell: bash
         run: |
-            RMD_PATH=$(find . -type f -name '*.Rmd' -not -path './renv/*')
-            if [ -z "${RMD_PATH[*]}" ]; then
-                echo "No .Rmd files to render."
-            else
-                echo "Rendering the following .Rmd files: ${RMD_PATH[*]}"
-                # Debugging: Check if Rmarkdown is installed
-                Rscript -e 'if (!requireNamespace("rmarkdown", quietly=TRUE)) { print("rmarkdown package is missing!") } else { print("rmarkdown is installed.") }'
-
-                echo "=== System Info ==="
-                Rscript -e 'print(R.version.string); print(R.home()); print(Sys.info())'
-                
-                echo "=== Installed Packages ==="
-                Rscript -e 'installed.packages()[,c("Package", "Version")]'
-            
-                echo "=== Checking Pandoc ==="
-                Rscript -e 'rmarkdown::pandoc_version()'
-
-                # Initialize error tracking
-                ERROR_LOG=".github/error_log.txt"
-                touch $ERROR_LOG
-              
-                # Run Rmarkdown render and capture errors if they occur
-                {
-                  Rscript -e '
-                    print("Starting rendering process...");
-                    for (f in commandArgs(TRUE)) {
-                      print(paste("Rendering:", f));
-                      if (file.exists(f)) {
-                        tryCatch({
-                          rmarkdown::render(f, output_format = "html_document")
-                          print(paste("Successfully rendered:", f))
-                        }, error = function(e) {
-                          cat("Error in rendering:", f, "\n", conditionMessage(e), "\n", file=stderr())
-                          writeLines(paste("Error in rendering:", f, conditionMessage(e)), con="'$ERROR_LOG'")
-                          quit(status = 1)
-                        })
-                      } else {
-                        print(paste("File does not exist:", f))
-                      }
-                    }' "$RMD_PATH"
-                } || {
-                  echo "RMarkdown rendering failed."
-                  echo "Contents of $ERROR_LOG:"
-                  cat "$ERROR_LOG" || echo "Error log file is empty or missing."
-                  exit 1
-                }
-            fi 
+          ERROR_LOG=".github/error_log.txt"
+          touch $ERROR_LOG
+      
+          RMD_PATH=($(find . -type f -name '*.Rmd' -not -path './renv/*'))
+          
+          if [ ${#RMD_PATH[@]} -eq 0 ]; then
+              echo "No .Rmd files detected."
+              exit 0
+          fi
+      
+          echo "Rendering the following .Rmd files: ${RMD_PATH[*]}"
+      
+          for file in "${RMD_PATH[@]}"; do
+              echo "Rendering: $file"
+              Rscript -e 'rmarkdown::render("'"$file"'", output_format = "html_document")' || {
+                  echo "Failed to render: $file" >> $ERROR_LOG
+              }
+          done
+      
+          if [ -s "$ERROR_LOG" ]; then
+              echo "Errors occurred during rendering. Check $ERROR_LOG for details."
+              cat "$ERROR_LOG"
+              exit 1
+          fi
       # after rendering we want to commit
       # if we are on main create branch
       #- name: Create new branch for PR
