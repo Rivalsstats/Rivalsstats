@@ -10,7 +10,16 @@ output:
     self_contained: true
     code_folding: hide
 always_allow_html: true
+
 ---
+<style type="text/css">
+.main-container {
+  max-width: 100% !important;
+  margin: auto;
+  max-width: 90vw; 
+  text-align: center;
+}
+</style>
 
 ```{r setup, include=FALSE}
 library('readr')
@@ -237,10 +246,21 @@ average_rank_excluding_points <- round((average_rank_excluding - floor(average_r
 
 rank_image <- get_rank_image(average_rank_including_name)
 rank_image_ex <- get_rank_image(average_rank_excluding_name)
+
+total_players <- rank_population %>%
+  summarise(total = sum(population, na.rm = TRUE))
+total_ranked_players <- rank_population_excluding_unranked %>%
+  summarise(total = sum(population, na.rm = TRUE))
 # Print the results
 
 ```
+
+
 # Average Rank
+There are currently `r total_ranked_players` out of `r total_players` players who have played rank.   
+
+The average Rank is currently.   
+
 <img src="`r rank_image`" alt="`r average_rank_including_name` Image" width="50px" />
 `r average_rank_including_name` | `r average_rank_including_points` lp (including bronze 3/unranked)
 
@@ -613,33 +633,9 @@ ggplot(hero_stats_combined, aes(x = position, y = factor(combined_tier, levels =
 
 ```
 
+# Hero Counters
 
-
-
-
-
-
-```{r matchKillsvsDeaths, echo = FALSE}
-
-plot_ly(
-  hero_stats,
-  x = ~avg_kills,
-  y = ~avg_deaths,
-  type = "scatter",
-  mode = "markers",
-  marker = list(size = ~games_played / 10, opacity = 0.7),
-  text = ~paste0("Hero: ", hero_stats$hero_data_hero_id, "<br>Kills: ", round(hero_stats$avg_kills, 2),
-                 "<br>Deaths: ", round(hero_stats$avg_deaths, 2),
-                 "<br>Games Played: ", hero_stats$games_played),
-  hoverinfo = "text"
-) %>%
-  layout(title = "Hero Kills vs. Deaths",
-         xaxis = list(title = "Average Kills"),
-         yaxis = list(title = "Average Deaths"))
-```
-
-
-```{r heroCountersPrep}
+```{r heroCountersPrep, echo = FALSE}
 match_players <- match_players %>%
   filter(hero_data_playtime >= 30)  # Remove short swaps
 
@@ -687,6 +683,7 @@ hero_matchups <- hero_matchups %>%
     hero_matchups %>%
       rename(opponent_hero = hero, opponent_playtime = playtime_percentage, is_win_opponent = is_win, player_uid_opponent = player_uid),
     by = c("match_uid"),
+    relationship = "many-to-many",
     suffix = c("_self", "_opponent")
   ) %>% 
   select(-is_draw_opponent) %>%
@@ -696,6 +693,7 @@ hero_matchups <- hero_matchups %>%
     is_win != is_win_opponent,    # Ensure we're only comparing opponents
     !is_draw_self                          # Exclude draws
   )
+
 hero_matchups <- hero_matchups %>% select(-is_draw_self)
 
 
@@ -745,33 +743,30 @@ hero_counters <- hero_counters %>%
 
 ```
 
-```{r countersVisualisation}
-library('ggforce')
-# Convert data to long format for ggplot
+```{r counterVisualization, echo = FALSE}
+# Improved Table Formatting
+# Enhancing Readability, Spacing, Colors, and Interactivity
 
-# Table Format
-# Table Format with Icons and Role-based Structure
 get_top_counters <- function(df, hero_name, role, strongest = TRUE) {
   filtered_df <- df %>%
     filter(hero == hero_name & role_lose == role) %>%
     arrange(if (strongest) desc(win_rate) else win_rate) %>%
-    head(3)  # Select top 3
+    head(3)
 
-  if (nrow(filtered_df) == 0) return("") # Return empty if no matchups
+  if (nrow(filtered_df) == 0) return("")
 
-   return(paste0(
-    '<div style="display: inline-block; text-align: center; margin: 5px;">
-      <div style="font-size: 12px; font-weight: bold; color: white; background: ',
-      ifelse(100-filtered_df$win_rate > 50, 'green', 'red'),
-      '; padding: 2px; border-radius: 5px;">',
-        round(100-filtered_df$win_rate, 1), '%</div>
-      <img src="', filtered_df$icon_lose, '" height="30px" style="display: block; margin-top: 2px;">
-    </div>',
+  return(paste0(
+    '<div style="display: inline-block; text-align: center; margin: 5px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background-color: rgba(0,0,0,0.05);">',
+      '<div style="font-size: 14px; font-weight: bold; color: white; background: ',
+      ifelse(100 - filtered_df$win_rate >= 50, 'rgba(50, 205, 50, 0.8)', ifelse(100 - filtered_df$win_rate >= 45, 'rgba(255, 165, 0, 0.8)', 'rgba(255, 69, 0, 0.8)')),
+      '; padding: 4px; border-radius: 6px;">',
+        round(100 - filtered_df$win_rate, 1), '%</div>',
+      '<img src="', filtered_df$icon_lose, '" height="40px" style="border-radius: 6px; margin-top: 3px;">',
+    '</div>',
     collapse = " "
   ))
 }
 
-# Create table with strongest & weakest counters per role for each hero
 hero_counters_table <- hero_counters %>%
   distinct(hero, role_win, icon_win) %>%
   rowwise() %>%
@@ -785,7 +780,6 @@ hero_counters_table <- hero_counters %>%
   ) %>%
   ungroup()
 
-# Merge hero_stats win_rate into hero_counters_table
 hero_counters_table <- hero_counters_table %>%
   left_join(hero_stats %>% select(name, win_rate, pick_rate), by = c("hero" = "name")) %>%
   arrange(desc(win_rate)) %>% 
@@ -793,24 +787,16 @@ hero_counters_table <- hero_counters_table %>%
     pick_rate = paste0(round(pick_rate,2),'%'),
     win_rate = paste0(win_rate,'%'),
   )
-# Convert heroes_win to image format for display
-
 
 hero_counters_table <- hero_counters_table %>%
   mutate(icon_win = paste0(
-    '<div style="position: relative; display: inline-block;">
-       <img src="', icon_win, '" height="50px" style="border-radius: 10px;">
-       <div style="position: absolute; bottom: 4px; left: 0px; background: rgba(0, 0, 0, 0.5); border-radius: 3px; padding: 1px 3px; height: 18px; display: flex; align-items: center;">
-         <img src="https://rivalskins.com/wp-content/uploads/marvel-assets/ui/roles/', tolower(role_win), '.png" 
-              height="14px" style="display: block;">
-       </div>
-     </div>'
+    '<div style="position: relative; display: inline-block;">',
+      '<img src="', icon_win, '" height="65px" style="border-radius: 12px;">',
+      '<div style="position: absolute; bottom: 6px; left: 3px; background: rgba(0, 0, 0, 0.6); border-radius: 4px; padding: 2px 4px; height: 22px; display: flex; align-items: center;">',
+        '<img src="https://mrapi.org/assets/roles/', tolower(role_win), '.png" height="18px">',
+      '</div>',
+    '</div>'
   ))
-
-
-
-
-
 
 hero_counters_table <- hero_counters_table %>%
   rename("Hero" = icon_win,
@@ -821,141 +807,218 @@ hero_counters_table <- hero_counters_table %>%
          "Best Support to Pick" = strongest_strategist_counters,
          "Worst Tank to Pick" = weakest_vanguard_counters,
          "Worst Dps to Pick" = weakest_duelist_counters,
-         "Worst Support to Pick" = weakest_strategist_counters,
-         )
+         "Worst Support to Pick" = weakest_strategist_counters
+  )
 
 
-# Create interactive datatable
 datatable(hero_counters_table, escape = FALSE, options = list(pageLength = 10, autoWidth = TRUE, columnDefs = list(
-    list(targets = c(1,2), visible = FALSE)  # Adjust these numbers based on step 1
+    list(targets = c(1,2), visible = FALSE)  # Adjust based on step 1
   ))) %>%
   formatStyle(
-    columns = names(hero_counters_table),  # Apply to all columns
-    `text-align` = "center"  # Center-align text
-  ) 
-
-
-
-
-
-
-```
-
-
-
-```{r simleClustering, eval = FALSE}
-
-library(dplyr)
-library(tidyr)
-library(cluster)  # For hierarchical clustering
-library(dbscan)   # For DBSCAN
-library(stringr)
-
-# Ensure team compositions contain exactly 6 heroes (and no duplicates)
-team_comps <- match_players %>%
-  group_by(match_uid, is_win, player_uid) %>%
-  summarise(heroes = sort(unique(name.y)), .groups = "drop") %>%
-  filter(length(heroes) == 6) %>%   # Only allow valid 6-hero compositions
-  mutate(team = paste(heroes, collapse = "/")) %>%
-  group_by(team) %>%
-  summarise(
-    win_rate = mean(is_win) * 100,
-    games_played = n(),
-    .groups = "drop"
+    columns = names(hero_counters_table),
+    `text-align` = "center"
   ) %>%
-  arrange(desc(games_played))  
+  htmlwidgets::onRender("
+    function(el, x) {
+      el.style.width = '100%';
+      el.style.margin = 'auto';
+    }
+  ")
 
-# Convert teams into binary feature vectors (one-hot encoding)
-hero_list <- unique(unlist(strsplit(paste(team_comps$team, collapse = "/"), "/")))
-hero_matrix <- do.call(rbind, lapply(team_comps$team, function(t) {
-  as.integer(hero_list %in% unlist(strsplit(t, "/")))
-}))
-colnames(hero_matrix) <- hero_list
 
-# Perform DBSCAN clustering
-dbscan_result <- dbscan(hero_matrix, eps = 1.5, minPts = 3)  # Adjust eps for better grouping
-team_comps$cluster <- dbscan_result$cluster
 
-# View cluster assignments
-team_comps %>% arrange(cluster, desc(games_played))
+```
+
+# Hero Synergies
+
+```{r heroSyneries, echo = FALSE}
+
+# ========= STEP 1: Deduplicate match_players =========
+# We assume match_players has one row per hero per player.
+# In case a team has multiple records for the same hero (e.g. due to substitutions),
+# we aggregate them. Here we take the maximum playtime_percentage per match, team, and hero.
+match_players_unique <- match_players %>%
+  group_by(match_uid, is_win, name.y) %>%
+  summarise(playtime_percentage = max(playtime_percentage), .groups = "drop")
+
+# ========= STEP 2: Identify Teams =========
+# For each match and team (identified by match_uid and is_win),
+# get the unique heroes (each hero appears only once per team).
+teams <- match_players_unique %>%
+  group_by(match_uid, is_win) %>%
+  summarise(team_heroes = list(unique(name.y)), .groups = "drop") %>%
+  # Make sure we have at least 2 heroes on the team
+  filter(map_int(team_heroes, length) > 1)
+
+# ========= STEP 3: Generate All Hero Pairings Per Team =========
+# For each team, use combn() to get all unordered hero pair combinations.
+hero_pairs <- teams %>%
+  mutate(hero_combinations = map(team_heroes, ~ combn(.x, 2, simplify = FALSE))) %>%
+  select(match_uid, is_win, hero_combinations) %>%
+  unnest(hero_combinations) %>%
+  unnest_wider(hero_combinations, names_sep = "_") %>%
+  rename(hero1 = hero_combinations_1,
+         hero2 = hero_combinations_2)
+
+# ========= STEP 4: Join Playtime Percentages =========
+# Now join each hero's playtime from match_players_unique.
+# We join on both match_uid and is_win so that we only match within the same team.
+hero_pairs <- hero_pairs %>%
+  left_join(match_players_unique %>% 
+              select(match_uid, is_win, name.y, playtime_percentage), 
+            by = c("match_uid", "is_win", "hero1" = "name.y")) %>%
+  rename(playtime_hero1 = playtime_percentage) %>%
+  left_join(match_players_unique %>% 
+              select(match_uid, is_win, name.y, playtime_percentage), 
+            by = c("match_uid", "is_win", "hero2" = "name.y")) %>%
+  rename(playtime_hero2 = playtime_percentage)
+
+# ========= STEP 5: Compute Weighted Wins / Losses =========
+# For each hero pair in a match, if the team won (is_win == TRUE) we calculate
+# a weighted win using the product of the two heroes’ playtime percentages.
+# If the team lost, we calculate a weighted loss.
+hero_pairs <- hero_pairs %>%
+  mutate(
+    weighted_win  = ifelse(is_win, playtime_hero1 * playtime_hero2, 0),
+    weighted_loss = ifelse(!is_win, playtime_hero1 * playtime_hero2, 0)
+  )
+
+# ========= STEP 6: Aggregate Synergy Data =========
+# Across all matches, aggregate the synergy statistics by hero pair.
+hero_synergy <- hero_pairs %>%
+  group_by(hero1, hero2) %>%
+  summarise(
+    wins          = sum(weighted_win, na.rm = TRUE),
+    losses        = sum(weighted_loss, na.rm = TRUE),
+    total_matches = wins + losses,
+    win_rate      = ifelse(total_matches > 0, wins / total_matches * 100, NA),
+    .groups       = "drop"
+  ) %>%
+  arrange(desc(win_rate))
+
+# ========= STEP 7: Filter Out Rare Synergies =========
+# For example, you might require that a synergy pair appears in at least 1% of all matches.
+total_matches_all <- nrow(matches)  # 'matches' should be your overall match table
+threshold <- total_matches_all * 0.01
+hero_synergy <- hero_synergy %>%
+  filter(total_matches >= threshold)
+
+# ========= STEP 8: Merge Role and Icon Data =========
+# Join in hero metadata from all_heroes so you can later display the hero icons and roles.
+hero_synergy <- hero_synergy %>%
+  left_join(select(all_heroes, name, role, icon), by = c("hero1" = "name")) %>%
+  rename(role1 = role, icon1 = icon) %>%
+  left_join(select(all_heroes, name, role, icon), by = c("hero2" = "name")) %>%
+  rename(role2 = role, icon2 = icon)
+
+# ========= STEP 9: Create Bidirectional Synergy Data =========
+# So that for any given hero (say, BruceBanner) you can look up synergy
+# with a partner (e.g., DrStrange) regardless of the order, duplicate each row in reverse.
+hero_synergy_reversed <- hero_synergy %>%
+  mutate(
+    temp_hero = hero1,
+    temp_role = role1,
+    temp_icon = icon1
+  ) %>%
+  transmute(
+    hero1 = hero2,
+    hero2 = temp_hero,
+    wins,
+    losses,
+    total_matches,
+    win_rate,
+    role1 = role2,
+    icon1 = icon2,
+    role2 = temp_role,
+    icon2 = temp_icon
+  )
+
+hero_synergy_bidirectional <- bind_rows(hero_synergy, hero_synergy_reversed) %>%
+  filter(hero1 != hero2)  # safeguard against any self–pairs
 
 
 ```
 
 
-```{r matchTeamComps, echo = FALSE, eval = FALSE}
+```{r heroSynergiesVisualization, echo = FALSE}
+get_top_synergies <- function(df, hero_name, role, strongest = TRUE) {
+  filtered_df <- df %>%
+    filter(hero1 == hero_name & role2 == role) %>%
+    arrange(if (strongest) desc(win_rate) else win_rate) %>%
+    head(3)
 
-# Determine the most played hero per player (or multiple if similar playtime)
-match_players <- match_players %>%
-  group_by(match_uid, player_uid) %>%
-  mutate(max_playtime = max(hero_data_playtime)) %>%
-  filter(hero_data_playtime >= max_playtime * 0.8) %>%  # Allow slight flexibility
+  if (nrow(filtered_df) == 0) return("")
+
+  return(paste0(
+    '<div style="display: inline-block; text-align: center; margin: 5px; padding: 3px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background-color: rgba(0,0,0,0.05);">',
+      '<div style="font-size: 14px; font-weight: bold; color: white; background: ',
+      ifelse(filtered_df$win_rate >= 50, 'rgba(50, 205, 50, 0.8)', ifelse(filtered_df$win_rate >= 45, 'rgba(255, 165, 0, 8)', 'rgba(255, 69, 0, 0.8)')),
+      '; padding: 4px; border-radius: 6px;">',
+        round(filtered_df$win_rate, 1), '%</div>',
+      '<img src="', filtered_df$icon2, '" height="40px" style="border-radius: 6px; margin-top: 3px;">',
+    '</div>',
+    collapse = " "
+  ))
+}
+
+hero_synergy_table <- hero_synergy_bidirectional %>%
+  distinct(hero1, role1, icon1) %>%
+  rowwise() %>%
+  mutate(
+    best_vanguard_synergies = get_top_synergies(hero_synergy_bidirectional, hero1, "VANGUARD", TRUE),
+    best_duelist_synergies = get_top_synergies(hero_synergy_bidirectional, hero1, "DUELIST", TRUE),
+    best_strategist_synergies = get_top_synergies(hero_synergy_bidirectional, hero1, "STRATEGIST", TRUE),
+    worst_vanguard_synergies = get_top_synergies(hero_synergy_bidirectional, hero1, "VANGUARD", FALSE),
+    worst_duelist_synergies = get_top_synergies(hero_synergy_bidirectional, hero1, "DUELIST", FALSE),
+    worst_strategist_synergies = get_top_synergies(hero_synergy_bidirectional, hero1, "STRATEGIST", FALSE)
+  ) %>%
   ungroup()
 
-# Merge hero names
-# Ensure both columns are the same type before joining
-match_players <- match_players %>%  # Convert to character'
-  mutate(hero_id = as.character(hero_id)) %>%
-  left_join(hero_stats , by = c("hero_id" = "hero_data_hero_id"))
+hero_synergy_table <- hero_synergy_table %>%
+  left_join(hero_stats %>% select(name, win_rate, pick_rate), by = c("hero1" = "name")) %>%
+  arrange(desc(win_rate)) %>% 
+  mutate(
+    pick_rate = paste0(round(pick_rate,2),'%'),
+    win_rate = paste0(win_rate,'%')
+  )
 
+hero_synergy_table <- hero_synergy_table %>%
+  mutate(icon1 = paste0(
+    '<div style="position: relative; display: inline-block;">',
+       '<img src="', icon1, '" height="65px" style="border-radius: 12px;">',
+       '<div style="position: absolute; bottom: 6px; left: 3px; background: rgba(0, 0, 0, 0.6); border-radius: 4px; padding: 2px 4px; height: 22px; display: flex; align-items: center;">',
+         '<img src="https://mrapi.org/assets/roles/', tolower(role1), '.png" height="18px">',
+       '</div>',
+     '</div>'
+  ))
 
-# Create team compositions
-# Step 3: Create team compositions
-team_comps <- match_players %>%
-  group_by(match_uid, is_win, player_uid) %>%
-  summarise(heroes = paste(sort(unique(name.y)), collapse = "/"), .groups = "drop") %>%
-  group_by(match_uid, is_win) %>%
-  summarise(team = paste(sort(unique(heroes)), collapse = ", "), .groups = "drop") %>%
-  group_by(team) %>%
-  summarise(
-    win_rate = mean(is_win) * 100,
-    games_played = n(),
-    .groups = "drop"
+hero_synergy_table <- hero_synergy_table %>%
+  rename("Hero" = icon1,
+         "Winrate" = win_rate,
+         "Pickrate" = pick_rate,
+         "Best Tank Partner" = best_vanguard_synergies,
+         "Best DPS Partner" = best_duelist_synergies,
+         "Best Support Partner" = best_strategist_synergies,
+         "Worst Tank Partner" = worst_vanguard_synergies,
+         "Worst DPS Partner" = worst_duelist_synergies,
+         "Worst Support Partner" = worst_strategist_synergies
+  )
+
+datatable(hero_synergy_table, escape = FALSE, options = list(pageLength = 10, autoWidth = TRUE, columnDefs = list(
+    list(targets = c(1,2), visible = FALSE)  
+  ))) %>%
+  formatStyle(
+    columns = names(hero_synergy_table),
+    `text-align` = "center"
   ) %>%
-  arrange(desc(games_played))  # Sort by most common teams
-```
+  htmlwidgets::onRender("
+    function(el, x) {
+      el.style.width = '100%';
+      el.style.margin = 'auto';
+    }
+  ")
 
 
-
-
-```{r matchHeroData, echo = FALSE, eval = FALSE}
-
-# Hero synergies (which heroes win together)
-hero_synergies <- match_players %>%
-  group_by(match_uid, is_win) %>%
-  summarise(teammates = combn(sort(hero_id), 2, paste, collapse = "-"), .groups = "drop") %>%
-  separate_rows(teammates, sep = ",") %>%
-  group_by(teammates) %>%
-  summarise(win_rate = mean(is_win) * 100, games_played = n()) %>%
-  arrange(desc(win_rate))
-
-# Hero counters: who wins against whom
-hero_counters <- match_players %>%
-  left_join(match_players, by = "match_uid", suffix = c("_team1", "_team2")) %>%
-  filter(hero_id_team1 != hero_id_team2) %>%
-  group_by(hero_id_team1, hero_id_team2) %>%
-  summarise(
-    wins = sum(is_win_team1, na.rm = TRUE),
-    losses = sum(!is_win_team1, na.rm = TRUE),
-    total = n(),
-    win_rate = (wins / total) * 100
-  ) %>%
-  filter(total > 50) %>%
-  arrange(desc(win_rate))
-
-# Best counters (interactive heatmap)
-plot_ly(
-  hero_counters,
-  x = ~hero_id_team2,
-  y = ~hero_id_team1,
-  z = ~win_rate,
-  type = "heatmap",
-  colorscale = "Blues"
-) %>%
-  layout(title = "Hero Counter Win Rates",
-         xaxis = list(title = "Opponent Hero"),
-         yaxis = list(title = "Winning Hero"))
 
 ```
-
 
