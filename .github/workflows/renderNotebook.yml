@@ -93,27 +93,28 @@ jobs:
               
                 # Run Rmarkdown render and capture errors if they occur
                 {
-                    Rscript -e '
-                      print("Starting rendering process...");
-                      for (f in commandArgs(TRUE)) {
-                        print(paste("Rendering:", f));
-                        if (file.exists(f)) {
-                          tryCatch({
-                            rmarkdown::render(f, output_format = "html_document")
-                            print(paste("Successfully rendered:", f))
-                          }, error = function(e) {
-                            cat("Error in rendering:", f, "\n", conditionMessage(e), "\n", file=stderr())
-                            writeLines(paste("Error in rendering:", f, conditionMessage(e)), con="'$ERROR_LOG'")
-                            quit(status = 1)
-                          })
-                        } else {
-                          print(paste("File does not exist:", f))
-                        }
-                      }' "$RMD_PATH"
-
+                  Rscript -e '
+                    print("Starting rendering process...");
+                    for (f in commandArgs(TRUE)) {
+                      print(paste("Rendering:", f));
+                      if (file.exists(f)) {
+                        tryCatch({
+                          rmarkdown::render(f, output_format = "html_document")
+                          print(paste("Successfully rendered:", f))
+                        }, error = function(e) {
+                          cat("Error in rendering:", f, "\n", conditionMessage(e), "\n", file=stderr())
+                          writeLines(paste("Error in rendering:", f, conditionMessage(e)), con="'$ERROR_LOG'")
+                          quit(status = 1)
+                        })
+                      } else {
+                        print(paste("File does not exist:", f))
+                      }
+                    }' "$RMD_PATH"
                 } || {
-                    echo "RMarkdown rendering failed. Check $ERROR_LOG for details." 
-                    exit 1
+                  echo "RMarkdown rendering failed."
+                  echo "Contents of $ERROR_LOG:"
+                  cat "$ERROR_LOG" || echo "Error log file is empty or missing."
+                  exit 1
                 }
             fi 
       # after rendering we want to commit
