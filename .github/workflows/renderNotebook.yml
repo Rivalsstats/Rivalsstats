@@ -76,6 +76,7 @@ jobs:
       - name: Detect .Rmd files and log detected packages
         shell: bash  # Force Bash instead of PowerShell
         run: |
+            choco install r.project
             ERROR_LOG=".github/detected_packages_log.txt"
             touch $ERROR_LOG
             
@@ -102,7 +103,6 @@ jobs:
       - name: Render Rmarkdown files
         shell: bash  # Force Bash instead of PowerShell
         run: |
-            choco install r.project
             RMD_PATH=($(find . -type f -name '*.Rmd' -not -path './renv/*'))
             if [ -z "${RMD_PATH[*]}" ]; then
                 echo "No .Rmd files to render."
