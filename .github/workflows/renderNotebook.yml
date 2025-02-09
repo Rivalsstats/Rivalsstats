@@ -86,6 +86,14 @@ jobs:
                 # Debugging: Check if Rmarkdown is installed
                 Rscript -e 'if (!requireNamespace("rmarkdown", quietly=TRUE)) { print("rmarkdown package is missing!") } else { print("rmarkdown is installed.") }'
 
+                echo "=== System Info ==="
+                Rscript -e 'print(R.version.string); print(R.home()); print(Sys.info())'
+                
+                echo "=== Installed Packages ==="
+                Rscript -e 'installed.packages()[,c("Package", "Version")]'
+            
+                echo "=== Checking Pandoc ==="
+                Rscript -e 'rmarkdown::pandoc_version()'
 
                 # Initialize error tracking
                 ERROR_LOG=".github/error_log.txt"
