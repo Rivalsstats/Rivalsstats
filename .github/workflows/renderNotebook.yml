@@ -78,7 +78,7 @@ jobs:
       - name: Render Rmarkdown files
         shell: bash  # Force Bash instead of PowerShell
         run: |
-            RMD_PATH=($(find . -type f -name '*.Rmd' -not -path './renv/*'))
+            RMD_PATH=$(find . -type f -name '*.Rmd' -not -path './renv/*')
             if [ -z "${RMD_PATH[*]}" ]; then
                 echo "No .Rmd files to render."
             else
@@ -90,17 +90,19 @@ jobs:
               
                 # Run Rmarkdown render and capture errors if they occur
                 {
-                    Rscript -e 'for (f in commandArgs(TRUE)) {
-                        if (file.exists(f)) {
-                            tryCatch({
-                                rmarkdown::render(f, output_format = c("html_document"))
-                            }, error = function(e) {
-                                cat("Error in rendering:", f, "\n", conditionMessage(e), "\n", file=stderr())
-                                writeLines(paste("Error in rendering:", f, conditionMessage(e)), con="'$ERROR_LOG'")
-                                quit(status = 1)
-                            })
-                        }
-                    }' ${RMD_PATH[*]}
+                    Rscript -e 'args <- commandArgs(TRUE);
+                        for (f in args) {
+                            if (file.exists(f)) {
+                                tryCatch({
+                                    rmarkdown::render(f, output_format = c("html_document"))
+                                }, error = function(e) {
+                                    cat("Error in rendering:", f, "\n", conditionMessage(e), "\n", file=stderr())
+                                    writeLines(paste("Error in rendering:", f, conditionMessage(e)), con="'$ERROR_LOG'")
+                                    quit(status = 1)
+                                })
+                            }
+                        }' "$RMD_PATH"  # Ensure proper quoting of the variable
+
                 } || {
                     echo "RMarkdown rendering failed. Check $ERROR_LOG for details." 
                     exit 1
