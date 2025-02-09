@@ -83,6 +83,9 @@ jobs:
                 echo "No .Rmd files to render."
             else
                 echo "Rendering the following .Rmd files: ${RMD_PATH[*]}"
+                # Debugging: Check if Rmarkdown is installed
+                Rscript -e 'if (!requireNamespace("rmarkdown", quietly=TRUE)) { print("rmarkdown package is missing!") } else { print("rmarkdown is installed.") }'
+
 
                 # Initialize error tracking
                 ERROR_LOG=".github/error_log.txt"
@@ -90,18 +93,23 @@ jobs:
               
                 # Run Rmarkdown render and capture errors if they occur
                 {
-                    Rscript -e 'args <- commandArgs(TRUE);
-                        for (f in args) {
-                            if (file.exists(f)) {
-                                tryCatch({
-                                    rmarkdown::render(f, output_format = c("html_document"))
-                                }, error = function(e) {
-                                    cat("Error in rendering:", f, "\n", conditionMessage(e), "\n", file=stderr())
-                                    writeLines(paste("Error in rendering:", f, conditionMessage(e)), con="'$ERROR_LOG'")
-                                    quit(status = 1)
-                                })
-                            }
-                        }' "$RMD_PATH"  # Ensure proper quoting of the variable
+                    Rscript -e '
+                      print("Starting rendering process...");
+                      for (f in commandArgs(TRUE)) {
+                        print(paste("Rendering:", f));
+                        if (file.exists(f)) {
+                          tryCatch({
+                            rmarkdown::render(f, output_format = "html_document")
+                            print(paste("Successfully rendered:", f))
+                          }, error = function(e) {
+                            cat("Error in rendering:", f, "\n", conditionMessage(e), "\n", file=stderr())
+                            writeLines(paste("Error in rendering:", f, conditionMessage(e)), con="'$ERROR_LOG'")
+                            quit(status = 1)
+                          })
+                        } else {
+                          print(paste("File does not exist:", f))
+                        }
+                      }' "$RMD_PATH"
 
                 } || {
                     echo "RMarkdown rendering failed. Check $ERROR_LOG for details." 
