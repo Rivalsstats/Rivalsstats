@@ -25,7 +25,7 @@ jobs:
   buildNotebook:
 
     # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
-    runs-on: windows.latest
+    runs-on: windows-latest
 
     # specify the environment variables used by the packager, matching the secrets from the project on GitHub
     env:
