@@ -1021,3 +1021,158 @@ datatable(hero_synergy_table, escape = FALSE, options = list(pageLength = 10, au
 
 
 ```
+
+
+
+```{r teamCompsSetup, echo = FALSE}
+
+# ---- Step 1: Merge Data ----
+# Merge hero_data to get role info; note: this is dynamic, not hardcoded.
+mp_enriched <- match_players %>%
+  left_join(all_heroes %>% select(id, role, attack_type),
+            by = c("hero_data_hero_id" = "id"))
+
+# ---- Step 2: Aggregate at the Player Level ----
+# Each player may have multiple rows if they switched heroes.
+# Sum the playtime percentages per role for each player per match.
+player_role <- mp_enriched %>%
+  group_by(match_uid, is_win, player_uid, role) %>%
+  summarise(effective = sum(playtime_percentage, na.rm = TRUE),
+            .groups = "drop")
+
+# ---- Step 3: Aggregate to the Team Level ----
+# Sum the contributions of all players per team (each team is defined by match_uid and is_win).
+team_roles <- player_role %>%
+  group_by(match_uid, is_win, role) %>%
+  summarise(team_effective = sum(effective), .groups = "drop")
+
+# Pivot so that each row is a team and columns are the roles (dynamically determined).
+team_roles_wide <- team_roles %>%
+  pivot_wider(names_from = role, values_from = team_effective, values_fill = 0)
+
+# Check the total effective "players" on a team (should be ~6).
+team_roles_wide <- team_roles_wide %>%
+  mutate(total_effective = rowSums(across(-c(match_uid, is_win))))
+
+# If total_effective is not exactly 6 (due to rounding in the data), we normalize:
+team_roles_wide <- team_roles_wide %>%
+  mutate(across(-c(match_uid, is_win, total_effective),
+                ~ .x * (6 / total_effective)))
+
+# ---- Step 4: Round to Discrete Counts Preserving the Total ----
+# Define a function that rounds a vector to integers that sum to a target value.
+round_preserve_sum <- function(x, target = 6) {
+  floor_vals <- floor(x)
+  remainder <- x - floor_vals
+  diff <- target - sum(floor_vals)
+  if(diff > 0) {
+    order_idx <- order(remainder, decreasing = TRUE)
+    floor_vals[order_idx[1:diff]] <- floor_vals[order_idx[1:diff]] + 1
+  }
+  return(floor_vals)
+}
+
+# Identify the role columns dynamically.
+role_cols <- setdiff(names(team_roles_wide), c("match_uid", "is_win", "total_effective"))
+
+# Apply the rounding row‐wise.
+team_roles_discrete <- team_roles_wide %>%
+  rowwise() %>%
+  mutate(rounded = list(round_preserve_sum(c_across(all_of(role_cols)), target = 6))) %>%
+  # Create a composition string like "2 Vanguard, 1 Duelist, 3 Strategist"
+  mutate(composition = {
+    counts <- unlist(rounded)
+    names(counts) <- role_cols
+    # Only include roles with a nonzero count.
+    comps <- paste0(counts, " ", names(counts))
+    comps <- comps[counts > 0]
+    paste(comps, collapse = ", ")
+  }) %>%
+  ungroup()
+
+# ---- Step 5: Summarize Compositions Across Teams ----
+# Calculate how frequently each composition is picked and its win rate.
+total_teams <- nrow(team_roles_discrete)
+team_comp_stats <- team_roles_discrete %>%
+  group_by(composition) %>%
+  summarise(
+    picks = n(),
+    pick_percentage = n() / total_teams,
+    win_rate = mean(is_win, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(picks))
+
+```
+
+```{r teamCompVisualization, echo = FALSE}
+
+# Function to convert a composition string into HTML with role icons in the order: vanguard, duelist, strategist.
+parse_composition <- function(comp_string) {
+  # Desired order of roles (all lower-case)
+  desired_order <- c("vanguard", "duelist", "strategist")
+  
+  # Split the composition string by comma and trim whitespace.
+  parts <- trimws(unlist(strsplit(comp_string, ",\\s*")))
+  
+  # Parse each part into a list with count and role.
+  parsed_parts <- lapply(parts, function(part) {
+    tokens <- unlist(strsplit(part, "\\s+"))
+    list(
+      count = tokens[1],
+      role = tolower(tokens[2])
+    )
+  })
+  
+  # Determine order: if the role is in desired_order, use that order; otherwise, give it a high number.
+  order_values <- sapply(parsed_parts, function(x) {
+    pos <- match(x$role, desired_order)
+    if (is.na(pos)) 999 else pos
+  })
+  
+  # Sort the parts by the order value.
+  sorted_parts <- parsed_parts[order(order_values)]
+  
+  # Build an HTML snippet for each sorted part.
+  icons <- sapply(sorted_parts, function(x) {
+    paste0(
+      '<div style="display:inline-block; vertical-align: middle; margin-right: 5px; background-color:#444; border-radius: 4px; padding: 2px 6px;">',
+        '<span style="color:white; font-weight:bold;">', x$count, '</span> ',
+        '<img src="https://mrapi.org/assets/roles/', x$role, '.png" height="30px" style="vertical-align: middle;">',
+      '</div>'
+    )
+  })
+  
+  # Concatenate the individual HTML blocks.
+  paste(icons, collapse = "")
+}
+
+# Prepare the team composition data for display.
+team_comp_stats <- team_comp_stats %>%
+  mutate(
+    # If pick percentage is less than 1%, show as "<1%" otherwise round to 0 decimals.
+    pick_pct = ifelse(pick_percentage * 100 < 1, "<1%", paste0(round(pick_percentage * 100, 0), "%")),
+    win_pct  = paste0(round(win_rate * 100, 0), "%"),
+    composition_icons = sapply(composition, parse_composition)
+  )
+
+# Create the datatable.
+datatable(
+  team_comp_stats %>% select(composition_icons, pick_pct, win_pct),
+  rownames = FALSE,
+  escape = FALSE,
+  colnames = c("Team Composition", "Pick %", "Win %"),
+  options = list(
+    dom = 't',
+    pageLength = nrow(team_comp_stats),
+    initComplete = JS(
+      "function(settings, json) {",
+      "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
+      "}"
+    )
+  )
+)
+
+
+
+```
