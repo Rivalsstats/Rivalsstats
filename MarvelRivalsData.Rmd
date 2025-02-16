@@ -288,7 +288,12 @@ datatable(rank_population, escape = FALSE,options = list(
   pageLength = 25, autoWidth = TRUE,
   columnDefs = list(
     list(targets = c(4, 8), visible = FALSE)  # Adjust these numbers based on step 1
-  )
+  ),
+  initComplete = JS(
+      "function(settings, json) {",
+      "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
+      "}"
+    )
   )
 ) %>%
   formatStyle(
@@ -305,8 +310,8 @@ matches_file <- "data/historical/matches.csv"
 players_file <- "data/historical/match_players.parquet"
 all_heroes <- fromJSON("data/latest/heroes/all_heroes.json")
 
-matches <- read_csv(matches_file)
-match_players <- read_parquet(players_file)
+matches <- read_csv(matches_file, show_col_types = FALSE)
+match_players <- read_parquet(players_file, show_col_types = FALSE)
 
 
 
@@ -423,6 +428,7 @@ for (i in 1:nrow(hero_stats)) {
 # Add local file paths to dataset
 hero_stats$icon <- paste0("icons/hero_icons/", gsub(" ", "_", hero_stats$name), ".png")
 
+
 # Print summary statistics
 datatable(
   hero_stats %>%
@@ -430,8 +436,15 @@ datatable(
     rename("Hero" = name, "Win Rate (%)" = win_rate, "Avg Kills" = avg_kills, 
            "Avg Deaths" = avg_deaths, "Avg Assists" = avg_assists, 
            "Avg Damage" = avg_hero_damage, "Avg Dmg Taken" = avg_damage_taken, "Avg Healing" = avg_hero_healed, "Games Played" = games_played, ),
-  options = list(pageLength = 10, autoWidth = TRUE),
-  rownames = FALSE
+  options = list(
+    pageLength = 10, 
+    autoWidth = TRUE,
+    initComplete = JS(
+      "function(settings, json) {",
+      "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
+      "}"
+    )),
+  rownames = FALSE,
 )
 ```
 
@@ -810,8 +823,18 @@ hero_counters_table <- hero_counters_table %>%
          "Worst Support to Pick" = weakest_strategist_counters
   )
 
-
-datatable(hero_counters_table, escape = FALSE, options = list(pageLength = 10, autoWidth = TRUE, columnDefs = list(
+datatable(
+  hero_counters_table, 
+  escape = FALSE, 
+  options = list(
+    pageLength = 10, 
+    autoWidth = TRUE,
+     initComplete = JS(
+      "function(settings, json) {",
+      "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
+      "}"
+    ),
+    columnDefs = list(
     list(targets = c(1,2), visible = FALSE)  # Adjust based on step 1
   ))) %>%
   formatStyle(
@@ -1004,8 +1027,19 @@ hero_synergy_table <- hero_synergy_table %>%
          "Worst Support Partner" = worst_strategist_synergies
   )
 
-datatable(hero_synergy_table, escape = FALSE, options = list(pageLength = 10, autoWidth = TRUE, columnDefs = list(
-    list(targets = c(1,2), visible = FALSE)  
+
+datatable(
+  hero_synergy_table, 
+  escape = FALSE, 
+  options = list(
+    ageLength = 10, 
+    autoWidth = TRUE,
+    initComplete = JS(
+      "function(settings, json) {",
+      "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
+      "}"
+    ),
+    columnDefs = list(list(targets = c(1,2), visible = FALSE)  
   ))) %>%
   formatStyle(
     columns = names(hero_synergy_table),
@@ -1093,6 +1127,14 @@ team_roles_discrete <- team_roles_wide %>%
 # ---- Step 5: Summarize Compositions Across Teams ----
 # Calculate how frequently each composition is picked and its win rate.
 total_teams <- nrow(team_roles_discrete)
+
+
+# --- Compute Total Matches ---
+total_matches <- n_distinct(team_roles_discrete$match_uid)
+
+# Compute the dynamic threshold (1% of total matches, minimum 1)
+dynamic_threshold <- max(1, round(0.01 * total_matches))
+
 team_comp_stats <- team_roles_discrete %>%
   group_by(composition) %>%
   summarise(
@@ -1175,4 +1217,57 @@ datatable(
 
 
 
+```
+
+```{r teamCompCounters, echo = FALSE}
+
+# Build a match-level table from team_roles_discrete.
+match_comps <- team_roles_discrete %>% select(match_uid, composition, is_win)
+
+# Pair teams from the same match.
+# Use a self-join on match_uid and filter to avoid duplicates.
+match_pairings <- match_comps %>%
+  inner_join(match_comps, by = "match_uid", suffix = c("_comp", "_opp"), relationship = "many-to-many") %>%
+  filter(composition_comp != composition_opp) %>% 
+  # Enforce a consistent ordering so each matchup appears only once.
+  filter(composition_comp < composition_opp) %>%
+  # Record win outcome for the "Composition" side.
+  mutate(win_for_comp = ifelse(is_win_comp, 1, 0))
+
+# Group by the two compositions to get matchup stats.
+head_to_head <- match_pairings %>%
+  group_by(Composition = composition_comp, `Opponent Composition` = composition_opp) %>%
+  summarise(
+    Matches = n(),
+    WinRate = mean(win_for_comp),
+    .groups = "drop"
+  ) %>%
+  filter(Matches >= dynamic_threshold) %>%
+  arrange(desc(Matches))
+
+# For display, compute the win percentage (for Composition) and generate icons.
+head_to_head <- head_to_head %>%
+  mutate(
+    WinRatePct = paste0(round(WinRate * 100, 0), "%"),
+    comp_icons = sapply(Composition, parse_composition),
+    opp_icons = sapply(`Opponent Composition`, parse_composition)
+  )
+
+# Display the head-to-head matchup table.
+# Now the columns are renamed to "Composition", "Opponent Composition", "Matches", "Win %"
+datatable(
+  head_to_head %>% select(comp_icons, opp_icons, Matches, WinRatePct),
+  rownames = FALSE,
+  escape = FALSE,
+  colnames = c("Composition", "Opponent Composition", "Matches", "Win %"),
+  options = list(
+    dom = 't',
+    pageLength = nrow(head_to_head),
+    initComplete = JS(
+      "function(settings, json) {",
+      "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
+      "}"
+    )
+  )
+)
 ```
