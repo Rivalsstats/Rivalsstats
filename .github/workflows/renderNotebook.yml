@@ -16,7 +16,11 @@ on:
     paths:
       - 'data/**'              # Any file inside the /data/ folder
       - 'MarvelRivalsData.Rmd' # The specific file 
-  workflow_dispatch: 
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["requestHeroLeaderboard","requestLeaderboard","requestRankInfo"]
+    types:
+      - completed
 
 # a workflow is built up as jobs, and within these jobs are steps
 jobs:
