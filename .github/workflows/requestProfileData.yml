@@ -20,6 +20,7 @@ jobs:
     env:
       BASE_URL: "https://mrapi.org/api/"
       STATS_URL: "player/"
+      GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
       USERS_TO_CHECK: '["258927695"]'  # Define user IDs as a JSON array
 
     # Steps represent a sequence of tasks that will be executed as part of the job
