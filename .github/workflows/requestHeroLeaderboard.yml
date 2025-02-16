@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASE_URL: "https://mrapi.org/api/"
+      GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+      
 
       - name: Install dependencies
         run: pip install aiohttp
