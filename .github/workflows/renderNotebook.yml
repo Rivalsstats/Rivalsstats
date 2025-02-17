@@ -78,11 +78,6 @@ jobs:
                 git checkout $TARGET_BRANCH || git checkout -b $TARGET_BRANCH
             fi
             git pull 
-      # since packages in the rmd can change depending on what we're doing we want to detect them and print them (for debugging)
-      - name: testRender
-        shell: bash
-        run: |
-          Rscript -e 'rmarkdown::render("MarvelRivalsData.Rmd", output_format = "html_document")'
       # this renders the markdown file as html and github_document and has some error handling to give more info if it fails
       - name: Safe Render Loop
         shell: bash
