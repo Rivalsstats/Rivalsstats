@@ -18,7 +18,7 @@ on:
       - 'MarvelRivalsData.Rmd' # The specific file 
   workflow_dispatch:
   workflow_run:
-    workflows: ["Update Marvel Rivals Hero Stats & Leaderboards", "request Leaderboard", "Update Marvel Rivals Rank Population"]
+    workflows: ["Update Marvel Rivals Hero Stats & Leaderboards", "request Leaderboard", "Update Marvel Rivals Rank Population", "request Profile Data"]
     types:
       - completed
 
