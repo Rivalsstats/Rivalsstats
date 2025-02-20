@@ -56,16 +56,14 @@ def load_existing_players():
 
     players = {}
     with open(PLAYER_ENCOUNTERS_FILE, "r", encoding="utf-8") as f:
-        next(f)  # Skip header
-        for line in f:
-            data = line.strip().split(",")
-            player_uid = data[0]
-            players[player_uid] = {
-                "player_name": data[1],
-                "highest_score": int(data[2]) if data[2].isdigit() else 0,
-                "latest_score": int(data[3]) if data[3].isdigit() else 0,
-                "matches": int(data[4]) if data[4].isdigit() else 0,
-                "wins": int(data[5]) if data[5].isdigit() else 0
+        reader = csv.DictReader(f)
+        for row in reader:
+            players[row["player_uid"]] = {
+                "player_name": row["player_name"],
+                "highest_score": int(row["highest_score"]) if row["highest_score"].isdigit() else 0,
+                "latest_score": int(row["latest_score"]) if row["latest_score"].isdigit() else 0,
+                "matches": int(row["matches"]) if row["matches"].isdigit() else 0,
+                "wins": int(row["wins"]) if row["wins"].isdigit() else 0,
             }
     print(f"Loaded {len(players)} existing encountered players.")
     return players
@@ -310,7 +308,7 @@ def process_encountered_players(player_data, timestamp):
     # Process teammates
     if "teammates" in player_data:
         for teammate in player_data["teammates"]:
-            if teammate["player_uid"] not in queried_players and teammate["player_uid"] not in encountered_players:  # Avoid duplicate queries
+            if teammate["player_uid"] not in queried_players  # Avoid duplicate queries
                 queried_players.add(teammate["player_uid"])
                 players_to_fetch.append((teammate["player_uid"], timestamp))
 
