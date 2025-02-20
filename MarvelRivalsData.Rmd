@@ -1,25 +1,51 @@
 ---
-title: "MarvelRivalsData"
+title: "Marvel Rivals Analysis"
 author: "Jods"
-date: "2025-02-03"
 output:
   html_document:
     includes:
       after_body: footer.html
     theme: cosmo
     self_contained: true
-    code_folding: hide
 always_allow_html: true
-
+css: "rendered/styles.css"
 ---
-<style type="text/css">
-.main-container {
-  max-width: 100% !important;
-  margin: auto;
-  max-width: 90vw; 
-  text-align: center;
+
+
+
+<script>
+  function timeSinceRender(renderTime, timezone = "UTC") {
+    const now = new Date();
+    
+    // Adjust renderTime to the correct timezone
+    const renderDate = new Date(new Date(renderTime).toLocaleString('en-US', { timeZone: timezone }));
+    const diffMs = now - renderDate;
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    let message = "";
+    if (diffMinutes < 60) {
+      message = "Last update: " + diffMinutes + " minutes ago.";
+    } else if (diffHours < 2) {
+      message = "Last update: " + diffHours + " hour ago.";
+    } else if (diffHours < 24) {
+      message = "Last update: " + diffHours + " hours ago.";
+    } else if (diffHours < 48) {
+      message = "Last update: " + diffHours + " day ago.";
+    } else {
+      message = "Last update: " + diffDays + " days ago.";
+    }
+
+    document.getElementById("last-rendered").innerText = message;
 }
-</style>
+</script>
+
+<div id="last-rendered">Calculating...</div>
+
+<script>
+  timeSinceRender("`r format(Sys.time(), '%Y-%m-%dT%H:%M:%S', tz = 'UTC')`");
+</script>
 
 ```{r setup, include=FALSE}
 library('readr')
@@ -35,9 +61,38 @@ library('arrow')
 library('purrr')
 library('ggplot2')
 library('ggimage')
+library('gridExtra')
+library('htmltools')
+```
+```{r colorSetup, echo=FALSE}
+bg_color = "#2E3740"
+highlight_color = "#C0C7CD"
+gridl_color = "#5A626A"
+rolebg_color = "#6A727A"
+zeroLine_color = "#7A828A"
 ```
 
 
+```{r plotlyDarkTheme, echo=FALSE, results='asis'}
+# Set dark theme globally
+plotly_dark_theme <- function(p) {
+  p %>% layout(
+    plot_bgcolor = bg_color,
+    paper_bgcolor = bg_color,
+    font = list(color = highlight_color),
+    xaxis = list(
+      color = highlight_color,
+      gridcolor = gridl_color,
+      zerolinecolor = zeroLine_color
+    ),
+    yaxis = list(
+      color = highlight_color,
+      gridcolor = gridl_color,
+      zerolinecolor = zeroLine_color
+    )
+  )
+}
+```
 
 ```{r rankSetup, echo = FALSE}
 ranks <- read.csv("data/historical/ranks_historical.csv")
@@ -135,29 +190,32 @@ ranks_total$rank <- factor(ranks_total$rank, levels = custom_rank_order)
 
 ```{r RankHistory, echo = FALSE}
 
-# Create the plot
-fig <- plot_ly(ranks, 
+population <- plot_ly(ranks, 
                x = ~timestamp,  
                y = ~population_count, 
-               color = ~rank_division,  # Differentiate by rank + division
+               color = ~rank_division,
                colors = rank_colors,
                type = 'scatter', 
                mode = 'lines+markers',
                text = ~paste("Rank:", rank, "<br>Division:", division, "<br>Count:", population_count),
                hoverinfo = "text")
-
-fig <- fig %>%
+population <- plotly_dark_theme(population)
+population <- population %>%
   layout(title = "Population Count Over Time (by Division)",
          xaxis = list(title = "Timestamp", tickangle = -45),
          yaxis = list(title = "Population Count"),
-         legend = list(title = list(text = "Rank - Division")))
+         legend = list(title = list(text = "Rank - Division")),
+         margin = list(l = 50, r = 50, t = 50, b = 50)
+         )
 
-fig
+populationCount <- htmltools::div( population, align="center" )  # Result is now an HTML object
+htmltools::save_html(populationCount, "rendered/PopulationCount.html" ) 
+populationCount
 
 ```
 ```{r RankHistoryCombined, echo = FALSE}
 
-fig_total <- plot_ly(ranks_total, 
+total_population <- plot_ly(ranks_total, 
                      x = ~timestamp,  
                      y = ~total_population, 
                      color = ~rank,
@@ -167,13 +225,17 @@ fig_total <- plot_ly(ranks_total,
                      text = ~paste("Rank:", rank, "<br>Total Count:", total_population),
                      hoverinfo = "text")
 
-fig_total <- fig_total %>%
+total_population <- total_population %>%
   layout(title = "Total Population Count Over Time (Summed by Rank)",
          xaxis = list(title = "Timestamp", tickangle = -45),
          yaxis = list(title = "Total Population Count"),
-         legend = list(title = list(text = "Rank")))
-
-fig_total
+         legend = list(title = list(text = "Rank")),
+         margin = list(l = 50, r = 50, t = 50, b = 50)
+         )
+total_population <- plotly_dark_theme(total_population)
+populationCount <- htmltools::div( total_population, align="center" )  # Result is now an HTML object
+htmltools::save_html(populationCount, "rendered/TotalPopulationCount.html" ) 
+populationCount
 ```
 ```{r rankPopulation, echo = FALSE}
 
@@ -255,7 +317,6 @@ total_ranked_players <- rank_population_excluding_unranked %>%
 
 ```
 
-
 # Average Rank
 There are currently `r total_ranked_players` out of `r total_players` players who have played ranked.   
 
@@ -284,7 +345,7 @@ rank_population <- rank_population %>%
          )
 
 # Print table
-datatable(rank_population, escape = FALSE,options = list(
+rank_pop_table <- datatable(rank_population, escape = FALSE,options = list(
   pageLength = 25, autoWidth = TRUE,
   columnDefs = list(
     list(targets = c(4, 8), visible = FALSE)  # Adjust these numbers based on step 1
@@ -300,6 +361,18 @@ datatable(rank_population, escape = FALSE,options = list(
     columns = names(rank_population),  # Apply to all columns
     `text-align` = "center"  # Center-align text
   ) 
+
+rank_pop_details <- htmltools::div( rank_pop_table, align="center" )  # Result is now an HTML object
+rank_pop_details <- tagList(
+  # Link to the external CSS file (ensure it's in the correct path)
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+  ),
+  rank_pop_details
+)
+htmltools::save_html(rank_pop_details, "rendered/RankDetailsTable.html" ) 
+rank_pop_details
+
 
 ```
 
@@ -361,6 +434,18 @@ healer_ids <- all_heroes %>%
 # Extract heroes with healing abilities
 
 ```
+```{r calculatePlayersAndGames, echo=FALSE}
+unique_players <- match_players %>% 
+  distinct(player_uid) %>% 
+  nrow()
+
+# Compute unique match count from matches
+unique_matches <- matches %>% 
+  distinct(match_uid) %>% 
+  nrow()
+```
+# Top 500 Stats
+This analysis is based on `r unique_matches` unique competitive matches, collected by tracking the last 20 matches of Top 500 players every 6 hours. In total, `r unique_players` unique players were recorded, either as Top 500 themselves or as opponents/teammates in these matches.
 ```{r prepareMatchData, echo = FALSE}
 match_players <- match_players %>%
   mutate(hero_data = map(hero_data, safe_parse_json)) %>%  # Safely parse JSON
@@ -383,7 +468,6 @@ match_players <- match_players %>%
     hero_healed = ifelse(hero_data_hero_id %in% healer_ids$id, hero_healed, NA)  # Remove healing if not a healer
   )
 ```
-
 
 ```{r calculateHeroStats, echo = FALSE}
 # Parse hero_data JSON column safely
@@ -430,7 +514,7 @@ hero_stats$icon <- paste0("icons/hero_icons/", gsub(" ", "_", hero_stats$name), 
 
 
 # Print summary statistics
-datatable(
+hero_stats_table <-datatable(
   hero_stats %>%
     select(name, win_rate, avg_kills, avg_deaths, avg_assists, avg_hero_damage, avg_damage_taken, avg_hero_healed, games_played) %>%
     rename("Hero" = name, "Win Rate (%)" = win_rate, "Avg Kills" = avg_kills, 
@@ -446,12 +530,23 @@ datatable(
     )),
   rownames = FALSE,
 )
+hero_stats_table <- tagList(
+  # Link to the external CSS file (ensure it's in the correct path)
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+  ),
+  hero_stats_table
+)
+htmltools::save_html(hero_stats_table, "rendered/HeroStatsTable.html" ) 
+hero_stats_table
 ```
+
+
 
 ```{r matchTierlistPrep, echo = FALSE}
 
 # Calculate total games played across all heroes
-total_games <- sum(hero_stats$games_played, na.rm = TRUE)
+total_games <- sum(hero_stats$games_played, na.rm = TRUE)/6
 
 # Compute pick rate
 hero_stats <- hero_stats %>%
@@ -513,7 +608,7 @@ max_heroes_per_tier <- hero_stats_winrate %>%
   max()
 
 # Adjust `geom_rect` so the background spans a fixed width
-ggplot(hero_stats_winrate, aes(x = position, y = factor(tier, levels = rev(tier_order)))) +
+winrate_tierlist <- ggplot(hero_stats_winrate, aes(x = position, y = factor(tier, levels = rev(tier_order)))) +
   geom_rect(aes(
     xmin = 0.5, xmax = max_heroes_per_tier + 0.5,  # Ensures left alignment
     ymin = as.numeric(factor(tier, levels = rev(tier_order))) - 0.5,
@@ -525,18 +620,21 @@ ggplot(hero_stats_winrate, aes(x = position, y = factor(tier, levels = rev(tier_
   theme_minimal(base_family = "sans") +
   scale_x_continuous(expand = c(0, 0), limits = c(0.5, max_heroes_per_tier + 0.5)) +  
   theme(
-    panel.background = element_rect(fill = "#121212", color = NA),
-    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = bg_color, color = NA),
+    plot.background = element_rect(fill = bg_color, color = NA),
     legend.position = "none",
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.text.y = element_text(color = "white", size = 14, face = "bold"),
+    axis.text.y = element_text(color = highlight_color, size = 14, face = "bold"),
     panel.grid = element_blank(),
-    plot.title = element_text(hjust = 0.5, face = "bold", size = 18, color = "white")
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18, color = highlight_color)
   ) +
-  labs(title = "Hero Tier List (Win Rate)", x = NULL, y = NULL)
+  labs(x = NULL, y = NULL)
 
 
+
+winrate_tierlist
+ggsave("rendered/WinrateTierlist.png", winrate_tierlist, width = 8, height = 6, dpi = 300)
 
 
 ```
@@ -567,7 +665,7 @@ max_heroes_per_tier <- hero_stats_pickrate %>%
   max()
 
 # Adjust `geom_rect` so the background spans a fixed width
-ggplot(hero_stats_pickrate, aes(x = position, y = factor(pick_rate_tier, levels = rev(tier_order)))) +
+pickrate_tierlist <- ggplot(hero_stats_pickrate, aes(x = position, y = factor(pick_rate_tier, levels = rev(tier_order)))) +
   geom_rect(aes(
     xmin = 0.5, xmax = max_heroes_per_tier + 0.5,  # Ensures left alignment
     ymin = as.numeric(factor(pick_rate_tier, levels = rev(tier_order))) - 0.5,
@@ -579,20 +677,19 @@ ggplot(hero_stats_pickrate, aes(x = position, y = factor(pick_rate_tier, levels 
   theme_minimal(base_family = "sans") +
   scale_x_continuous(expand = c(0, 0), limits = c(0.5, max_heroes_per_tier + 0.5)) +  
   theme(
-    panel.background = element_rect(fill = "#121212", color = NA),
-    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = bg_color, color = NA),
+    plot.background = element_rect(fill = bg_color, color = NA),
     legend.position = "none",
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.text.y = element_text(color = "white", size = 14, face = "bold"),
+    axis.text.y = element_text(color = highlight_color, size = 14, face = "bold"),
     panel.grid = element_blank(),
-    plot.title = element_text(hjust = 0.5, face = "bold", size = 18, color = "white")
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18, color = highlight_color)
   ) +
-  labs(title = "Hero Tier List (Pick Rate)", x = NULL, y = NULL)
+  labs(x = NULL, y = NULL)
 
-
-
-
+ggsave("rendered/PickrateTierlist.png", pickrate_tierlist, width = 8, height = 6, dpi = 300)
+pickrate_tierlist
 
 ```
 
@@ -621,7 +718,7 @@ max_heroes_per_tier <- hero_stats_combined %>%
   max()
 
 # Adjust `geom_rect` so the background spans a fixed width
-ggplot(hero_stats_combined, aes(x = position, y = factor(combined_tier, levels = rev(tier_order)))) +
+combined_tierlist <- ggplot(hero_stats_combined, aes(x = position, y = factor(combined_tier, levels = rev(tier_order)))) +
   geom_rect(aes(
     xmin = 0.5, xmax = max_heroes_per_tier + 0.5,  # Ensures left alignment
     ymin = as.numeric(factor(combined_tier, levels = rev(tier_order))) - 0.5,
@@ -633,16 +730,18 @@ ggplot(hero_stats_combined, aes(x = position, y = factor(combined_tier, levels =
   theme_minimal(base_family = "sans") +
   scale_x_continuous(expand = c(0, 0), limits = c(0.5, max_heroes_per_tier + 0.5)) +  
   theme(
-    panel.background = element_rect(fill = "#121212", color = NA),
-    plot.background = element_rect(fill = "#121212", color = NA),
+    panel.background = element_rect(fill = bg_color, color = NA),
+    plot.background = element_rect(fill = bg_color, color = NA),
     legend.position = "none",
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.text.y = element_text(color = "white", size = 14, face = "bold"),
+    axis.text.y = element_text(color = highlight_color, size = 14, face = "bold"),
     panel.grid = element_blank(),
-    plot.title = element_text(hjust = 0.5, face = "bold", size = 18, color = "white")
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18, color = highlight_color)
   ) +
-  labs(title = "Hero Tier List (Combined)", x = NULL, y = NULL)
+  labs(x = NULL, y = NULL)
+
+ggsave("rendered/CombinedTierlist.png", combined_tierlist, width = 8, height = 6, dpi = 300)
 
 ```
 
@@ -756,6 +855,271 @@ hero_counters <- hero_counters %>%
 
 ```
 
+
+```{r teamCompsSetup, echo = FALSE}
+
+# ---- Step 1: Merge Data ----
+# Merge hero_data to get role info; note: this is dynamic, not hardcoded.
+mp_enriched <- match_players %>%
+  left_join(all_heroes %>% select(id, role, attack_type),
+            by = c("hero_data_hero_id" = "id"))
+
+# ---- Step 2: Aggregate at the Player Level ----
+# Each player may have multiple rows if they switched heroes.
+# Sum the playtime percentages per role for each player per match.
+player_role <- mp_enriched %>%
+  group_by(match_uid, is_win, player_uid, role) %>%
+  summarise(effective = sum(playtime_percentage, na.rm = TRUE),
+            .groups = "drop")
+
+# ---- Step 3: Aggregate to the Team Level ----
+# Sum the contributions of all players per team (each team is defined by match_uid and is_win).
+team_roles <- player_role %>%
+  group_by(match_uid, is_win, role) %>%
+  summarise(team_effective = sum(effective), .groups = "drop")
+
+# Pivot so that each row is a team and columns are the roles (dynamically determined).
+team_roles_wide <- team_roles %>%
+  pivot_wider(names_from = role, values_from = team_effective, values_fill = 0)
+
+# Check the total effective "players" on a team (should be ~6).
+team_roles_wide <- team_roles_wide %>%
+  mutate(total_effective = rowSums(across(-c(match_uid, is_win))))
+
+# If total_effective is not exactly 6 (due to rounding in the data), we normalize:
+team_roles_wide <- team_roles_wide %>%
+  mutate(across(-c(match_uid, is_win, total_effective),
+                ~ .x * (6 / total_effective)))
+
+# ---- Step 4: Round to Discrete Counts Preserving the Total ----
+# Define a function that rounds a vector to integers that sum to a target value.
+round_preserve_sum <- function(x, target = 6) {
+  floor_vals <- floor(x)
+  remainder <- x - floor_vals
+  diff <- target - sum(floor_vals)
+  if(diff > 0) {
+    order_idx <- order(remainder, decreasing = TRUE)
+    floor_vals[order_idx[1:diff]] <- floor_vals[order_idx[1:diff]] + 1
+  }
+  return(floor_vals)
+}
+
+# Identify the role columns dynamically.
+role_cols <- setdiff(names(team_roles_wide), c("match_uid", "is_win", "total_effective"))
+
+# Apply the rounding row‐wise.
+team_roles_discrete <- team_roles_wide %>%
+  rowwise() %>%
+  mutate(rounded = list(round_preserve_sum(c_across(all_of(role_cols)), target = 6))) %>%
+  # Create a composition string like "2 Vanguard, 1 Duelist, 3 Strategist"
+  mutate(composition = {
+    counts <- unlist(rounded)
+    names(counts) <- role_cols
+    # Only include roles with a nonzero count.
+    comps <- paste0(counts, " ", names(counts))
+    comps <- comps[counts > 0]
+    paste(comps, collapse = ", ")
+  }) %>%
+  ungroup()
+
+# ---- Step 5: Summarize Compositions Across Teams ----
+# Calculate how frequently each composition is picked and its win rate.
+total_teams <- nrow(team_roles_discrete)
+
+
+# --- Compute Total Matches ---
+total_matches <- n_distinct(team_roles_discrete$match_uid)
+
+# Compute the dynamic threshold (1% of total matches, minimum 1)
+dynamic_threshold <- max(1, round(0.01 * total_matches))
+
+team_comp_stats <- team_roles_discrete %>%
+  group_by(composition) %>%
+  summarise(
+    picks = n(),
+    pick_percentage = n() / total_teams,
+    win_rate = mean(is_win, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(picks))
+
+```
+
+```{r heroTeamcompPerformancePrep, echo=FALSE}
+# Calculate hero-specific team composition performance.
+# For each match, join the hero (name.y) with the team comp from team_roles_discrete,
+# then group by hero and team composition to get the hero’s win rate in that comp.
+hero_team_comps <- match_players %>% 
+  select(match_uid, name.y, is_win) %>% 
+  left_join(team_roles_discrete %>% select(match_uid, composition), by = "match_uid", relationship = "many-to-many",) %>% 
+  group_by(hero = name.y, composition) %>% 
+  summarise(
+    hero_win_rate = mean(is_win, na.rm = TRUE),
+    games = n(),
+    .groups = "drop"
+  )
+
+# (Optional) To ensure reliability, filter to team comps that appear in at least 5 games.
+hero_team_comps <- hero_team_comps %>% filter(games >= 5)
+
+# For each hero, get the best team comp (highest win rate) and the worst team comp (lowest win rate).
+hero_best_teamcomp <- hero_team_comps %>% 
+  group_by(hero) %>% 
+  slice_max(order_by = hero_win_rate, n = 1, with_ties = FALSE) %>% 
+  ungroup() %>% 
+  select(hero, best_teamcomp = composition)
+
+hero_worst_teamcomp <- hero_team_comps %>% 
+  group_by(hero) %>% 
+  slice_min(order_by = hero_win_rate, n = 1, with_ties = FALSE) %>% 
+  ungroup() %>% 
+  select(hero, worst_teamcomp = composition)
+
+# Compute total games per hero.
+hero_total_games <- hero_team_comps %>% 
+  group_by(hero) %>% 
+  summarise(total_games = sum(games), .groups = "drop")
+
+# Join and filter: Only include comps that occur in at least 10% of that hero's games.
+hero_team_comps <- hero_team_comps %>% 
+  left_join(hero_total_games, by = "hero") %>%
+  filter(games >= 0.1 * total_games)
+
+# Define a helper function to extract the count for a given role from a composition string.
+get_role_count <- function(comp_string, role_name) {
+  parts <- trimws(unlist(strsplit(comp_string, ",\\s*")))
+  count <- 0
+  for (p in parts) {
+    tokens <- unlist(strsplit(p, "\\s+"))
+    if (length(tokens) >= 2 && tolower(tokens[2]) == tolower(role_name)) {
+      count <- as.numeric(tokens[1])
+      break
+    }
+  }
+  return(count)
+}
+
+# Join with all_heroes to get the hero's role.
+hero_team_comps <- hero_team_comps %>%
+  left_join(all_heroes %>% select(name, role), by = c("hero" = "name"))
+
+# Exclude team comps that do not include at least one slot for the hero's role.
+hero_team_comps <- hero_team_comps %>%
+  rowwise() %>%
+  mutate(role_count = get_role_count(composition, role)) %>%
+  ungroup() %>%
+  filter(role_count >= 1)
+# For each hero, get the best team comp (highest win rate) and the worst team comp (lowest win rate).
+hero_best_teamcomp <- hero_team_comps %>% 
+  group_by(hero) %>% 
+  slice_max(order_by = hero_win_rate, n = 1, with_ties = FALSE) %>% 
+  ungroup() %>% 
+  select(hero, best_teamcomp = composition)
+
+hero_worst_teamcomp <- hero_team_comps %>% 
+  group_by(hero) %>% 
+  slice_min(order_by = hero_win_rate, n = 1, with_ties = FALSE) %>% 
+  ungroup() %>% 
+  select(hero, worst_teamcomp = composition)
+
+# Function to convert a composition string into HTML with role icons in the order: vanguard, duelist, strategist.
+parse_composition <- function(comp_string) {
+  # Desired order of roles (all lower-case)
+  desired_order <- c("vanguard", "duelist", "strategist")
+  
+  # Split the composition string by comma and trim whitespace.
+  parts <- trimws(unlist(strsplit(comp_string, ",\\s*")))
+  
+  # Parse each part into a list with count and role.
+  parsed_parts <- lapply(parts, function(part) {
+    tokens <- unlist(strsplit(part, "\\s+"))
+    list(
+      count = tokens[1],
+      role = tolower(tokens[2])
+    )
+  })
+  
+  # Determine order: if the role is in desired_order, use that order; otherwise, give it a high number.
+  order_values <- sapply(parsed_parts, function(x) {
+    pos <- match(x$role, desired_order)
+    if (is.na(pos)) 999 else pos
+  })
+  
+  # Sort the parts by the order value.
+  sorted_parts <- parsed_parts[order(order_values)]
+  
+  # Build an HTML snippet for each sorted part.
+  icons <- sapply(sorted_parts, function(x) {
+    paste0(
+      '<div style="display:inline-block; vertical-align: middle; margin-right: 5px; background-color:',rolebg_color,'; border-radius: 4px; padding: 2px 6px;">',
+        '<span style="color:white; font-weight:bold;">', x$count, '</span> ',
+        '<img src="https://mrapi.org/assets/roles/', x$role, '.png" height="30px" style="vertical-align: middle;">',
+      '</div>'
+    )
+  })
+  
+  # Concatenate the individual HTML blocks.
+  paste(icons, collapse = "")
+}
+
+```
+
+```{r herOposingTeamcompPerformancePrep, echo=FALSE}
+# ----- Compute Opponent Team Composition Performance per Hero -----
+
+# For each hero, join their match record with the opponent team comp.
+# (team_roles_discrete has one row per team per match, with the computed composition.)
+hero_vs_opponent_comp <- match_players %>%
+  select(match_uid, name.y, is_win) %>% 
+  rename(hero = name.y) %>% 
+  # Join the opponent's team comp using match_uid.
+  inner_join(
+    team_roles_discrete %>% 
+      select(match_uid, is_win, composition) %>% 
+      rename(opponent_is_win = is_win, opponent_comp = composition),
+    by = "match_uid",
+    relationship = "many-to-many"
+  ) %>%
+  # Filter to ensure we're comparing opposing teams.
+  filter(is_win != opponent_is_win) %>%
+  mutate(hero_win = as.numeric(is_win))  # 1 if hero's team won, 0 if lost
+
+# Group by hero and the opponent team comp to compute stats.
+hero_vs_opponent_comp_stats <- hero_vs_opponent_comp %>%
+  group_by(hero, opponent_comp) %>%
+  summarise(
+    win_rate = mean(hero_win, na.rm = TRUE),  # from the perspective of the hero’s team
+    games = n(),
+    .groups = "drop"
+  )
+
+# For each hero, compute total games (across all opponent comps).
+hero_total_games_opponent <- hero_vs_opponent_comp_stats %>%
+  group_by(hero) %>%
+  summarise(total_games = sum(games), .groups = "drop")
+
+# Filter: only keep opponent comps that occur in at least 10% of that hero’s games.
+hero_vs_opponent_comp_stats <- hero_vs_opponent_comp_stats %>%
+  left_join(hero_total_games_opponent, by = "hero") %>%
+  filter(games >= 0.1 * total_games)
+
+# Now, for each hero:
+# - "Best Opponent Team Comp": the opponent comp where the hero's win rate is lowest (i.e. best to face)
+# - "Worst Opponent Team Comp": the opponent comp where the hero's win rate is highest (i.e. worst to face)
+hero_best_against_comp <- hero_vs_opponent_comp_stats %>%
+  group_by(hero) %>%
+  slice_min(order_by = win_rate, n = 1, with_ties = FALSE) %>%
+  ungroup() %>%
+  select(hero, best_against_comp = opponent_comp)
+
+hero_worst_against_comp <- hero_vs_opponent_comp_stats %>%
+  group_by(hero) %>%
+  slice_max(order_by = win_rate, n = 1, with_ties = FALSE) %>%
+  ungroup() %>%
+  select(hero, worst_against_comp = opponent_comp)
+
+```
+
 ```{r counterVisualization, echo = FALSE}
 # Improved Table Formatting
 # Enhancing Readability, Spacing, Colors, and Interactivity
@@ -793,6 +1157,23 @@ hero_counters_table <- hero_counters %>%
   ) %>%
   ungroup()
 
+
+hero_counters_table <- hero_counters_table %>%
+  left_join(hero_best_against_comp, by = c("hero" = "hero")) %>%
+  mutate(
+    best_against_teamcomp_icons = sapply(best_against_comp, function(x) {
+      if (is.na(x)) "" else parse_composition(as.character(x))
+    })
+  ) %>%
+  left_join(hero_worst_against_comp, by = c("hero" = "hero")) %>%
+  mutate(
+    worst_against_teamcomp_icons = sapply(worst_against_comp, function(x) {
+      if (is.na(x)) "" else parse_composition(as.character(x))
+    })
+  ) %>%
+  select(-best_against_comp,-worst_against_comp)
+
+
 hero_counters_table <- hero_counters_table %>%
   left_join(hero_stats %>% select(name, win_rate, pick_rate), by = c("hero" = "name")) %>%
   arrange(desc(win_rate)) %>% 
@@ -801,11 +1182,12 @@ hero_counters_table <- hero_counters_table %>%
     win_rate = paste0(win_rate,'%'),
   )
 
+
 hero_counters_table <- hero_counters_table %>%
   mutate(icon_win = paste0(
     '<div style="position: relative; display: inline-block;">',
       '<img src="', icon_win, '" height="65px" style="border-radius: 12px;">',
-      '<div style="position: absolute; bottom: 6px; left: 3px; background: rgba(0, 0, 0, 0.6); border-radius: 4px; padding: 2px 4px; height: 22px; display: flex; align-items: center;">',
+      '<div style="position: absolute; bottom: 6px; left: 3px; background: ', rolebg_color, '; border-radius: 4px; padding: 2px 4px; height: 22px; display: flex; align-items: center;">',
         '<img src="https://mrapi.org/assets/roles/', tolower(role_win), '.png" height="18px">',
       '</div>',
     '</div>'
@@ -820,10 +1202,12 @@ hero_counters_table <- hero_counters_table %>%
          "Best Support to Pick" = strongest_strategist_counters,
          "Worst Tank to Pick" = weakest_vanguard_counters,
          "Worst Dps to Pick" = weakest_duelist_counters,
-         "Worst Support to Pick" = weakest_strategist_counters
+         "Worst Support to Pick" = weakest_strategist_counters,
+         "Best Team Comp to Pick" = best_against_teamcomp_icons,
+         "Worst Team Comp to Pick" = worst_against_teamcomp_icons
   )
 
-datatable(
+hero_counters_vis <- datatable(
   hero_counters_table, 
   escape = FALSE, 
   options = list(
@@ -848,7 +1232,15 @@ datatable(
     }
   ")
 
-
+hero_counters_vis <- tagList(
+  # Link to the external CSS file (ensure it's in the correct path)
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+  ),
+  hero_counters_vis
+)
+htmltools::save_html(hero_counters_vis, "rendered/HeroCounters.html" ) 
+hero_counters_vis
 
 ```
 
@@ -997,6 +1389,27 @@ hero_synergy_table <- hero_synergy_bidirectional %>%
   ) %>%
   ungroup()
 
+# Join best team comp info into hero_synergy_table.
+# (Assumes the hero identifier in hero_synergy_table is in the column "hero1".)
+
+hero_synergy_table <- hero_synergy_table %>%
+  left_join(hero_best_teamcomp, by = c("hero1" = "hero")) %>%
+  mutate(
+    best_teamcomp_icons = sapply(best_teamcomp, function(x) {
+      if (is.na(x)) "" else parse_composition(as.character(x))
+    })
+  ) %>%
+  select(-best_teamcomp)
+
+hero_synergy_table <- hero_synergy_table %>%
+  left_join(hero_worst_teamcomp, by = c("hero1" = "hero")) %>%
+  mutate(
+    worst_teamcomp_icons = sapply(worst_teamcomp, function(x) {
+      if (is.na(x)) "" else parse_composition(as.character(x))
+    })
+  ) %>%
+  select(-worst_teamcomp)
+
 hero_synergy_table <- hero_synergy_table %>%
   left_join(hero_stats %>% select(name, win_rate, pick_rate), by = c("hero1" = "name")) %>%
   arrange(desc(win_rate)) %>% 
@@ -1009,7 +1422,7 @@ hero_synergy_table <- hero_synergy_table %>%
   mutate(icon1 = paste0(
     '<div style="position: relative; display: inline-block;">',
        '<img src="', icon1, '" height="65px" style="border-radius: 12px;">',
-       '<div style="position: absolute; bottom: 6px; left: 3px; background: rgba(0, 0, 0, 0.6); border-radius: 4px; padding: 2px 4px; height: 22px; display: flex; align-items: center;">',
+       '<div style="position: absolute; bottom: 6px; left: 3px; background: ',rolebg_color,'; border-radius: 4px; padding: 2px 4px; height: 22px; display: flex; align-items: center;">',
          '<img src="https://mrapi.org/assets/roles/', tolower(role1), '.png" height="18px">',
        '</div>',
      '</div>'
@@ -1024,11 +1437,13 @@ hero_synergy_table <- hero_synergy_table %>%
          "Best Support Partner" = best_strategist_synergies,
          "Worst Tank Partner" = worst_vanguard_synergies,
          "Worst DPS Partner" = worst_duelist_synergies,
-         "Worst Support Partner" = worst_strategist_synergies
+         "Worst Support Partner" = worst_strategist_synergies,
+         "Worst Team Comp" = worst_teamcomp_icons,
+         "Best Team Comp" = best_teamcomp_icons
   )
 
 
-datatable(
+hero_synergy_vis <- datatable(
   hero_synergy_table, 
   escape = FALSE, 
   options = list(
@@ -1051,143 +1466,21 @@ datatable(
       el.style.margin = 'auto';
     }
   ")
-
-
-
-```
-
-
-
-```{r teamCompsSetup, echo = FALSE}
-
-# ---- Step 1: Merge Data ----
-# Merge hero_data to get role info; note: this is dynamic, not hardcoded.
-mp_enriched <- match_players %>%
-  left_join(all_heroes %>% select(id, role, attack_type),
-            by = c("hero_data_hero_id" = "id"))
-
-# ---- Step 2: Aggregate at the Player Level ----
-# Each player may have multiple rows if they switched heroes.
-# Sum the playtime percentages per role for each player per match.
-player_role <- mp_enriched %>%
-  group_by(match_uid, is_win, player_uid, role) %>%
-  summarise(effective = sum(playtime_percentage, na.rm = TRUE),
-            .groups = "drop")
-
-# ---- Step 3: Aggregate to the Team Level ----
-# Sum the contributions of all players per team (each team is defined by match_uid and is_win).
-team_roles <- player_role %>%
-  group_by(match_uid, is_win, role) %>%
-  summarise(team_effective = sum(effective), .groups = "drop")
-
-# Pivot so that each row is a team and columns are the roles (dynamically determined).
-team_roles_wide <- team_roles %>%
-  pivot_wider(names_from = role, values_from = team_effective, values_fill = 0)
-
-# Check the total effective "players" on a team (should be ~6).
-team_roles_wide <- team_roles_wide %>%
-  mutate(total_effective = rowSums(across(-c(match_uid, is_win))))
-
-# If total_effective is not exactly 6 (due to rounding in the data), we normalize:
-team_roles_wide <- team_roles_wide %>%
-  mutate(across(-c(match_uid, is_win, total_effective),
-                ~ .x * (6 / total_effective)))
-
-# ---- Step 4: Round to Discrete Counts Preserving the Total ----
-# Define a function that rounds a vector to integers that sum to a target value.
-round_preserve_sum <- function(x, target = 6) {
-  floor_vals <- floor(x)
-  remainder <- x - floor_vals
-  diff <- target - sum(floor_vals)
-  if(diff > 0) {
-    order_idx <- order(remainder, decreasing = TRUE)
-    floor_vals[order_idx[1:diff]] <- floor_vals[order_idx[1:diff]] + 1
-  }
-  return(floor_vals)
-}
-
-# Identify the role columns dynamically.
-role_cols <- setdiff(names(team_roles_wide), c("match_uid", "is_win", "total_effective"))
-
-# Apply the rounding row‐wise.
-team_roles_discrete <- team_roles_wide %>%
-  rowwise() %>%
-  mutate(rounded = list(round_preserve_sum(c_across(all_of(role_cols)), target = 6))) %>%
-  # Create a composition string like "2 Vanguard, 1 Duelist, 3 Strategist"
-  mutate(composition = {
-    counts <- unlist(rounded)
-    names(counts) <- role_cols
-    # Only include roles with a nonzero count.
-    comps <- paste0(counts, " ", names(counts))
-    comps <- comps[counts > 0]
-    paste(comps, collapse = ", ")
-  }) %>%
-  ungroup()
-
-# ---- Step 5: Summarize Compositions Across Teams ----
-# Calculate how frequently each composition is picked and its win rate.
-total_teams <- nrow(team_roles_discrete)
-
-
-# --- Compute Total Matches ---
-total_matches <- n_distinct(team_roles_discrete$match_uid)
-
-# Compute the dynamic threshold (1% of total matches, minimum 1)
-dynamic_threshold <- max(1, round(0.01 * total_matches))
-
-team_comp_stats <- team_roles_discrete %>%
-  group_by(composition) %>%
-  summarise(
-    picks = n(),
-    pick_percentage = n() / total_teams,
-    win_rate = mean(is_win, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  arrange(desc(picks))
+hero_synergy_vis <- tagList(
+  # Link to the external CSS file (ensure it's in the correct path)
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+  ),
+  hero_synergy_vis
+)
+htmltools::save_html(hero_synergy_vis, "rendered/HeroSynergies.html" ) 
+hero_synergy_vis
 
 ```
+
+
 
 ```{r teamCompVisualization, echo = FALSE}
-
-# Function to convert a composition string into HTML with role icons in the order: vanguard, duelist, strategist.
-parse_composition <- function(comp_string) {
-  # Desired order of roles (all lower-case)
-  desired_order <- c("vanguard", "duelist", "strategist")
-  
-  # Split the composition string by comma and trim whitespace.
-  parts <- trimws(unlist(strsplit(comp_string, ",\\s*")))
-  
-  # Parse each part into a list with count and role.
-  parsed_parts <- lapply(parts, function(part) {
-    tokens <- unlist(strsplit(part, "\\s+"))
-    list(
-      count = tokens[1],
-      role = tolower(tokens[2])
-    )
-  })
-  
-  # Determine order: if the role is in desired_order, use that order; otherwise, give it a high number.
-  order_values <- sapply(parsed_parts, function(x) {
-    pos <- match(x$role, desired_order)
-    if (is.na(pos)) 999 else pos
-  })
-  
-  # Sort the parts by the order value.
-  sorted_parts <- parsed_parts[order(order_values)]
-  
-  # Build an HTML snippet for each sorted part.
-  icons <- sapply(sorted_parts, function(x) {
-    paste0(
-      '<div style="display:inline-block; vertical-align: middle; margin-right: 5px; background-color:#444; border-radius: 4px; padding: 2px 6px;">',
-        '<span style="color:white; font-weight:bold;">', x$count, '</span> ',
-        '<img src="https://mrapi.org/assets/roles/', x$role, '.png" height="30px" style="vertical-align: middle;">',
-      '</div>'
-    )
-  })
-  
-  # Concatenate the individual HTML blocks.
-  paste(icons, collapse = "")
-}
 
 # Prepare the team composition data for display.
 team_comp_stats <- team_comp_stats %>%
@@ -1199,7 +1492,7 @@ team_comp_stats <- team_comp_stats %>%
   )
 
 # Create the datatable.
-datatable(
+team_comp_vis <- datatable(
   team_comp_stats %>% select(composition_icons, pick_pct, win_pct),
   rownames = FALSE,
   escape = FALSE,
@@ -1214,8 +1507,15 @@ datatable(
     )
   )
 )
-
-
+team_comp_vis <- tagList(
+  # Link to the external CSS file (ensure it's in the correct path)
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+  ),
+  team_comp_vis
+)
+htmltools::save_html(team_comp_vis, "rendered/TeamComps.html" ) 
+team_comp_vis
 
 ```
 
@@ -1255,7 +1555,7 @@ head_to_head <- head_to_head %>%
 
 # Display the head-to-head matchup table.
 # Now the columns are renamed to "Composition", "Opponent Composition", "Matches", "Win %"
-datatable(
+team_comp_counters_vis <- datatable(
   head_to_head %>% select(comp_icons, opp_icons, Matches, WinRatePct),
   rownames = FALSE,
   escape = FALSE,
@@ -1270,4 +1570,189 @@ datatable(
     )
   )
 )
+team_comp_counters_vis <- tagList(
+  # Link to the external CSS file (ensure it's in the correct path)
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+  ),
+  team_comp_counters_vis
+)
+htmltools::save_html(team_comp_counters_vis, "rendered/TeamCompCounters.html" ) 
+team_comp_counters_vis
+```
+
+```{r saveData, echo=FALSE}
+# Your data
+data <- list(
+  total_ranked_players = total_ranked_players,
+  total_players = total_players,
+  rank_image = rank_image,
+  average_rank_including_name = average_rank_including_name,
+  average_rank_including_points = average_rank_including_points,
+  rank_image_ex = rank_image_ex,
+  average_rank_excluding_name = average_rank_excluding_name,
+  average_rank_excluding_points = average_rank_excluding_points,
+  unique_matches = unique_matches,
+  unique_players = unique_players,
+  latest_render = format(Sys.time(), '%Y-%m-%dT%H:%M:%S', tz = 'UTC')
+)
+
+# Write to a JSON file
+write_json(data, "rendered/data.json", pretty = TRUE)
+```
+
+
+```{r rockethate, echo=FALSE}
+
+# Define your target hero and the defensive ult set.
+target_hero <- "Rocket Raccoon"
+defensive_ult_set <- c("Luna Snow", "Invisible Woman", "Mantis", "Cloak & Dagger", "Loki")
+play_threshold <- 0.5  # 50% threshold for playtime
+exclude_heroes <- c("The Punisher", "Winter Soldier")  # Excluded heroes
+
+# ----- STEP 1: Build Teams Directly from match_players -----
+# Here, we assume match_players has columns: match_uid, is_win, name.y, playtime_percentage.
+teams <- match_players %>%
+  group_by(match_uid, is_win) %>%
+  summarise(team = list(data.frame(name = name.y, play = playtime_percentage)), .groups = "drop")
+
+# Compute team-level metrics:
+teams <- teams %>%
+  mutate(
+    # Does the team have Rocket Raccoon?
+    rocket_present = map_lgl(team, ~ target_hero %in% .x$name),
+    # Count how many other heroes (excluding Rocket) from the defensive set are played with sufficient playtime.
+    support_count = map_int(team, ~ {
+      df <- .x
+      sum(df$name %in% defensive_ult_set & df$name != target_hero & df$play >= play_threshold)
+    }),
+    # For Rocket, take the maximum playtime if he appears multiple times.
+    rocket_play = map_dbl(team, ~ {
+      df <- .x
+      rp <- df$play[df$name == target_hero]
+      if(length(rp)==0) 0 else max(rp)
+    })
+  )
+
+# ----- STEP 2: Separate Teams with and without Rocket -----
+rocket_teams <- teams %>% filter(rocket_present)
+opp_teams <- teams %>% filter(!rocket_present)
+
+# ----- STEP 3: Pair Opposing Teams by Match ID -----
+# We assume each match has exactly two teams.
+matched_teams <- inner_join(rocket_teams, opp_teams, by = "match_uid", 
+                            suffix = c("_rr", "_opp"))
+
+# ----- STEP 4: Apply Filtering Criteria -----
+filtered_matches <- matched_teams %>%
+  filter(
+    # On Rocket's team: Rocket must have played at least 50%
+    rocket_play_rr >= play_threshold,
+    # And exactly one other hero (support_count) is from the defensive set.
+    support_count_rr == 1,
+    # On the opposing team: At least 2 heroes from the defensive ult set.
+    support_count_opp >= 2
+  )
+
+# ----- STEP 5: Compute Rocket Raccoon's Win Rate -----
+# Here, is_win_rr indicates if Rocket's team won.
+rocket_win_rate <- mean(filtered_matches$is_win_rr)
+
+# ----- STEP 1: Build Teams Directly from match_players -----
+teams_no_punisher <- match_players %>%
+  group_by(match_uid, is_win) %>%
+  summarise(team = list(data.frame(name = name.y, play = playtime_percentage)), .groups = "drop") %>%
+  mutate(
+    # Does the team have Rocket Raccoon?
+    rocket_present = map_lgl(team, ~ target_hero %in% .x$name),
+    # Count how many other heroes (excluding Rocket) from the defensive set are played with sufficient playtime.
+    support_count = map_int(team, ~ {
+      df <- .x
+      sum(df$name %in% defensive_ult_set & df$name != target_hero & df$play >= play_threshold)
+    }),
+    # Get Rocket's playtime (if present)
+    rocket_play = map_dbl(team, ~ {
+      df <- .x
+      rp <- df$play[df$name == target_hero]
+      if (length(rp) == 0) 0 else max(rp)
+    }),
+    # Check if any excluded heroes played at least as much as Rocket.
+    has_excluded_hero = map2_lgl(team, rocket_play, ~ any(.x$play[.x$name %in% exclude_heroes] >= .y, na.rm = TRUE))
+  )
+
+# ----- STEP 2: Separate Teams with and without Rocket -----
+rocket_teams_punisher <- teams_no_punisher %>% filter(rocket_present)
+opp_teams_punisher <- teams_no_punisher %>% filter(!rocket_present)
+
+# ----- STEP 3: Pair Opposing Teams by Match ID -----
+matched_teams_punisher <- inner_join(rocket_teams_punisher, opp_teams_punisher, by = "match_uid", 
+                            suffix = c("_rr", "_opp"))
+
+# ----- STEP 4: Apply Filtering Criteria -----
+filtered_matches_punisher <- matched_teams_punisher %>%
+  filter(
+    # On Rocket's team: Rocket must have played at least 50%
+    rocket_play_rr >= play_threshold,
+    # And exactly one other hero (support_count) is from the defensive set.
+    support_count_rr == 1,
+    # On the opposing team: At least 2 heroes from the defensive ult set.
+    support_count_opp >= 2,
+    # Exclude teams that contain Punisher or Winter Soldier.
+    !has_excluded_hero_rr
+  )
+
+# ----- STEP 5: Compute Rocket Raccoon's Win Rate -----
+rocket_win_rate_punisher <- mean(filtered_matches_punisher$is_win_rr)
+
+```
+
+```{r rocketVisualization, echo=FALSE}
+
+# Extract Rocket's overall win rate from hero_data
+rocket_overall_winrate <- hero_stats %>%
+  filter(name == "Rocket Raccoon") %>%
+  pull(win_rate) %>%
+  first()
+
+# Extract Rocket's icon (for potential use)
+rocket_icon <- hero_stats %>%
+  filter(name == "Rocket Raccoon") %>%
+  pull(icon) %>%
+  first()
+
+# Create a data frame for visualization
+winrate_df <- data.frame(
+  Category = c("Without Punisher/WS", "Single vs 2+ Defensive Ults", "Overall Win Rate"),
+  WinRate = c(round(rocket_win_rate_punisher * 100, 1), 
+              round(rocket_win_rate * 100, 1), 
+              round(rocket_overall_winrate, 1))
+) %>% arrange(desc(WinRate))
+
+# Create a bar chart
+cud_palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00")
+
+rockethate_vis <- ggplot(winrate_df, aes(x = Category, y = WinRate, fill = Category)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  geom_text(aes(label = paste0(WinRate, "%")), vjust = -0.5, size = 5, color = highlight_color) +  # Text in white
+  labs(
+    title = "Rocket Raccoon's Win Rates Under Different Conditions",
+    x = "Condition",
+    y = "Win Rate (%)"
+  ) +
+  ylim(0, 100) +
+  theme_minimal(base_family = "sans") +  # Use minimal theme with base font family
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold", color = highlight_color),  # Title in white
+    axis.text.x = element_text(size = 12, color = highlight_color),  # Axis text in white
+    axis.text.y = element_text(size = 12, color = highlight_color),  # Axis text in white
+    axis.title = element_text(size = 13, face = "bold", color = highlight_color),  # Axis title in white
+    panel.background = element_rect(fill = bg_color, color = NA),  # Dark panel background
+    plot.background = element_rect(fill = bg_color, color = NA),  # Dark plot background
+    panel.grid = element_line(color = gridl_color, linewidth = 0.2),  # Subtle grid lines with `linewidth`
+    axis.ticks = element_line(color = highlight_color, linewidth = 0.5)  # White axis ticks
+  ) +
+  scale_fill_manual(values = cud_palette)  # Apply CUD colors
+
+ggsave("rendered/RocketHate.png", rockethate_vis, width = 8, height = 6, dpi = 300)
+rockethate_vis 
 ```

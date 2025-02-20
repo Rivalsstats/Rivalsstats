@@ -1,0 +1,73 @@
+.main-container {
+    max-width: 100% !important;
+    margin: auto;
+    max-width: 90vw; 
+    text-align: center;
+  }
+  
+/* General page styling */
+  body {
+    background-color: #2E3740;
+    color: #C0C7CD;
+  }
+
+  /* Ensure links are readable */
+  a {
+    color: #1e90ff; /* Dodger Blue */
+  }
+  /* Hide cold folding button*/
+  button.code-folding-btn {
+    display: none !important;
+  }
+
+  /* Fix DataTables styling */
+  .dataTables_wrapper {
+    color: #C0C7CD; /* Keep text white */
+  }
+
+  /* Table headers */
+  table.dataTable thead {
+    background-color: #3A424A !important; /* Dark header */
+    color: #C0C7CD !important;
+  }
+
+  /* Table rows */
+  table.dataTable tbody tr {
+    background-color: #4A525A !important; /* Darker row background */
+    color: #C0C7CD !important;
+  }
+
+  /* Hover effect for rows */
+  table.dataTable tbody tr:hover {
+    background-color: #5A626A !important;
+  }
+
+  /* Borders for better visibility */
+  table.dataTable {
+    border: 1px solid #C0C7CD !important;
+  }
+
+  /* Pagination buttons */
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    background-color: #3A424A !important;
+    color: #C0C7CD !important;
+    border: 1px solid #6A727A !important;
+  }
+  .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    display: none !important;
+  }
+
+  /* Active page button */
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #1e90ff !important; /* Blue highlight */
+    color: #C0C7CD !important;
+  }
+
+  /* Search box and filter inputs */
+  .dataTables_filter input,
+  .dataTables_length select {
+    background-color: #3A424A !important;
+    color: #C0C7CD !important;
+    border: 1px solid #6A727A !important;
+  }
+  
