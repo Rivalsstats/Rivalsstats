@@ -308,7 +308,7 @@ def process_encountered_players(player_data, timestamp):
     # Process teammates
     if "teammates" in player_data:
         for teammate in player_data["teammates"]:
-            if teammate["player_uid"] not in queried_players  # Avoid duplicate queries
+            if teammate["player_uid"] not in queried_players:  # Avoid duplicate queries
                 queried_players.add(teammate["player_uid"])
                 players_to_fetch.append((teammate["player_uid"], timestamp))
 
