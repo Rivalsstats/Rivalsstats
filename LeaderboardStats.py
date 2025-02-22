@@ -26,7 +26,6 @@ MAX_PARALLEL_REQUESTS = 10  # Keep this low to avoid hitting API limits
 API_LIMIT = 480  # Max API calls per minute is 500 but we do 480 to be safe
 API_DELAY = 60 / API_LIMIT  # Time per request to stay within limits
 headers = {"x-api-key": os.getenv("API_KEY")}
-
 # Rate Limiting
 request_count = 0
 start_time = time.time()
@@ -111,7 +110,7 @@ def rate_limited_fetch(url):
    # return fetch_data(url)
 
 
-def fetch_data(url, retries=3, delay=2):
+def fetch_data(url, retries=10, delay=2):
     """Fetch JSON data safely, handling rate limits and corrupt responses."""
     global private_profile_count
 
