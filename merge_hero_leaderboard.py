@@ -13,7 +13,7 @@ hero_slug = sys.argv[1]
 historical_json = f"data/historical/heroes/{hero_slug}.json"
 meta_csv = f"data/historical/heroes/meta/{hero_slug}.csv"
 leaderboard_csv = f"data/historical/heroes/leaderboard/{hero_slug}.csv"
-latest_heroes_file = "data/latest/heroes/latest_heroes.json"
+latest_heroes_file = "data/latest/heroes/all_heroes.json"
 latest_leaderboard_file = f"data/latest/heroes/latest_leaderboard_{hero_slug}.json"
 
 # Ensure historical directory exists
