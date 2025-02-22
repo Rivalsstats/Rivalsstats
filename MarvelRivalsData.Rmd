@@ -205,8 +205,10 @@ population <- population %>%
          xaxis = list(title = "Timestamp", tickangle = -45),
          yaxis = list(title = "Population Count"),
          legend = list(title = list(text = "Rank - Division")),
-         margin = list(l = 50, r = 50, t = 50, b = 50)
+         margin = list(l = 50, r = 50, t = 50, b = 50),
+         autosize = TRUE
          )
+population <- config(population, responsive = TRUE)
 
 populationCount <- htmltools::div( population, align="center" )  # Result is now an HTML object
 htmltools::save_html(populationCount, "rendered/PopulationCount.html" ) 
@@ -224,13 +226,14 @@ total_population <- plot_ly(ranks_total,
                      mode = 'lines+markers',
                      text = ~paste("Rank:", rank, "<br>Total Count:", total_population),
                      hoverinfo = "text")
-
+total_population <- config(total_population, responsive = TRUE)
 total_population <- total_population %>%
   layout(title = "Total Population Count Over Time (Summed by Rank)",
          xaxis = list(title = "Timestamp", tickangle = -45),
          yaxis = list(title = "Total Population Count"),
          legend = list(title = list(text = "Rank")),
-         margin = list(l = 50, r = 50, t = 50, b = 50)
+         margin = list(l = 50, r = 50, t = 50, b = 50),
+         autosize = TRUE
          )
 total_population <- plotly_dark_theme(total_population)
 populationCount <- htmltools::div( total_population, align="center" )  # Result is now an HTML object
@@ -345,7 +348,11 @@ rank_population <- rank_population %>%
          )
 
 # Print table
-rank_pop_table <- datatable(rank_population, escape = FALSE,options = list(
+rank_pop_table <- datatable(
+  rank_population, 
+  escape = FALSE,
+  extensions = "Responsive",
+  options = list(
   pageLength = 25, autoWidth = TRUE,
   columnDefs = list(
     list(targets = c(4, 8), visible = FALSE)  # Adjust these numbers based on step 1
@@ -535,7 +542,7 @@ hero_stats_table <-datatable(
       "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
       "}"
     ),
-    
+    extensions = "Responsive",
     columnDefs = list(list(targets = c(1,2), visible = FALSE))  # Adjust based on step 1
     ),
   rownames = FALSE,
@@ -629,6 +636,16 @@ winrate_tierlist <- ggplot(hero_stats_winrate, aes(x = position, y = factor(tier
   ), alpha = 0.3) +  
   scale_fill_manual(values = tier_colors) +
   geom_image(aes(image = icon), size = 0.1) +
+   # ADD WATERMARK HERE
+  annotate("text", 
+           x = max_heroes_per_tier / 2,  
+           y = 3.5,  
+           label = "Rivalsstats.com",  
+           color = "gray30",  
+           size = 14,  
+           alpha = 0.12,  
+           angle = -30,  
+           fontface = "bold") +  
   theme_minimal(base_family = "sans") +
   scale_x_continuous(expand = c(0, 0), limits = c(0.5, max_heroes_per_tier + 0.5)) +  
   theme(
@@ -686,6 +703,16 @@ pickrate_tierlist <- ggplot(hero_stats_pickrate, aes(x = position, y = factor(pi
   ), alpha = 0.3) +  
   scale_fill_manual(values = tier_colors) +
   geom_image(aes(image = icon), size = 0.1) +
+   # ADD WATERMARK HERE
+  annotate("text", 
+           x = max_heroes_per_tier / 2,  
+           y = 3.5,  
+           label = "Rivalsstats.com",  
+           color = "gray30",  
+           size = 14,  
+           alpha = 0.12,  
+           angle = -30,  
+           fontface = "bold") +  
   theme_minimal(base_family = "sans") +
   scale_x_continuous(expand = c(0, 0), limits = c(0.5, max_heroes_per_tier + 0.5)) +  
   theme(
@@ -698,7 +725,7 @@ pickrate_tierlist <- ggplot(hero_stats_pickrate, aes(x = position, y = factor(pi
     panel.grid = element_blank(),
     plot.title = element_text(hjust = 0.5, face = "bold", size = 18, color = highlight_color)
   ) +
-  labs(x = NULL, y = NULL)
+  labs(x = NULL, y = NULL) 
 
 ggsave("rendered/PickrateTierlist.png", pickrate_tierlist, width = 8, height = 6, dpi = 300)
 pickrate_tierlist
@@ -739,6 +766,16 @@ combined_tierlist <- ggplot(hero_stats_combined, aes(x = position, y = factor(co
   ), alpha = 0.3) +  
   scale_fill_manual(values = tier_colors) +
   geom_image(aes(image = icon), size = 0.1) +
+   # ADD WATERMARK HERE
+  annotate("text", 
+           x = max_heroes_per_tier / 2,  
+           y = 3.5,  
+           label = "Rivalsstats.com",  
+           color = "gray30",  
+           size = 14,  
+           alpha = 0.12,  
+           angle = -30,  
+           fontface = "bold") +  
   theme_minimal(base_family = "sans") +
   scale_x_continuous(expand = c(0, 0), limits = c(0.5, max_heroes_per_tier + 0.5)) +  
   theme(
@@ -1221,7 +1258,8 @@ hero_counters_table <- hero_counters_table %>%
 
 hero_counters_vis <- datatable(
   hero_counters_table, 
-  escape = FALSE, 
+  escape = FALSE,
+  extensions = "Responsive",
   options = list(
     pageLength = 10, 
     autoWidth = TRUE,
@@ -1458,6 +1496,7 @@ hero_synergy_table <- hero_synergy_table %>%
 hero_synergy_vis <- datatable(
   hero_synergy_table, 
   escape = FALSE, 
+  extensions = "Responsive",
   options = list(
     ageLength = 10, 
     autoWidth = TRUE,
@@ -1508,6 +1547,7 @@ team_comp_vis <- datatable(
   team_comp_stats %>% select(composition_icons, pick_pct, win_pct),
   rownames = FALSE,
   escape = FALSE,
+  extensions = "Responsive",
   colnames = c("Team Composition", "Pick %", "Win %"),
   options = list(
     dom = 't',
@@ -1571,6 +1611,7 @@ team_comp_counters_vis <- datatable(
   head_to_head %>% select(comp_icons, opp_icons, Matches, WinRatePct),
   rownames = FALSE,
   escape = FALSE,
+  extensions = "Responsive",
   colnames = c("Composition", "Opponent Composition", "Matches", "Win %"),
   options = list(
     dom = 't',
