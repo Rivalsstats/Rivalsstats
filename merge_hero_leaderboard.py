@@ -8,6 +8,7 @@ from datetime import datetime
 
 # Get hero slug from GitHub Actions job matrix
 hero_slug = sys.argv[1]
+headers = {"x-api-key": os.getenv("API_KEY")}
 
 # File paths
 historical_json = f"data/historical/heroes/{hero_slug}.json"
@@ -92,7 +93,7 @@ ensure_csv_with_headers(leaderboard_csv, leaderboard_headers)
 async def fetch_player_stats(session, player_id):
     url = f"https://mrapi.org/api/player/{player_id}"
     try:
-        async with session.get(url, timeout=5) as response:
+        async with session.get(url, headers=headers, timeout=5) as response:
             if response.status == 200:
                 return await response.json()
             else:
