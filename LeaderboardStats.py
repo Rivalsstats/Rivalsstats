@@ -12,7 +12,7 @@ import pyarrow.parquet as pq
 # API Endpoints
 LEADERBOARD_URL = "https://mrapi.org/api/leaderboard"
 PLAYER_API_URL = "https://mrapi.org/api/player/{}"
-PLAYER_UPDATE_URL = "https://mrapi.org/api/player-update{}"
+PLAYER_UPDATE_URL = "https://mrapi.org/api/player-update/{}"
 MATCH_API_URL = "https://mrapi.org/api/match/{}"
 
 # Filenames
