@@ -425,11 +425,8 @@ safe_parse_json <- function(json_str) {
 
 
 healer_ids <- all_heroes %>%
-  select(id, abilities) %>%
-  mutate(
-    is_healer = map_lgl(abilities, ~ any("Healing Amount" %in% names(.x$additional_fields), na.rm = TRUE))
-  ) %>%
-  filter(is_healer)
+  filter(role == "STRATEGIST") %>%
+  select(id)
 
 # Extract heroes with healing abilities
 
@@ -494,7 +491,7 @@ hero_stats <- match_players %>%
 # Merge hero stats with hero icons (Ensure proper data type matching)
 hero_stats <- hero_stats %>%
   mutate(hero_data_hero_id = as.character(hero_data_hero_id)) %>%  # Convert numeric ID to character
-  left_join(select(all_heroes, id, name, icon), by = c("hero_data_hero_id" = "id"))
+  left_join(select(all_heroes, id, name, icon, role), by = c("hero_data_hero_id" = "id"))
 
 # Define the folder to store images
 dir.create("icons/hero_icons", showWarnings = FALSE)
@@ -510,13 +507,20 @@ for (i in 1:nrow(hero_stats)) {
 }
 
 # Add local file paths to dataset
-hero_stats$icon <- paste0("icons/hero_icons/", gsub(" ", "_", hero_stats$name), ".png")
 
-
+hero_stats <- hero_stats %>%
+  mutate(nameasicon = paste0(
+    '<div style="position: relative; display: inline-block;">',
+      '<img src="', icon, '" height="65px" style="border-radius: 12px;">',
+      '<div style="position: absolute; bottom: 6px; left: 3px; background: ', rolebg_color, '; border-radius: 4px; padding: 2px 4px; height: 22px; display: flex; align-items: center;">',
+        '<img src="https://mrapi.org/assets/roles/', tolower(role), '.png" height="18px">',
+      '</div>',
+    '</div>'
+  ))
 # Print summary statistics
 hero_stats_table <-datatable(
   hero_stats %>%
-    select(name, win_rate, avg_kills, avg_deaths, avg_assists, avg_hero_damage, avg_damage_taken, avg_hero_healed, games_played) %>%
+    select(nameasicon, name, win_rate, avg_kills, avg_deaths, avg_assists, avg_hero_damage, avg_damage_taken, avg_hero_healed, games_played) %>%
     rename("Hero" = name, "Win Rate (%)" = win_rate, "Avg Kills" = avg_kills, 
            "Avg Deaths" = avg_deaths, "Avg Assists" = avg_assists, 
            "Avg Damage" = avg_hero_damage, "Avg Dmg Taken" = avg_damage_taken, "Avg Healing" = avg_hero_healed, "Games Played" = games_played, ),
@@ -529,6 +533,7 @@ hero_stats_table <-datatable(
       "}"
     )),
   rownames = FALSE,
+  escape = FALSE, 
 )
 hero_stats_table <- tagList(
   # Link to the external CSS file (ensure it's in the correct path)
