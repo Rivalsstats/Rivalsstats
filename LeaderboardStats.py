@@ -94,8 +94,8 @@ def rate_limited_fetch(url):
 
         # Reset counter if a minute has passed
    #     if elapsed_time >= 60:
-            request_count = 0
-            start_time = time.time()
+   #         request_count = 0
+   #         start_time = time.time()
 
         # If request limit is reached, wait until reset
    #     if request_count >= API_LIMIT:
