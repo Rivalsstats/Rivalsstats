@@ -70,10 +70,10 @@
 									<p><span id="rank_name_ex"></span> | <span id="rank_points_ex"></span> LP (excluding Bronze 3/Unranked)</p>
 
 								</header>
-								<iframe src='rendered/PopulationCount.html' scrolling="no" frameborder='0'></iframe>
-								<iframe src='rendered/TotalPopulationCount.html' scrolling="no" frameborder='0'></iframe>
+								<iframe class="resizableIframe" src='rendered/PopulationCount.html' height="100vh" scrolling="no" frameborder='0'></iframe>
+								<iframe class="resizableIframe" src='rendered/TotalPopulationCount.html' height="100vh" scrolling="no" frameborder='0'></iframe>
 							</section>
-							<iframe src='rendered/RankDetailsTable.html' scrolling="no" frameborder='0'></iframe>
+							<iframe class="resizableIframe" src='rendered/RankDetailsTable.html' height="100vh" scrolling="no" frameborder='0'></iframe>
 
 					</div>
 
@@ -101,7 +101,15 @@
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
 			<script src="assets/js/fetchData.js"></script>
-			<script src="assets/js/iframeResizer.js"></script>
+			<script src="assets/js/iframe-resizer.parent.js"></script>
+			<script>
+				iframeResize({
+				  license: 'GPLv3',
+				  bodyMargin: '0',
+				  bodyPadding: '0',
+				  waitForLoad: true,
+				}, '.resizableIframe' );
+			</script>
 			<script src="assets/js/rankDataDisplay.js" type="module"></script>
 			<script src="assets/js/lastRender.js"></script>
 

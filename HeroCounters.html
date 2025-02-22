@@ -65,7 +65,7 @@
 								
 							</section>
 							
-							<iframe src='rendered/HeroCounters.html' scrolling="no" frameborder='0'></iframe>
+							<iframe class="resizableIframe" src='rendered/HeroCounters.html' scrolling="no" frameborder='0'></iframe>
 							
 					</div>
 
@@ -93,7 +93,15 @@
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
 			<script src="assets/js/fetchData.js"></script>
-			<script src="assets/js/iframeResizer.js"></script>
+			<script src="assets/js/iframe-resizer.parent.js"></script>
+			<script>
+				iframeResize({
+				  license: 'GPLv3',
+				  bodyMargin: '0',
+				  bodyPadding: '0',
+				  waitForLoad: true,
+				}, '.resizableIframe' );
+			</script>
 			<script src="assets/js/top500Data.js" type="module"></script>
 			<script src="assets/js/lastRender.js"></script>
 

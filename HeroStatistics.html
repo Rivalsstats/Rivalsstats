@@ -63,7 +63,7 @@
 							<header id="DetailedHeroStats"class="major">
 								<h1>Detailed Hero Stats</h1>
 							</header>
-							<iframe src='rendered/HeroStatsTable.html' scrolling="no" frameborder='0'></iframe>
+							<iframe class="resizableIframe" src='rendered/HeroStatsTable.html' scrolling="no" frameborder='0'></iframe>
 							<header class="major">
 								<p>This analysis is based on <span id="unique_matches"></span> unique competitive matches, collected by tracking the last 20 matches of Top 500 players every 6 hours. In total, <span id="unique_players"></span> unique players were recorded, either as Top 500 themselves or as opponents/teammates in these matches.</p>
 							</header>
@@ -94,7 +94,15 @@
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
 			<script src="assets/js/fetchData.js"></script>
-			<script src="assets/js/iframeResizer.js"></script>
+			<script src="assets/js/iframe-resizer.parent.js"></script>
+			<script>
+				iframeResize({
+				  license: 'GPLv3',
+				  bodyMargin: '0',
+				  bodyPadding: '0',
+				  waitForLoad: true,
+				}, '.resizableIframe' );
+			</script>
 			<script src="assets/js/top500Data.js" type="module"></script>
 			<script src="assets/js/lastRender.js"></script>
 
