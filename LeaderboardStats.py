@@ -127,9 +127,14 @@ def fetch_data(url, retries=3, delay=2):
                 time.sleep(retry_after)
                 continue  # Retry after sleep
             elif response.status_code == 500:
-                print(f"Private profile detected: {url}")
-                private_profile_count += 1
-                return None  # Don't retry on 500
+                if "player" in url:  # Only count private profiles for player endpoints
+                    print(f"Private profile detected: {url}")
+                    private_profile_count += 1
+                    return None  # Don't retry on 500
+                else:
+                    print(f"⚠️ Server error (500) on {url}. Retrying...")
+                    time.sleep(delay)
+                    continue  # Retry instead of skipping
             # Detect API Errors (500, 403, etc.)
             if response.status_code >= 400:
                 print(f"⚠️ API Error {response.status_code}: Skipping {url}")
