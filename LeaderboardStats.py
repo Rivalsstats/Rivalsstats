@@ -12,6 +12,7 @@ import pyarrow.parquet as pq
 # API Endpoints
 LEADERBOARD_URL = "https://mrapi.org/api/leaderboard"
 PLAYER_API_URL = "https://mrapi.org/api/player/{}"
+PLAYER_UPDATE_URL = "https://mrapi.org/api/player-update{}"
 MATCH_API_URL = "https://mrapi.org/api/match/{}"
 
 # Filenames
@@ -116,6 +117,7 @@ def fetch_data(url, retries=3, delay=2):
 
     for attempt in range(retries):
         try:
+            
             response = requests.get(url, headers=headers)
 
             # Detect Rate Limiting (429 Error)
@@ -268,6 +270,9 @@ def fetch_player_details_parallel(players_to_fetch):
 
 # Fetch and process a single player's data
 def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
+     # Trigger player update
+    rate_limited_fetch(PLAYER_UPDATE_URL.format(player_id))
+    
     player_data = rate_limited_fetch(PLAYER_API_URL.format(player_id))
     
     is_private = player_data is None or player_data.get("is_profile_private", True)
