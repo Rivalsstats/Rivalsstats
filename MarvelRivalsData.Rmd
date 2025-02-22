@@ -517,11 +517,14 @@ hero_stats <- hero_stats %>%
       '</div>',
     '</div>'
   ))
+hero_stats$icon <- paste0("icons/hero_icons/", gsub(" ", "_", hero_stats$name), ".png")
+
+hero_stats_details_table <- hero_stats
 # Print summary statistics
 hero_stats_table <-datatable(
-  hero_stats %>%
-    select(nameasicon, name, win_rate, avg_kills, avg_deaths, avg_assists, avg_hero_damage, avg_damage_taken, avg_hero_healed, games_played) %>%
-    rename("Hero" = name, "Win Rate (%)" = win_rate, "Avg Kills" = avg_kills, 
+  hero_stats_details_table %>%
+    select(nameasicon, name,role, win_rate, avg_kills, avg_deaths, avg_assists, avg_hero_damage, avg_damage_taken, avg_hero_healed, games_played) %>%
+    rename("Hero" = nameasicon, "Win Rate (%)" = win_rate, "Avg Kills" = avg_kills, 
            "Avg Deaths" = avg_deaths, "Avg Assists" = avg_assists, 
            "Avg Damage" = avg_hero_damage, "Avg Dmg Taken" = avg_damage_taken, "Avg Healing" = avg_hero_healed, "Games Played" = games_played, ),
   options = list(
@@ -531,9 +534,13 @@ hero_stats_table <-datatable(
       "function(settings, json) {",
       "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
       "}"
-    )),
+    ),
+    
+    columnDefs = list(list(targets = c(1,2), visible = FALSE))  # Adjust based on step 1
+    ),
   rownames = FALSE,
   escape = FALSE, 
+  
 )
 hero_stats_table <- tagList(
   # Link to the external CSS file (ensure it's in the correct path)
@@ -866,7 +873,7 @@ hero_counters <- hero_counters %>%
 # ---- Step 1: Merge Data ----
 # Merge hero_data to get role info; note: this is dynamic, not hardcoded.
 mp_enriched <- match_players %>%
-  left_join(all_heroes %>% select(id, role, attack_type),
+  left_join(all_heroes %>% select(id, attack_type),
             by = c("hero_data_hero_id" = "id"))
 
 # ---- Step 2: Aggregate at the Player Level ----
