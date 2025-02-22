@@ -11,6 +11,7 @@ jobs:
     env:
       BASE_URL: "https://mrapi.org/api/"
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+      API_KEY: ${{secrets.API_KEY_RIVALS}}
     steps:
       - uses: actions/checkout@v4
       
@@ -23,7 +24,7 @@ jobs:
 
       - name: Fetch All Heroes
         run: |
-          curl -X GET "${BASE_URL}heroes" -o data/latest/heroes/all_heroes.json
+          curl -X GET "${BASE_URL}heroes" -H "x-api-key: $API_KEY" -o data/latest/heroes/all_heroes.json
           cat data/latest/heroes/all_heroes.json  # Print response for debugging
 
       - name: Extract Hero Slugs
@@ -42,7 +43,7 @@ jobs:
         run: |
           while read -r HERO; do
             echo "Processing: $HERO"
-            curl -X GET "${BASE_URL}leaderboard/$HERO" -o "data/latest/heroes/latest_leaderboard_$HERO.json"
+            curl -X GET "${BASE_URL}leaderboard/$HERO" -H "x-api-key: $API_KEY" -o "data/latest/heroes/latest_leaderboard_$HERO.json"
             python merge_hero_leaderboard.py "$HERO"
           done < heroes_list.txt
 
