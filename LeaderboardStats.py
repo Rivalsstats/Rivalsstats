@@ -24,6 +24,7 @@ MATCH_PLAYERS_FILE = "data/historical/match_players.parquet"
 MAX_PARALLEL_REQUESTS = 10  # Keep this low to avoid hitting API limits
 API_LIMIT = 480  # Max API calls per minute is 500 but we do 480 to be safe
 API_DELAY = 60 / API_LIMIT  # Time per request to stay within limits
+headers = {"x-api-key": os.getenv("API_KEY")}
 
 # Rate Limiting
 request_count = 0
@@ -82,28 +83,31 @@ total_scanned_players = 0
 
 
 def rate_limited_fetch(url):
-    """Fetch API data while ensuring global rate limits are not exceeded."""
-    global request_count, start_time
+    #no need to ratelimit with api key
+    return fetch_data(url)
+    
+    #"""Fetch API data while ensuring global rate limits are not exceeded."""
+    #global request_count, start_time
 
-    with lock:
-        elapsed_time = time.time() - start_time
+    #with lock:
+    #    elapsed_time = time.time() - start_time
 
         # Reset counter if a minute has passed
-        if elapsed_time >= 60:
+   #     if elapsed_time >= 60:
             request_count = 0
             start_time = time.time()
 
         # If request limit is reached, wait until reset
-        if request_count >= API_LIMIT:
-            wait_time = 60 - elapsed_time
-            print(f"Rate limit reached! Sleeping for {wait_time:.2f} seconds...")
-            time.sleep(wait_time)
-            request_count = 0
-            start_time = time.time()
+   #     if request_count >= API_LIMIT:
+   #         wait_time = 60 - elapsed_time
+   #         print(f"Rate limit reached! Sleeping for {wait_time:.2f} seconds...")
+   #         time.sleep(wait_time)
+   #         request_count = 0
+   #         start_time = time.time()
 
-        request_count += 1
+   #     request_count += 1
 
-    return fetch_data(url)
+   # return fetch_data(url)
 
 
 def fetch_data(url, retries=3, delay=2):
@@ -112,7 +116,7 @@ def fetch_data(url, retries=3, delay=2):
 
     for attempt in range(retries):
         try:
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
 
             # Detect Rate Limiting (429 Error)
             if response.status_code == 429:
