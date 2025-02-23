@@ -92,6 +92,14 @@ plotly_dark_theme <- function(p) {
     )
   )
 }
+headContent <- tags$head(
+  tags$meta(name = "viewport", content = "width=device-width, initial-scale=1"),
+  tags$script(
+    src = "../assets/js/iframe-resizer.child.js",
+    type = "text/javascript",
+    async = NA
+  )
+)
 ```
 
 ```{r rankSetup, echo = FALSE}
@@ -187,11 +195,6 @@ ranks_total <- ranks %>%
   summarise(total_population = sum(population_count), .groups = "drop")
 ranks_total$rank <- factor(ranks_total$rank, levels = custom_rank_order)
 
-iframeScript <- tags$script(
-  src = "../assets/js/iframe-resizer.child.js",
-  type = "text/javascript",
-  async = NA  # Use NA to include the async attribute
-)
 ```
 
 ```{r RankHistory, echo = FALSE}
@@ -219,9 +222,15 @@ population <- config(population, responsive = TRUE)
 populationCount <- htmltools::div( population, align="center" )  # Result is now an HTML object
 
 # Combine the script with your graphic element
-htmlContent <- tagList(
-  iframeScript,
+bodyContent <- tags$body(
   populationCount
+  # ... add other body elements here if needed
+)
+
+# Wrap head and body in an HTML tag
+htmlContent <- tags$html(
+  headContent,
+  bodyContent
 )
 
 htmltools::save_html(htmlContent, "rendered/PopulationCount.html" ) 
@@ -251,11 +260,20 @@ total_population <- total_population %>%
 total_population <- plotly_dark_theme(total_population)
 populationCount <- htmltools::div( total_population, align="center" )  # Result is now an HTML object
 
+
 # Combine the script with your graphic element
-htmlContent <- tagList(
-  iframeScript,
+bodyContent <- tags$body(
   total_population
+  # ... add other body elements here if needed
 )
+
+# Wrap head and body in an HTML tag
+htmlContent <- tags$html(
+  headContent,
+  bodyContent
+)
+
+
 htmltools::save_html(htmlContent, "rendered/TotalPopulationCount.html" ) 
 populationCount
 ```
@@ -372,7 +390,7 @@ rank_pop_table <- datatable(
   escape = FALSE,
   extensions = "Responsive",
   options = list(
-  pageLength = 25, autoWidth = TRUE,
+  pageLength = 25, autoWidth = TRUE, responsive = TRUE,
   columnDefs = list(
     list(targets = c(4, 8), visible = FALSE)  # Adjust these numbers based on step 1
   ),
@@ -397,11 +415,19 @@ rank_pop_details <- tagList(
   rank_pop_details
 )
 
+
 # Combine the script with your graphic element
-htmlContent <- tagList(
-  iframeScript,
+bodyContent <- tags$body(
   rank_pop_details
+  # ... add other body elements here if needed
 )
+
+# Wrap head and body in an HTML tag
+htmlContent <- tags$html(
+  headContent,
+  bodyContent
+)
+
 
 
 htmltools::save_html(htmlContent, "rendered/RankDetailsTable.html" ) 
@@ -564,6 +590,7 @@ hero_stats_table <-datatable(
   options = list(
     pageLength = 10, 
     autoWidth = TRUE,
+    responsive = TRUE,
     initComplete = JS(
       "function(settings, json) {",
       "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
@@ -583,10 +610,20 @@ hero_stats_table <- tagList(
   ),
   hero_stats_table
 )
-htmlContent <- tagList(
-  iframeScript,
+
+# Combine the script with your graphic element
+bodyContent <- tags$body(
   hero_stats_table
+  # ... add other body elements here if needed
 )
+
+# Wrap head and body in an HTML tag
+htmlContent <- tags$html(
+  headContent,
+  bodyContent
+)
+
+
 htmltools::save_html(htmlContent, "rendered/HeroStatsTable.html" ) 
 hero_stats_table
 ```
@@ -1294,6 +1331,7 @@ hero_counters_vis <- datatable(
   options = list(
     pageLength = 10, 
     autoWidth = TRUE,
+    responsive = TRUE,
      initComplete = JS(
       "function(settings, json) {",
       "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
@@ -1321,10 +1359,19 @@ hero_counters_vis <- tagList(
   hero_counters_vis
 )
 
-htmlContent <- tagList(
-  iframeScript,
+# Combine the script with your graphic element
+bodyContent <- tags$body(
   hero_counters_vis
+  # ... add other body elements here if needed
 )
+
+# Wrap head and body in an HTML tag
+htmlContent <- tags$html(
+  headContent,
+  bodyContent
+)
+
+
 htmltools::save_html(htmlContent, "rendered/HeroCounters.html" ) 
 hero_counters_vis
 
@@ -1536,6 +1583,7 @@ hero_synergy_vis <- datatable(
   options = list(
     ageLength = 10, 
     autoWidth = TRUE,
+    responsive = TRUE,
     initComplete = JS(
       "function(settings, json) {",
       "  $(this.api().table().node()).css({'background-color': '#333', 'color': '#fff'});",
@@ -1560,10 +1608,20 @@ hero_synergy_vis <- tagList(
   ),
   hero_synergy_vis
 )
-htmlContent <- tagList(
-  iframeScript,
+
+# Combine the script with your graphic element
+bodyContent <- tags$body(
   hero_synergy_vis
+  # ... add other body elements here if needed
 )
+
+# Wrap head and body in an HTML tag
+htmlContent <- tags$html(
+  headContent,
+  bodyContent
+)
+
+
 htmltools::save_html(htmlContent, "rendered/HeroSynergies.html" ) 
 hero_synergy_vis
 
@@ -1590,6 +1648,8 @@ team_comp_vis <- datatable(
   extensions = "Responsive",
   colnames = c("Team Composition", "Pick %", "Win %"),
   options = list(
+    responsive = TRUE,
+    autoWidth = TRUE,
     dom = 't',
     pageLength = nrow(team_comp_stats),
     initComplete = JS(
@@ -1606,10 +1666,20 @@ team_comp_vis <- tagList(
   ),
   team_comp_vis
 )
-htmlContent <- tagList(
-  iframeScript,
+
+# Combine the script with your graphic element
+bodyContent <- tags$body(
   team_comp_vis
+  # ... add other body elements here if needed
 )
+
+# Wrap head and body in an HTML tag
+htmlContent <- tags$html(
+  headContent,
+  bodyContent
+)
+
+
 htmltools::save_html(htmlContent, "rendered/TeamComps.html" ) 
 team_comp_vis
 
@@ -1658,6 +1728,8 @@ team_comp_counters_vis <- datatable(
   extensions = "Responsive",
   colnames = c("Composition", "Opponent Composition", "Matches", "Win %"),
   options = list(
+    responsive = TRUE,
+    autoWidth = TRUE,
     dom = 't',
     pageLength = nrow(head_to_head),
     initComplete = JS(
@@ -1674,10 +1746,20 @@ team_comp_counters_vis <- tagList(
   ),
   team_comp_counters_vis
 )
-htmlContent <- tagList(
-  iframeScript,
+
+# Combine the script with your graphic element
+bodyContent <- tags$body(
   team_comp_counters_vis
+  # ... add other body elements here if needed
 )
+
+# Wrap head and body in an HTML tag
+htmlContent <- tags$html(
+  headContent,
+  bodyContent
+)
+
+
 htmltools::save_html(htmlContent, "rendered/TeamCompCounters.html" ) 
 team_comp_counters_vis
 ```
