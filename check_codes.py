@@ -38,7 +38,7 @@ if new_codes:
             "fields": [
             ],
             "footer": {
-                "text": "Marvel Rivals Codes by Jods https://rivalsstats.com/"
+                "text": "Made by Jods https://rivalsstats.com/"
             }
         }
         embeds.append(embed)
