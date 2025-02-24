@@ -63,6 +63,8 @@ library('ggplot2')
 library('ggimage')
 library('gridExtra')
 library('htmltools')
+library('xml2')
+library('glue')
 ```
 ```{r colorSetup, echo=FALSE}
 bg_color = "#2E3740"
@@ -512,6 +514,7 @@ for (i in 1:nrow(all_heroes)) {
     try(download.file(all_heroes$icon[i], file_path, mode = "wb"), silent = TRUE)
   }
   all_heroes$icon[i] <- paste0("../",file_path)
+  all_heroes$attack_type[i] <- gsub(" Heroes","", all_heroes$attack_type[i])
 }
 ```
 
@@ -576,7 +579,7 @@ hero_stats <- match_players %>%
 # Merge hero stats with hero icons (Ensure proper data type matching)
 hero_stats <- hero_stats %>%
   mutate(hero_data_hero_id = as.character(hero_data_hero_id)) %>%  # Convert numeric ID to character
-  left_join(select(all_heroes, id, name, icon, role), by = c("hero_data_hero_id" = "id"))
+  left_join(select(all_heroes, id, name, icon, role, attack_type, difficulty), by = c("hero_data_hero_id" = "id"))
 
 
 # Add local file paths to dataset
@@ -651,8 +654,10 @@ total_games <- sum(hero_stats$games_played, na.rm = TRUE)/6
 # Compute pick rate
 hero_stats <- hero_stats %>%
   mutate(
-    pick_rate = (games_played / total_games) * 100
+    pick_rate = round((games_played / total_games) * 100,2) 
   )
+
+
 
 hero_stats$combined_score <- hero_stats$win_rate * sqrt(hero_stats$pick_rate)
 
@@ -1250,6 +1255,432 @@ hero_worst_against_comp <- hero_vs_opponent_comp_stats %>%
 
 ```
 
+```{r heroSyneries, echo = FALSE}
+
+# ========= STEP 1: Deduplicate match_players =========
+# We assume match_players has one row per hero per player.
+# In case a team has multiple records for the same hero (e.g. due to substitutions),
+# we aggregate them. Here we take the maximum playtime_percentage per match, team, and hero.
+match_players_unique <- match_players %>%
+  group_by(match_uid, is_win, name.y) %>%
+  summarise(playtime_percentage = max(playtime_percentage), .groups = "drop")
+
+# ========= STEP 2: Identify Teams =========
+# For each match and team (identified by match_uid and is_win),
+# get the unique heroes (each hero appears only once per team).
+teams <- match_players_unique %>%
+  group_by(match_uid, is_win) %>%
+  summarise(team_heroes = list(unique(name.y)), .groups = "drop") %>%
+  # Make sure we have at least 2 heroes on the team
+  filter(map_int(team_heroes, length) > 1)
+
+# ========= STEP 3: Generate All Hero Pairings Per Team =========
+# For each team, use combn() to get all unordered hero pair combinations.
+hero_pairs <- teams %>%
+  mutate(hero_combinations = map(team_heroes, ~ combn(.x, 2, simplify = FALSE))) %>%
+  select(match_uid, is_win, hero_combinations) %>%
+  unnest(hero_combinations) %>%
+  unnest_wider(hero_combinations, names_sep = "_") %>%
+  rename(hero1 = hero_combinations_1,
+         hero2 = hero_combinations_2)
+
+# ========= STEP 4: Join Playtime Percentages =========
+# Now join each hero's playtime from match_players_unique.
+# We join on both match_uid and is_win so that we only match within the same team.
+hero_pairs <- hero_pairs %>%
+  left_join(match_players_unique %>% 
+              select(match_uid, is_win, name.y, playtime_percentage), 
+            by = c("match_uid", "is_win", "hero1" = "name.y")) %>%
+  rename(playtime_hero1 = playtime_percentage) %>%
+  left_join(match_players_unique %>% 
+              select(match_uid, is_win, name.y, playtime_percentage), 
+            by = c("match_uid", "is_win", "hero2" = "name.y")) %>%
+  rename(playtime_hero2 = playtime_percentage)
+
+# ========= STEP 5: Compute Weighted Wins / Losses =========
+# For each hero pair in a match, if the team won (is_win == TRUE) we calculate
+# a weighted win using the product of the two heroes’ playtime percentages.
+# If the team lost, we calculate a weighted loss.
+hero_pairs <- hero_pairs %>%
+  mutate(
+    weighted_win  = ifelse(is_win, playtime_hero1 * playtime_hero2, 0),
+    weighted_loss = ifelse(!is_win, playtime_hero1 * playtime_hero2, 0)
+  )
+
+# ========= STEP 6: Aggregate Synergy Data =========
+# Across all matches, aggregate the synergy statistics by hero pair.
+hero_synergy <- hero_pairs %>%
+  group_by(hero1, hero2) %>%
+  summarise(
+    wins          = sum(weighted_win, na.rm = TRUE),
+    losses        = sum(weighted_loss, na.rm = TRUE),
+    total_matches = wins + losses,
+    win_rate      = ifelse(total_matches > 0, wins / total_matches * 100, NA),
+    .groups       = "drop"
+  ) %>%
+  arrange(desc(win_rate))
+
+# ========= STEP 7: Filter Out Rare Synergies =========
+# For example, you might require that a synergy pair appears in at least 1% of all matches.
+total_matches_all <- nrow(matches)  # 'matches' should be your overall match table
+threshold <- total_matches_all * 0.01
+hero_synergy <- hero_synergy %>%
+  filter(total_matches >= threshold)
+
+# ========= STEP 8: Merge Role and Icon Data =========
+# Join in hero metadata from all_heroes so you can later display the hero icons and roles.
+hero_synergy <- hero_synergy %>%
+  left_join(select(all_heroes, name, role, icon), by = c("hero1" = "name")) %>%
+  rename(role1 = role, icon1 = icon) %>%
+  left_join(select(all_heroes, name, role, icon), by = c("hero2" = "name")) %>%
+  rename(role2 = role, icon2 = icon)
+
+# ========= STEP 9: Create Bidirectional Synergy Data =========
+# So that for any given hero (say, BruceBanner) you can look up synergy
+# with a partner (e.g., DrStrange) regardless of the order, duplicate each row in reverse.
+hero_synergy_reversed <- hero_synergy %>%
+  mutate(
+    temp_hero = hero1,
+    temp_role = role1,
+    temp_icon = icon1
+  ) %>%
+  transmute(
+    hero1 = hero2,
+    hero2 = temp_hero,
+    wins,
+    losses,
+    total_matches,
+    win_rate,
+    role1 = role2,
+    icon1 = icon2,
+    role2 = temp_role,
+    icon2 = temp_icon
+  )
+
+hero_synergy_bidirectional <- bind_rows(hero_synergy, hero_synergy_reversed) %>%
+  filter(hero1 != hero2)  # safeguard against any self–pairs
+
+
+```
+
+```{r heroCardGeneration, echo=FALSE}
+
+# Helper function to generate star rating HTML
+generate_stars <- function(difficulty) {
+  filled <- paste(rep('<i class="fas fa-star"></i>', difficulty), collapse = "")
+  empty  <- paste(rep('<i class="far fa-star"></i>', 5 - difficulty), collapse = "")
+  return(paste0(filled, empty))
+}
+
+# Function to generate an individual hero card using glue for clarity
+generate_card <- function(row) {
+  # Clean the hero name for use in ids (remove spaces, etc.)
+  hero_name_clean <- gsub(" ", "", row$name)
+  
+  # Conditional badge for win_rate: green if >50, red otherwise.
+  winrate_class <- if (as.numeric(row$win_rate) > 50) "badge bg-success" else "badge bg-danger"
+  
+  # Build the HTML card. Note that we use glue() for interpolation.
+  card_html <- glue('
+    <div class="col">
+    <div id="{hero_name_clean}_Card" class="card h-100 shadow mb-3 p-3 dark-card">
+      <img src="{row$icon}" class="card-img-top" alt="{row$name}">
+      <div class="card-body">
+        <h5 class="card-title">{row$name}</h5>
+        
+        <!-- Role and Attack Type -->
+        <div id="RoleAndType" class="d-flex align-items-center mb-2">
+          <img src="icons/role_icons/{row$role}.png" alt="{row$role}" class="me-2" style="width: 24px; height: 24px;">
+          <span class="text-light">{row$attack_type}</span>
+        </div>
+      
+        <!-- Difficulty Rating -->
+        <div class="mb-2 d-flex align-items-center">
+          {generate_stars(as.numeric(row$difficulty))}
+        </div>
+      
+        <!-- Overall Stats -->
+        <p class="card-text">
+          <div>Winrate: <span class="{winrate_class}">{row$win_rate}%</span></div>
+          <div>Pickrate: <span class="badge bg-info">{row$pick_rate}%</span></div>
+        </p>
+      
+        <!-- More Info Button -->
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#heroModal_{hero_name_clean}" title="Show hero counters and synergies">
+          More Info
+        </button>
+      </div>
+    </div>
+     </div>
+  ', .open = "{", .close = "}")
+  
+  return(card_html)
+}
+
+
+```
+
+```{r heroModalGeneration, echo=FALSE}
+
+# Helper: Determine badge class based on win_rate.
+get_badge_class <- function(rate) {
+  if(as.numeric(rate) > 50) "bg-success" else "bg-danger"
+}
+
+# Helper: Generate a single counter item.
+# For counters, we use icon_win and opponent_hero.
+generate_counter_item <- function(item) {
+  badge_class <- get_badge_class(item$win_rate)
+  glue('
+    <div class="text-center">
+      <img src="{item$icon_lose}" class="icon-sm" alt="{item$opponent_hero}">
+      <div><span class="badge {badge_class}">{item$win_rate}%</span></div>
+    </div>
+  ', .open = "{", .close = "}")
+}
+
+# Helper: Generate a single synergy item.
+# For synergies, we use icon2 and hero2.
+generate_synergy_item <- function(item) {
+  badge_class <- get_badge_class(item$win_rate)
+  glue('
+    <div class="text-center">
+      <img src="{item$icon2}" class="icon-sm" alt="{item$hero2}">
+      <div><span class="badge {badge_class}">{item$win_rate}%</span></div>
+    </div>
+  ', .open = "{", .close = "}")
+}
+
+# Main function: Generate the modal HTML for one hero.
+generate_modal <- function(hero_data, hero_counters, hero_synergy) {
+  # Clean hero name (remove spaces) for use in IDs.
+  hero_name_clean <- gsub(" ", "", hero_data$name)
+  
+  ## --- COUNTERS SECTION (example for "Vanguard") ----------------
+  # Filter hero_counters for this hero and role.
+  counters_vanguard <- subset(hero_counters, hero == hero_data$name & role_lose == "VANGUARD")
+  
+  if(nrow(counters_vanguard) > 0) {
+    best_counters  <- head(counters_vanguard[order(-counters_vanguard$win_rate), ], 3)
+    worst_counters <- head(counters_vanguard[order(counters_vanguard$win_rate), ], 3)
+    all_counters   <- counters_vanguard
+  } else {
+    best_counters  <- worst_counters <- all_counters <- data.frame()
+  }
+  best_counter_html <- if(nrow(best_counters) > 0) {
+    paste(apply(best_counters, 1, function(x) generate_counter_item(as.list(x))), collapse = "\n")
+  } else ""
+  
+  worst_counter_html <- if(nrow(worst_counters) > 0) {
+    paste(apply(worst_counters, 1, function(x) generate_counter_item(as.list(x))), collapse = "\n")
+  } else ""
+  
+  all_counter_html <- if(nrow(all_counters) > 0) {
+    paste(apply(all_counters, 1, function(x) generate_counter_item(as.list(x))), collapse = "\n")
+  } else ""
+  
+  ## --- SYNERGY SECTION (example for "Vanguard") ----------------
+  # Filter hero_synergy for this hero (using hero1) and a given role.
+  synergies_vanguard <- subset(hero_synergy, hero1 == hero_data$name & role2 == "VANGUARD")
+  
+  if(nrow(synergies_vanguard) > 0) {
+    best_synergies  <- head(synergies_vanguard[order(-synergies_vanguard$win_rate), ], 3)
+    worst_synergies <- head(synergies_vanguard[order(synergies_vanguard$win_rate), ], 3)
+    all_synergies   <- synergies_vanguard
+  } else {
+    best_synergies  <- worst_synergies <- all_synergies <- data.frame()
+  }
+  
+  best_synergy_html <- if(nrow(best_synergies) > 0) {
+    paste(apply(best_synergies, 1, function(x) generate_synergy_item(as.list(x))), collapse = "\n")
+  } else ""
+  
+  worst_synergy_html <- if(nrow(worst_synergies) > 0) {
+    paste(apply(worst_synergies, 1, function(x) generate_synergy_item(as.list(x))), collapse = "\n")
+  } else ""
+  
+  all_synergy_html <- if(nrow(all_synergies) > 0) {
+    paste(apply(all_synergies, 1, function(x) generate_synergy_item(as.list(x))), collapse = "\n")
+  } else ""
+  
+  ## --- BUILD THE MODAL HTML ---------------------------------------
+  modal_html <- glue('
+<div class="modal fade" id="heroModal_{hero_name_clean}" tabindex="-1" aria-labelledby="heroModalLabel_{hero_name_clean}" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content dark-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="heroModalLabel_{hero_name_clean}">{hero_data$name} Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Section 1: Opponent Data (Counters) -->
+        <h5 class="mb-3">Counters</h5>
+        <!-- Row 1: Opposed Vanguards-->
+        <div class="row mb-4 role-section">
+          <div class="col-md-4">
+            <h6>Vanguards</h6>
+            <strong>Best:</strong>
+            <div id="BestVanguardCounters" class="d-flex gap-3 mt-1">
+              {best_counter_html}
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <h6>&nbsp;</h6>
+            <strong>Worst:</strong>
+            <div id="WorstVanguardCounters" class="d-flex gap-3 mt-1">
+              {worst_counter_html}
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <h6>&nbsp;</h6>
+            <strong>All: </strong>
+            <div class="d-flex hero-carousel">
+              <div id="AllVanguardCounters" class="hero-carousel-track marquee">
+                {all_counter_html}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Section 2: Allied Data (Synergies) -->
+        <h5 class="mb-3">Synergies</h5>
+        <!-- Row 1: Allied Vanguards -->
+        <div class="row mb-4 role-section">
+          <div class="col-md-4">
+            <h6>Vanguards</h6>
+            <strong>Best:</strong>
+            <div id="BestVanguardSynergies" class="d-flex gap-3 mt-1">
+              {best_synergy_html}
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <h6>&nbsp;</h6>
+            <strong>Worst:</strong>
+            <div id="WorstVanguardSynergies" class="d-flex gap-3 mt-1">
+              {worst_synergy_html}
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <h6>&nbsp;</h6>
+            <strong>All: </strong>
+            <div class="d-flex hero-carousel">
+              <div id="AllVanguardSynergies" class="hero-carousel-track marquee">
+                {all_synergy_html}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Section 3: Overall Stats -->
+        <div class="row text-center">
+          <div class="col-md-6 mb-3">
+            <h5>Winrate</h5>
+            <span id="OverallWinrate" class="badge bg-info fs-5">{hero_data$win_rate}%</span>
+          </div>
+          <div class="col-md-6 mb-3">
+            <h5>Pickrate</h5>
+            <span id="OverallPickrate" class="badge bg-info fs-5">{hero_data$pick_rate}%</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+', .open = "{", .close = "}")
+  
+  return(modal_html)
+}
+
+```
+
+```{r saveHtml, echo=FALSE}
+# Order heroes by win_rate descending (highest winrate first)
+hero_stats <- hero_stats[order(-hero_stats$win_rate), ]
+
+
+#round
+hero_counters <- hero_counters %>% 
+mutate(
+  win_rate = round(win_rate,2),
+) 
+
+hero_synergy_bidirectional <- hero_synergy_bidirectional %>% 
+mutate(
+  win_rate = round(win_rate,2),
+) 
+
+modals_html <- paste(
+  sapply(seq_len(nrow(hero_stats)), function(i) {
+    generate_modal(as.list(hero_stats[i, , drop = FALSE]), hero_counters, hero_synergy_bidirectional)
+  }),
+  collapse = "\n"
+)
+
+# Generate cards for each hero (concatenated as one HTML string)
+cards_html <- paste(
+  sapply(seq_len(nrow(hero_stats)), function(i) generate_card(as.list(hero_stats[i, ]))),
+  collapse = "\n"
+)
+# Read the HTML template.
+template_path <- "templates/heros.html"
+doc <- read_html(template_path)
+
+# Locate the existing div with id "heros-list" (this div's structure/attributes are preserved).
+heros_list_node <- xml_find_first(doc, "//*[@id='heros-list']")
+
+# Remove only its child nodes (so formatting and attributes of the heros-list div remain).
+xml_find_all(heros_list_node, "./*") %>% xml_remove()
+
+# Wrap the generated cards HTML in a temporary container with a unique id.
+temp_wrapper <- read_html(glue("<div id='tmp'>{cards_html}</div>"))
+tmp_node <- xml_find_first(temp_wrapper, "//*[@id='tmp']")
+
+# Extract the card nodes (the children of the temporary wrapper).
+new_nodes <- xml_children(tmp_node)
+
+# Append each card node into the heros-list div.
+for (node in new_nodes) {
+  xml_add_child(heros_list_node, node)
+}
+
+
+# Locate the existing div with id "heros-list" (this div's structure/attributes are preserved).
+modal_list_node <- xml_find_first(doc, "//*[@id='modal-list']")
+
+
+# Remove only its child nodes (so formatting and attributes of the modal-list div remain).
+xml_find_all(modal_list_node, "./*") %>% xml_remove()
+
+# Wrap the generated cards HTML in a temporary container with a unique id.
+temp_wrapper_modal <- read_html(glue("<div id='tmp'>{modals_html}</div>"))
+tmp_node_modal <- xml_find_first(temp_wrapper_modal, "//*[@id='tmp']")
+
+# Extract the card nodes (the children of the temporary wrapper).
+new_nodes_modal <- xml_children(tmp_node_modal)
+
+# Append each card node into the heros-list div.
+for (node in new_nodes_modal) {
+  xml_add_child(modal_list_node, node)
+}
+
+
+
+
+# Write out the updated HTML.
+write_html(doc, "heros.html")
+```
+
+
 ```{r counterVisualization, echo = FALSE}
 # Improved Table Formatting
 # Enhancing Readability, Spacing, Colors, and Interactivity
@@ -1392,113 +1823,6 @@ hero_counters_vis
 
 # Hero Synergies
 
-```{r heroSyneries, echo = FALSE}
-
-# ========= STEP 1: Deduplicate match_players =========
-# We assume match_players has one row per hero per player.
-# In case a team has multiple records for the same hero (e.g. due to substitutions),
-# we aggregate them. Here we take the maximum playtime_percentage per match, team, and hero.
-match_players_unique <- match_players %>%
-  group_by(match_uid, is_win, name.y) %>%
-  summarise(playtime_percentage = max(playtime_percentage), .groups = "drop")
-
-# ========= STEP 2: Identify Teams =========
-# For each match and team (identified by match_uid and is_win),
-# get the unique heroes (each hero appears only once per team).
-teams <- match_players_unique %>%
-  group_by(match_uid, is_win) %>%
-  summarise(team_heroes = list(unique(name.y)), .groups = "drop") %>%
-  # Make sure we have at least 2 heroes on the team
-  filter(map_int(team_heroes, length) > 1)
-
-# ========= STEP 3: Generate All Hero Pairings Per Team =========
-# For each team, use combn() to get all unordered hero pair combinations.
-hero_pairs <- teams %>%
-  mutate(hero_combinations = map(team_heroes, ~ combn(.x, 2, simplify = FALSE))) %>%
-  select(match_uid, is_win, hero_combinations) %>%
-  unnest(hero_combinations) %>%
-  unnest_wider(hero_combinations, names_sep = "_") %>%
-  rename(hero1 = hero_combinations_1,
-         hero2 = hero_combinations_2)
-
-# ========= STEP 4: Join Playtime Percentages =========
-# Now join each hero's playtime from match_players_unique.
-# We join on both match_uid and is_win so that we only match within the same team.
-hero_pairs <- hero_pairs %>%
-  left_join(match_players_unique %>% 
-              select(match_uid, is_win, name.y, playtime_percentage), 
-            by = c("match_uid", "is_win", "hero1" = "name.y")) %>%
-  rename(playtime_hero1 = playtime_percentage) %>%
-  left_join(match_players_unique %>% 
-              select(match_uid, is_win, name.y, playtime_percentage), 
-            by = c("match_uid", "is_win", "hero2" = "name.y")) %>%
-  rename(playtime_hero2 = playtime_percentage)
-
-# ========= STEP 5: Compute Weighted Wins / Losses =========
-# For each hero pair in a match, if the team won (is_win == TRUE) we calculate
-# a weighted win using the product of the two heroes’ playtime percentages.
-# If the team lost, we calculate a weighted loss.
-hero_pairs <- hero_pairs %>%
-  mutate(
-    weighted_win  = ifelse(is_win, playtime_hero1 * playtime_hero2, 0),
-    weighted_loss = ifelse(!is_win, playtime_hero1 * playtime_hero2, 0)
-  )
-
-# ========= STEP 6: Aggregate Synergy Data =========
-# Across all matches, aggregate the synergy statistics by hero pair.
-hero_synergy <- hero_pairs %>%
-  group_by(hero1, hero2) %>%
-  summarise(
-    wins          = sum(weighted_win, na.rm = TRUE),
-    losses        = sum(weighted_loss, na.rm = TRUE),
-    total_matches = wins + losses,
-    win_rate      = ifelse(total_matches > 0, wins / total_matches * 100, NA),
-    .groups       = "drop"
-  ) %>%
-  arrange(desc(win_rate))
-
-# ========= STEP 7: Filter Out Rare Synergies =========
-# For example, you might require that a synergy pair appears in at least 1% of all matches.
-total_matches_all <- nrow(matches)  # 'matches' should be your overall match table
-threshold <- total_matches_all * 0.01
-hero_synergy <- hero_synergy %>%
-  filter(total_matches >= threshold)
-
-# ========= STEP 8: Merge Role and Icon Data =========
-# Join in hero metadata from all_heroes so you can later display the hero icons and roles.
-hero_synergy <- hero_synergy %>%
-  left_join(select(all_heroes, name, role, icon), by = c("hero1" = "name")) %>%
-  rename(role1 = role, icon1 = icon) %>%
-  left_join(select(all_heroes, name, role, icon), by = c("hero2" = "name")) %>%
-  rename(role2 = role, icon2 = icon)
-
-# ========= STEP 9: Create Bidirectional Synergy Data =========
-# So that for any given hero (say, BruceBanner) you can look up synergy
-# with a partner (e.g., DrStrange) regardless of the order, duplicate each row in reverse.
-hero_synergy_reversed <- hero_synergy %>%
-  mutate(
-    temp_hero = hero1,
-    temp_role = role1,
-    temp_icon = icon1
-  ) %>%
-  transmute(
-    hero1 = hero2,
-    hero2 = temp_hero,
-    wins,
-    losses,
-    total_matches,
-    win_rate,
-    role1 = role2,
-    icon1 = icon2,
-    role2 = temp_role,
-    icon2 = temp_icon
-  )
-
-hero_synergy_bidirectional <- bind_rows(hero_synergy, hero_synergy_reversed) %>%
-  filter(hero1 != hero2)  # safeguard against any self–pairs
-
-
-```
 
 
 ```{r heroSynergiesVisualization, echo = FALSE}
