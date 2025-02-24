@@ -21,3 +21,15 @@ async function fetchDataOnce() {
         await fetchPromise; // Wait for the fetch to complete
     }
 }
+
+
+// Initialize all tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+// List sort/search options
+var options = {
+    valueNames: [ 'card-title', { name: 'role', attr: 'alt' }, 'overall-winrate', 'overall-pickrate', 'attack-type' ]
+  };
+var heroList = new List('heros-list-container', options);

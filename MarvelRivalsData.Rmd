@@ -579,7 +579,7 @@ hero_stats <- match_players %>%
 # Merge hero stats with hero icons (Ensure proper data type matching)
 hero_stats <- hero_stats %>%
   mutate(hero_data_hero_id = as.character(hero_data_hero_id)) %>%  # Convert numeric ID to character
-  left_join(select(all_heroes, id, name, icon, role, attack_type, difficulty), by = c("hero_data_hero_id" = "id"))
+  left_join(select(all_heroes, id, name, icon, role, attack_type, difficulty, description), by = c("hero_data_hero_id" = "id"))
 
 
 # Add local file paths to dataset
@@ -1390,8 +1390,8 @@ generate_card <- function(row) {
         
         <!-- Role and Attack Type -->
         <div id="RoleAndType" class="d-flex align-items-center mb-2">
-          <img src="icons/role_icons/{row$role}.png" alt="{row$role}" class="me-2" style="width: 24px; height: 24px;">
-          <span class="text-light">{row$attack_type}</span>
+          <img src="icons/role_icons/{row$role}.png" alt="{row$role}" class="me-2 role" style="width: 24px; height: 24px;">
+          <span class="text-light attack-type">{row$attack_type}</span>
         </div>
       
         <!-- Difficulty Rating -->
@@ -1401,8 +1401,8 @@ generate_card <- function(row) {
       
         <!-- Overall Stats -->
         <p class="card-text">
-          <div>Winrate: <span class="{winrate_class}">{row$win_rate}%</span></div>
-          <div>Pickrate: <span class="badge bg-info">{row$pick_rate}%</span></div>
+          <div>Winrate: <span class="{winrate_class} overall-winrate">{row$win_rate}%</span></div>
+          <div>Pickrate: <span class="badge bg-info overall-pickrate">{row$pick_rate}%</span></div>
         </p>
       
         <!-- More Info Button -->
@@ -1424,7 +1424,7 @@ generate_card <- function(row) {
 
 # Helper: Determine badge class based on win_rate.
 get_badge_class <- function(rate) {
-  if(as.numeric(rate) > 50) "bg-success" else "bg-danger"
+  if(as.numeric(rate) >= 50) "bg-success" else "bg-danger"
 }
 
 # Helper: Generate a single counter item.
@@ -1451,148 +1451,332 @@ generate_synergy_item <- function(item) {
   ', .open = "{", .close = "}")
 }
 
+desired_order <- c("VANGUARD", "DUELIST", "STRATEGIST")
+# Helper to convert a teamcomp composition string into a set of role icons.
+generate_teamcomp_icons <- function(comp_string) {
+  # Define the desired order.
+  
+  # Split the composition string into parts.
+  parts <- strsplit(comp_string, ",\\s*")[[1]]
+  
+  # Parse each part into a list with count and role.
+  comp_data <- lapply(parts, function(part) {
+    tokens <- strsplit(part, "\\s+")[[1]]
+    count <- as.numeric(tokens[1])
+    role  <- tokens[2]
+    list(count = count, role = role)
+  })
+  
+  # Reorder the parsed items according to desired_order.
+  ordered_data <- lapply(desired_order, function(r) {
+    # Find the matching role in comp_data.
+    match <- Filter(function(x) x$role == r, comp_data)
+    if(length(match) > 0) {
+      return(match[[1]])
+    } else {
+      return(NULL)
+    }
+  })
+  # Remove NULL entries.
+  ordered_data <- Filter(Negate(is.null), ordered_data)
+  
+  # Generate the icons for each role in the fixed order.
+  icons <- sapply(ordered_data, function(item) {
+    rep_icons <- paste(rep(glue::glue('<img src="icons/role_icons/{item$role}.png" class="icon-sm" alt="{item$role}">'),
+                           item$count), collapse = " ")
+    return(rep_icons)
+  })
+  
+  return(paste(icons, collapse = " "))
+}
+
+
+# Helper to generate an individual teamcomp item.
+# For opposing team comps, 'comp' comes from the "opponent_comp" column with win rate "win_rate";
+# for allied team comps, 'comp' comes from the "composition" column with win rate "hero_win_rate".
+generate_teamcomp_item <- function(comp, win_rate) {
+  icons_html <- generate_teamcomp_icons(comp)
+  badge_class <- if(as.numeric(win_rate) > 50) "bg-success" else "bg-danger"
+  glue::glue('
+    <div class="text-center">
+      {icons_html}
+      <div><span class="badge {badge_class}">{win_rate}%</span></div>
+    </div>
+  ', .open = "{", .close = "}")
+}
+
 # Main function: Generate the modal HTML for one hero.
 generate_modal <- function(hero_data, hero_counters, hero_synergy) {
-  # Clean hero name (remove spaces) for use in IDs.
+  # Clean hero name for use in IDs.
   hero_name_clean <- gsub(" ", "", hero_data$name)
   
-  ## --- COUNTERS SECTION (example for "Vanguard") ----------------
-  # Filter hero_counters for this hero and role.
-  counters_vanguard <- subset(hero_counters, hero == hero_data$name & role_lose == "VANGUARD")
+  # Define the roles to include.
+  roles <- c("VANGUARD", "STRATEGIST", "DUELIST")
   
-  if(nrow(counters_vanguard) > 0) {
-    best_counters  <- head(counters_vanguard[order(-counters_vanguard$win_rate), ], 3)
-    worst_counters <- head(counters_vanguard[order(counters_vanguard$win_rate), ], 3)
-    all_counters   <- counters_vanguard
-  } else {
-    best_counters  <- worst_counters <- all_counters <- data.frame()
+  # Prepare lists to store HTML for counters and synergies.
+  best_counter_html_list <- list()
+  worst_counter_html_list <- list()
+  all_counter_html_list   <- list()
+  
+  best_synergy_html_list <- list()
+  worst_synergy_html_list <- list()
+  all_synergy_html_list   <- list()
+  
+  # Loop over each role to filter and generate HTML snippets.
+  for (role in roles) {
+    ## Counters for the current role
+    counters_role <- subset(hero_counters, hero == hero_data$name & role_lose == role)
+    if (nrow(counters_role) > 0) {
+      best_counters  <- head(counters_role[order(-counters_role$win_rate), ], 3)
+      worst_counters <- head(counters_role[order(counters_role$win_rate), ], 3)
+      all_counters   <- counters_role
+    } else {
+      best_counters  <- worst_counters <- all_counters <- data.frame()
+    }
+    best_counter_html_list[[role]] <- if (nrow(best_counters) > 0) {
+      paste(apply(best_counters, 1, function(x) generate_counter_item(as.list(x))), collapse = "\n")
+    } else ""
+    worst_counter_html_list[[role]] <- if (nrow(worst_counters) > 0) {
+      paste(apply(worst_counters, 1, function(x) generate_counter_item(as.list(x))), collapse = "\n")
+    } else ""
+    all_counter_html_list[[role]] <- if (nrow(all_counters) > 0) {
+      paste(apply(all_counters, 1, function(x) generate_counter_item(as.list(x))), collapse = "\n")
+    } else ""
+    
+    ## Synergies for the current role
+    synergies_role <- subset(hero_synergy, hero1 == hero_data$name & role2 == role)
+    if (nrow(synergies_role) > 0) {
+      best_synergies  <- head(synergies_role[order(-synergies_role$win_rate), ], 3)
+      worst_synergies <- head(synergies_role[order(synergies_role$win_rate), ], 3)
+      all_synergies   <- synergies_role
+    } else {
+      best_synergies  <- worst_synergies <- all_synergies <- data.frame()
+    }
+    best_synergy_html_list[[role]] <- if (nrow(best_synergies) > 0) {
+      paste(apply(best_synergies, 1, function(x) generate_synergy_item(as.list(x))), collapse = "\n")
+    } else ""
+    worst_synergy_html_list[[role]] <- if (nrow(worst_synergies) > 0) {
+      paste(apply(worst_synergies, 1, function(x) generate_synergy_item(as.list(x))), collapse = "\n")
+    } else ""
+    all_synergy_html_list[[role]] <- if (nrow(all_synergies) > 0) {
+      paste(apply(all_synergies, 1, function(x) generate_synergy_item(as.list(x))), collapse = "\n")
+    } else ""
   }
-  best_counter_html <- if(nrow(best_counters) > 0) {
-    paste(apply(best_counters, 1, function(x) generate_counter_item(as.list(x))), collapse = "\n")
-  } else ""
   
-  worst_counter_html <- if(nrow(worst_counters) > 0) {
-    paste(apply(worst_counters, 1, function(x) generate_counter_item(as.list(x))), collapse = "\n")
-  } else ""
+  # Build counters HTML for all roles.
+  counters_html <- paste(sapply(roles, function(role) {
+    # For display, add an "s" to role names except for Duelist.
+    role_display <- ifelse(role == "DUELIST", "Duelist", paste0(role, "s"))
+    glue::glue('
+<div class="row mb-4 role-section">
+  <div class="col-md-4">
+    <h6>{role_display}</h6>
+    <strong>Best:</strong>
+    <div id="Best{role_display}Counters" class="d-flex gap-3 mt-1">
+      {best_counter_html_list[[role]]}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h6>&nbsp;</h6>
+    <strong>Worst:</strong>
+    <div id="Worst{role_display}Counters" class="d-flex gap-3 mt-1">
+      {worst_counter_html_list[[role]]}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h6>&nbsp;</h6>
+    <strong>All: </strong>
+    <div class="d-flex hero-carousel">
+      <div id="All{role_display}Counters" class="hero-carousel-track marquee">
+        {all_counter_html_list[[role]]}
+      </div>
+    </div>
+  </div>
+</div>
+', .open = "{", .close = "}")
+  }), collapse = "\n")
   
-  all_counter_html <- if(nrow(all_counters) > 0) {
-    paste(apply(all_counters, 1, function(x) generate_counter_item(as.list(x))), collapse = "\n")
-  } else ""
+  # Build synergies HTML for all roles.
+  synergies_html <- paste(sapply(roles, function(role) {
+    role_display <- ifelse(role == "DUELIST", "Duelist", paste0(role, "s"))
+    glue::glue('
+<div class="row mb-4 role-section">
+  <div class="col-md-4">
+    <h6>{role_display}</h6>
+    <strong>Best:</strong>
+    <div id="Best{role_display}Synergies" class="d-flex gap-3 mt-1">
+      {best_synergy_html_list[[role]]}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h6>&nbsp;</h6>
+    <strong>Worst:</strong>
+    <div id="Worst{role_display}Synergies" class="d-flex gap-3 mt-1">
+      {worst_synergy_html_list[[role]]}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h6>&nbsp;</h6>
+    <strong>All: </strong>
+    <div class="d-flex hero-carousel">
+      <div id="All{role_display}Synergies" class="hero-carousel-track marquee">
+        {all_synergy_html_list[[role]]}
+      </div>
+    </div>
+  </div>
+</div>
+', .open = "{", .close = "}")
+  }), collapse = "\n")
   
-  ## --- SYNERGY SECTION (example for "Vanguard") ----------------
-  # Filter hero_synergy for this hero (using hero1) and a given role.
-  synergies_vanguard <- subset(hero_synergy, hero1 == hero_data$name & role2 == "VANGUARD")
-  
-  if(nrow(synergies_vanguard) > 0) {
-    best_synergies  <- head(synergies_vanguard[order(-synergies_vanguard$win_rate), ], 3)
-    worst_synergies <- head(synergies_vanguard[order(synergies_vanguard$win_rate), ], 3)
-    all_synergies   <- synergies_vanguard
+  # --- Generate Teamcomps Sections ---
+  ## Opposing team comps (for counters)
+  teamcomp_counters <- subset(hero_vs_opponent_comp_stats, hero == hero_data$name)
+  if(nrow(teamcomp_counters) > 0) {
+    best_teamcomp_counters  <- head(teamcomp_counters[order(-teamcomp_counters$win_rate), ], 3)
+    worst_teamcomp_counters <- head(teamcomp_counters[order(teamcomp_counters$win_rate), ], 3)
+    all_teamcomp_counters   <- teamcomp_counters
   } else {
-    best_synergies  <- worst_synergies <- all_synergies <- data.frame()
+    best_teamcomp_counters <- worst_teamcomp_counters <- all_teamcomp_counters <- data.frame()
   }
-  
-  best_synergy_html <- if(nrow(best_synergies) > 0) {
-    paste(apply(best_synergies, 1, function(x) generate_synergy_item(as.list(x))), collapse = "\n")
+  best_teamcomp_counters_html <- if(nrow(best_teamcomp_counters) > 0) {
+    paste(apply(best_teamcomp_counters, 1, function(x) 
+      generate_teamcomp_item(x["opponent_comp"], x["win_rate"])), collapse="\n")
+  } else ""
+  worst_teamcomp_counters_html <- if(nrow(worst_teamcomp_counters) > 0) {
+    paste(apply(worst_teamcomp_counters, 1, function(x) 
+      generate_teamcomp_item(x["opponent_comp"], x["win_rate"])), collapse="\n")
+  } else ""
+  all_teamcomp_counters_html <- if(nrow(all_teamcomp_counters) > 0) {
+    paste(apply(all_teamcomp_counters, 1, function(x) 
+      generate_teamcomp_item(x["opponent_comp"], x["win_rate"])), collapse="\n")
   } else ""
   
-  worst_synergy_html <- if(nrow(worst_synergies) > 0) {
-    paste(apply(worst_synergies, 1, function(x) generate_synergy_item(as.list(x))), collapse = "\n")
+  ## Allied team comps (for synergies)
+  teamcomp_synergies <- subset(hero_team_comps, hero == hero_data$name)
+  if(nrow(teamcomp_synergies) > 0) {
+    best_teamcomp_synergies  <- head(teamcomp_synergies[order(-teamcomp_synergies$hero_win_rate), ], 3)
+    worst_teamcomp_synergies <- head(teamcomp_synergies[order(teamcomp_synergies$hero_win_rate), ], 3)
+    all_teamcomp_synergies   <- teamcomp_synergies
+  } else {
+    best_teamcomp_synergies <- worst_teamcomp_synergies <- all_teamcomp_synergies <- data.frame()
+  }
+  best_teamcomp_synergies_html <- if(nrow(best_teamcomp_synergies) > 0) {
+    paste(apply(best_teamcomp_synergies, 1, function(x) 
+      generate_teamcomp_item(x["composition"], x["hero_win_rate"])), collapse="\n")
+  } else ""
+  worst_teamcomp_synergies_html <- if(nrow(worst_teamcomp_synergies) > 0) {
+    paste(apply(worst_teamcomp_synergies, 1, function(x) 
+      generate_teamcomp_item(x["composition"], x["hero_win_rate"])), collapse="\n")
+  } else ""
+  all_teamcomp_synergies_html <- if(nrow(all_teamcomp_synergies) > 0) {
+    paste(apply(all_teamcomp_synergies, 1, function(x) 
+      generate_teamcomp_item(x["composition"], x["hero_win_rate"])), collapse="\n")
   } else ""
   
-  all_synergy_html <- if(nrow(all_synergies) > 0) {
-    paste(apply(all_synergies, 1, function(x) generate_synergy_item(as.list(x))), collapse = "\n")
-  } else ""
+  # Build teamcomps HTML for counters.
+  teamcomp_counters_html <- glue::glue('
+<div class="row mb-4 role-section">
+  <div class="col-md-4">
+    <h6>Teamcomps</h6>
+    <strong>Best:</strong>
+    <div id="BestTeamcompCounters" class="d-flex gap-3 mt-1">
+      {best_teamcomp_counters_html}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h6>&nbsp;</h6>
+    <strong>Worst:</strong>
+    <div id="WorstTeamcompCounters" class="d-flex gap-3 mt-1">
+      {worst_teamcomp_counters_html}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h6>&nbsp;</h6>
+    <strong>All: </strong>
+    <div class="d-flex hero-carousel">
+      <div id="AllTeamcompCounters" class="hero-carousel-track marquee">
+        {all_teamcomp_counters_html}
+      </div>
+    </div>
+  </div>
+</div>
+', .open = "{", .close = "}")
   
-  ## --- BUILD THE MODAL HTML ---------------------------------------
-  modal_html <- glue('
-<div class="modal fade" id="heroModal_{hero_name_clean}" tabindex="-1" aria-labelledby="heroModalLabel_{hero_name_clean}" aria-hidden="true" style="display: none;">
+  # Build teamcomps HTML for synergies.
+  teamcomp_synergies_html <- glue::glue('
+<div class="row mb-4 role-section">
+  <div class="col-md-4">
+    <h6>Teamcomps</h6>
+    <strong>Best:</strong>
+    <div id="BestTeamcompSynergies" class="d-flex gap-3 mt-1">
+      {best_teamcomp_synergies_html}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h6>&nbsp;</h6>
+    <strong>Worst:</strong>
+    <div id="WorstTeamcompSynergies" class="d-flex gap-3 mt-1">
+      {worst_teamcomp_synergies_html}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h6>&nbsp;</h6>
+    <strong>All: </strong>
+    <div class="d-flex hero-carousel">
+      <div id="AllTeamcompSynergies" class="hero-carousel-track marquee">
+        {all_teamcomp_synergies_html}
+      </div>
+    </div>
+  </div>
+</div>
+', .open = "{", .close = "}")
+  
+  
+  # Build the final modal HTML.
+  modal_html <- glue::glue('
+<div class="modal fade" id="heroModal_{hero_name_clean}" tabindex="-1" aria-labelledby="heroModalLabel_{hero_name_clean}" aria-hidden="true">
   <div class="modal-dialog modal-xl">
     <div class="modal-content dark-modal">
       <div class="modal-header">
-        <h5 class="modal-title" id="heroModalLabel_{hero_name_clean}">{hero_data$name} Details</h5>
+        <h5 class="modal-title" id="heroModalLabel_{hero_name_clean}">{hero_data$name}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      
       <div class="modal-body">
-        <!-- Section 1: Opponent Data (Counters) -->
-        <h5 class="mb-3">Counters</h5>
-        <!-- Row 1: Opposed Vanguards-->
-        <div class="row mb-4 role-section">
-          <div class="col-md-4">
-            <h6>Vanguards</h6>
-            <strong>Best:</strong>
-            <div id="BestVanguardCounters" class="d-flex gap-3 mt-1">
-              {best_counter_html}
-            </div>
-          </div>
-          
-          <div class="col-md-4">
-            <h6>&nbsp;</h6>
-            <strong>Worst:</strong>
-            <div id="WorstVanguardCounters" class="d-flex gap-3 mt-1">
-              {worst_counter_html}
-            </div>
-          </div>
-          
-          <div class="col-md-4">
-            <h6>&nbsp;</h6>
-            <strong>All: </strong>
-            <div class="d-flex hero-carousel">
-              <div id="AllVanguardCounters" class="hero-carousel-track marquee">
-                {all_counter_html}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Section 2: Allied Data (Synergies) -->
-        <h5 class="mb-3">Synergies</h5>
-        <!-- Row 1: Allied Vanguards -->
-        <div class="row mb-4 role-section">
-          <div class="col-md-4">
-            <h6>Vanguards</h6>
-            <strong>Best:</strong>
-            <div id="BestVanguardSynergies" class="d-flex gap-3 mt-1">
-              {best_synergy_html}
-            </div>
-          </div>
-          
-          <div class="col-md-4">
-            <h6>&nbsp;</h6>
-            <strong>Worst:</strong>
-            <div id="WorstVanguardSynergies" class="d-flex gap-3 mt-1">
-              {worst_synergy_html}
-            </div>
-          </div>
-          
-          <div class="col-md-4">
-            <h6>&nbsp;</h6>
-            <strong>All: </strong>
-            <div class="d-flex hero-carousel">
-              <div id="AllVanguardSynergies" class="hero-carousel-track marquee">
-                {all_synergy_html}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Section 3: Overall Stats -->
+        <!-- Section 1: Overall Stats -->
         <div class="row text-center">
-          <div class="col-md-6 mb-3">
-            <h5>Winrate</h5>
-            <span id="OverallWinrate" class="badge bg-info fs-5">{hero_data$win_rate}%</span>
+          
+          <div class="col-md-6 mb-3 d-flex flex-column justify-content-left">
+            <img src="../{hero_data$icon}" alt="{hero_data$name}">
           </div>
-          <div class="col-md-6 mb-3">
-            <h5>Pickrate</h5>
-            <span id="OverallPickrate" class="badge bg-info fs-5">{hero_data$pick_rate}%</span>
+          <div class="col-md-6 mb-3 d-flex flex-column justify-content-center">
+            <div class="row">
+              <p>{hero_data$description}</p>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <h5>Pickrate</h5>
+                <span id="OverallPickrate" class="badge bg-info fs-5">{hero_data$pick_rate}</span>
+              </div>
+              <div class="col-md-6">
+                <h5>Winrate</h5>
+                <span id="OverallWinrate" class="badge bg-info fs-5">{hero_data$win_rate}</span>
+              </div>
+            </div>
+  
           </div>
         </div>
+        <!-- Section 2: Opponent Data (Counters) -->
+        <h5 class="mb-3">Counters</h5>
+        {counters_html}
+        {teamcomp_counters_html}
+        <!-- Section 3: Allied Data (Synergies) -->
+        <h5 class="mb-3">Synergies</h5>
+        {synergies_html}
+        {teamcomp_synergies_html}
       </div>
-      
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
-      
     </div>
   </div>
 </div>
@@ -1618,6 +1802,19 @@ hero_synergy_bidirectional <- hero_synergy_bidirectional %>%
 mutate(
   win_rate = round(win_rate,2),
 ) 
+
+
+hero_vs_opponent_comp_stats <- hero_vs_opponent_comp_stats %>% 
+mutate(
+  win_rate = round(win_rate*100,2),
+) 
+
+hero_team_comps <- hero_team_comps %>% 
+mutate(
+  hero_win_rate = round(hero_win_rate*100,2),
+) 
+
+
 
 modals_html <- paste(
   sapply(seq_len(nrow(hero_stats)), function(i) {
@@ -1677,7 +1874,7 @@ for (node in new_nodes_modal) {
 
 
 # Write out the updated HTML.
-write_html(doc, "heros.html")
+write_html(doc, "Heroes.html")
 ```
 
 

@@ -79,6 +79,111 @@ input, select, textarea {
 	appearance: none;
 }
 
+/* CUSTOM STUFF */
+/* CUSTOM STUFF */
+/* CUSTOM STUFF */
+/* CUSTOM STUFF */
+
+.icon-sm {
+	width: 32px;     /* or whatever size you prefer */
+	height: auto;    /* preserves aspect ratio */
+  }
+.icon-small {
+width: 24px;
+height: 24px;
+}  
+/* Dark theme for cards */
+.card.dark-card {
+	background-color: #3A4149; /* Lighter than page bg_color (#2E3740) */
+	color: #C0C7CD;           /* highlight_color */
+	border: 1px solid #5A626A; /* gridl_color */
+  }
+  .card.dark-card .card-body {
+	background-color: #3A4149;
+	color: #C0C7CD;
+  }
+  .card.dark-card .card-title,
+  .card.dark-card .card-text {
+	color: #C0C7CD;
+  }
+  .card.dark-card .role {
+	background-color: #6A727A; /* rolebg_color */
+	padding: 2px 4px;
+	border-radius: 3px;
+  }
+  
+  /* Dark theme for modals */
+  .modal-content.dark-modal {
+	background-color: #3A4149; /* Lighter shade for distinction */
+	color: #C0C7CD;           /* highlight_color */
+	border: 1px solid #5A626A; /* gridl_color */
+  }
+  .modal-content.dark-modal .modal-header,
+  .modal-content.dark-modal .modal-body,
+  .modal-content.dark-modal .modal-footer {
+	background-color: #3A4149;
+	color: #C0C7CD;
+  }
+  .modal-content.dark-modal .modal-title {
+	color: #C0C7CD;
+  }
+  /* Ensure the modal close button is visible */
+  .modal-content.dark-modal .btn-close {
+	filter: invert(1);
+  }
+  
+  /* Container hides overflow */
+.hero-carousel {
+	overflow: hidden;
+	position: relative;
+	width: 100%;
+	white-space: nowrap; /* Prevent wrapping */
+  }
+  
+  /* Ensure the track is wide enough and scrolls correctly */
+  .hero-carousel-track {
+	display: flex !important;
+	align-items: flex-end;
+	gap: 50rem; /* Adjust spacing between items */
+	flex-direction: row; /* Make sure the items are arranged in a row */
+	white-space: nowrap; /* Prevent wrapping */
+	flex-wrap: nowrap;  /* Prevent wrapping, make sure everything stays in one row */
+	width: max-content;  /* Ensure the track width adapts to content */
+	min-height: 56px;
+  }
+  
+  .js-marquee {
+	display: flex !important;   /* Ensure this is explicitly flex */
+	gap: 20px;
+	align-items: center;
+	justify-content: flex-start; /* Or any alignment you prefer */
+  }
+  /* Each hero item has a fixed width */
+  .hero-item {
+	flex: 0 0 auto;
+	width: 120px; /* Adjust as needed */
+	/* Optional: center images if needed */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+  }
+
+  .role-section{
+	background-color: #2f363d; /* or any color you like */
+	border-radius: 8px;        /* optional rounded corners */
+	padding: 1rem;             /* add some padding */
+	margin-bottom: 1rem;       /* space below if needed */
+  }
+  
+
+/* CUSTOM STUFF */
+/* CUSTOM STUFF */
+/* CUSTOM STUFF */
+/* CUSTOM STUFF */
+
+
+
+
 /* Basic */
 
 	@-ms-viewport {
