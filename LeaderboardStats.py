@@ -19,7 +19,7 @@ MATCH_API_URL = "https://mrapi.org/api/match/{}"
 LEADERBOARD_FILE = "data/historical/leaderboard.csv"
 PLAYER_ENCOUNTERS_FILE = "data/historical/player_encounters.csv"
 MATCHES_FILE = "data/historical/matches.csv"
-MATCH_PLAYERS_FILE = "data/historical/match_players.parquet"
+MATCH_PLAYERS_FILE = "data/historical/match_players/"
 
 # Constants
 MAX_PARALLEL_REQUESTS = 10  # Keep this low to avoid hitting API limits
@@ -34,6 +34,7 @@ private_profile_count = 0
 
 #thread savety
 encountered_lock = Lock() 
+match_extra_info = {}
 
 def load_existing_matches():
     """Loads already recorded matches from matches.csv to prevent re-querying them."""
@@ -209,16 +210,21 @@ def fetch_match_data(match_id):
     if not match_data:
         return
 
-    print(f"Processing match {match_id}...")
 
+    # Retrieve extra info from match_extra_info if available
+    extra = match_extra_info.get(match_id, {})
+    print(f"Processing match {match_id}...{extra}")
     # Save match details
     append_csv(
         MATCHES_FILE,
-        ["match_uid", "replay_id", "gamemode"],
+        ["match_uid", "replay_id", "gamemode", "match_timestamp", "season", "match_map_id"],
         {
             "match_uid": match_data["match_uid"],
             "replay_id": match_data["replay_id"],
             "gamemode": match_data["gamemode"]["name"],
+            "match_timestamp": extra.get("match_timestamp", ""),
+            "season": extra.get("season", ""),
+            "match_map_id": extra.get("match_map_id", ""),
         },
     )
 
@@ -250,6 +256,7 @@ def fetch_match_data(match_id):
                 "hero_healed": player["hero_healed"],
                 "damage_taken": player["damage_taken"],
                 "hero_data": f'"{hero_data_str}"',
+                "match_timestamp": extra.get("match_timestamp", "") 
             },
         )
 
@@ -328,10 +335,18 @@ def process_encountered_players(player_data, timestamp):
     # Process match history (only fetch unique matches)
     if "match_history" in player_data:
         for match in player_data["match_history"]:
+            print(f"DEBUG: found match data{match}")
             match_id = match["match_uid"]
             if match_id not in queried_matches:
                 queried_matches.add(match_id)
                 matches_to_fetch.append(match_id)
+            
+            if match_id not in match_extra_info:
+                match_extra_info[match_id] = {
+                "match_timestamp": match.get("match_timestamp", ""),
+                "season": match.get("season", ""),
+                "map_id": match.get("match_map", {}).get("id", ""),
+            }
 
     # Fetch teammates and matches in parallel
     total_scanned_matches = total_scanned_matches + len(matches_to_fetch)
@@ -432,14 +447,44 @@ def fetch_matches_parallel(matches_to_fetch):
 
 def save_to_disk():
     """Writes all collected data to files in one batch."""
-    if os.path.exists(MATCH_PLAYERS_FILE):
-        old_match_players_data = pd.read_parquet(MATCH_PLAYERS_FILE, engine="pyarrow")
-        combined_data = pd.concat([old_match_players_data, pd.DataFrame(match_players_data)])
-        combined_data.drop_duplicates(subset=["match_uid", "player_uid"], keep="last", inplace=True)
-    else:
-        combined_data = pd.DataFrame(match_players_data)
+    df = pd.DataFrame(match_players_data)
+    if "match_timestamp" not in df.columns or df.empty:
+        print("No match_timestamp data found in match_players_data!")
+        return
+    # Convert the match_timestamp column to datetime
+    df['match_timestamp'] = pd.to_datetime(df['match_timestamp'], errors='coerce', unit='s')
+     # Separate rows with valid and invalid timestamps
+    valid_df = df.dropna(subset=['match_timestamp'])
+    default_df = df[df['match_timestamp'].isna()]
 
-    combined_data.to_parquet(MATCH_PLAYERS_FILE, index=False, engine="pyarrow")
+    # Ensure the directory exists
+    os.makedirs(MATCH_PLAYERS_FILE, exist_ok=True)
+    if not valid_df.empty:
+        # Create week and year columns using ISO calendar
+        df['week'] = df['match_timestamp'].dt.isocalendar().week
+        df['year'] = df['match_timestamp'].dt.year
+
+        # Group the DataFrame by year and week, then save each group separately
+        for (year, week), group in df.groupby(['year', 'week']):
+            filename = os.path.join(MATCH_PLAYERS_FILE, f"match_players_week_{week}_{year}.parquet")
+            print(f"Saving group for week {week} of {year} to {filename}...")
+            if os.path.exists(filename):
+                old_data = pd.read_parquet(filename, engine="pyarrow")
+                combined_group = pd.concat([old_data, group])
+                combined_group.drop_duplicates(subset=["match_uid", "player_uid"], keep="last", inplace=True)
+                combined_group.to_parquet(filename, index=False, engine="pyarrow")
+            else:
+                group.to_parquet(filename, index=False, engine="pyarrow")
+    if not default_df.empty:
+        default_filename = os.path.join(MATCH_PLAYERS_FILE, "match_players_default.parquet")
+        print(f"Saving rows with missing timestamps to {default_filename}...")
+        if os.path.exists(default_filename):
+            old_data = pd.read_parquet(default_filename, engine="pyarrow")
+            combined_default = pd.concat([old_data, default_df])
+            combined_default.drop_duplicates(subset=["match_uid", "player_uid"], keep="last", inplace=True)
+            combined_default.to_parquet(default_filename, index=False, engine="pyarrow")
+        else:
+            default_df.to_parquet(default_filename, index=False, engine="pyarrow")
 
 
 if __name__ == "__main__":

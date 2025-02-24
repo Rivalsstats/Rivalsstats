@@ -444,7 +444,13 @@ players_file <- "data/historical/match_players.parquet"
 all_heroes <- fromJSON("data/latest/heroes/all_heroes.json")
 
 matches <- read_csv(matches_file, show_col_types = FALSE)
-match_players <- read_parquet(players_file, show_col_types = FALSE)
+
+# List all parquet files in the folder
+players_files <- list.files("data/historical/match_players/", pattern = "\\.parquet$", full.names = TRUE)
+
+# Read and combine all files into one data frame
+match_players <- players_files %>%
+  map_df(~ read_parquet(.x, show_col_types = FALSE))
 
 
 
@@ -491,6 +497,25 @@ healer_ids <- all_heroes %>%
 # Extract heroes with healing abilities
 
 ```
+
+
+```{r iconSetup, echo=FALSE}
+# Define the folder to store images
+dir.create("icons/hero_icons", showWarnings = FALSE)
+
+# Example: Download icons using their URL
+for (i in 1:nrow(all_heroes)) {
+  hero_name <- gsub(" ", "_", all_heroes$name[i])  # Replace spaces with underscores
+  file_path <- paste0("icons/hero_icons/", hero_name, ".png")
+
+  if (!file.exists(file_path)) {  # Only download if it doesn't exist
+    try(download.file(all_heroes$icon[i], file_path, mode = "wb"), silent = TRUE)
+  }
+  all_heroes$icon[i] <- paste0("../",file_path)
+}
+```
+
+
 ```{r calculatePlayersAndGames, echo=FALSE}
 unique_players <- match_players %>% 
   distinct(player_uid) %>% 
@@ -553,18 +578,6 @@ hero_stats <- hero_stats %>%
   mutate(hero_data_hero_id = as.character(hero_data_hero_id)) %>%  # Convert numeric ID to character
   left_join(select(all_heroes, id, name, icon, role), by = c("hero_data_hero_id" = "id"))
 
-# Define the folder to store images
-dir.create("icons/hero_icons", showWarnings = FALSE)
-
-# Example: Download icons using their URL
-for (i in 1:nrow(hero_stats)) {
-  hero_name <- gsub(" ", "_", hero_stats$name[i])  # Replace spaces with underscores
-  file_path <- paste0("icons/hero_icons/", hero_name, ".png")
-
-  if (!file.exists(file_path)) {  # Only download if it doesn't exist
-    try(download.file(hero_stats$icon[i], file_path, mode = "wb"), silent = TRUE)
-  }
-}
 
 # Add local file paths to dataset
 
@@ -573,7 +586,7 @@ hero_stats <- hero_stats %>%
     '<div style="position: relative; display: inline-block;">',
       '<img src="', icon, '" height="65px" style="border-radius: 12px;">',
       '<div style="position: absolute; bottom: 6px; left: 3px; background: ', rolebg_color, '; border-radius: 4px; padding: 2px 4px; height: 22px; display: flex; align-items: center;">',
-        '<img src="https://mrapi.org/assets/roles/', tolower(role), '.png" height="18px">',
+        '<img src="../icons/role_icons/', tolower(role), '.png" height="18px">',
       '</div>',
     '</div>'
   ))
@@ -1170,7 +1183,7 @@ parse_composition <- function(comp_string) {
     paste0(
       '<div style="display:inline-block; vertical-align: middle; margin-right: 5px; background-color:',rolebg_color,'; border-radius: 4px; padding: 2px 6px;">',
         '<span style="color:white; font-weight:bold;">', x$count, '</span> ',
-        '<img src="https://mrapi.org/assets/roles/', x$role, '.png" height="30px" style="vertical-align: middle;">',
+        '<img src="../icons/role_icons/', x$role, '.png" height="30px" style="vertical-align: middle;">',
       '</div>'
     )
   })
@@ -1305,7 +1318,7 @@ hero_counters_table <- hero_counters_table %>%
     '<div style="position: relative; display: inline-block;">',
       '<img src="', icon_win, '" height="65px" style="border-radius: 12px;">',
       '<div style="position: absolute; bottom: 6px; left: 3px; background: ', rolebg_color, '; border-radius: 4px; padding: 2px 4px; height: 22px; display: flex; align-items: center;">',
-        '<img src="https://mrapi.org/assets/roles/', tolower(role_win), '.png" height="18px">',
+        '<img src="../icons/role_icons/', tolower(role_win), '.png" height="18px">',
       '</div>',
     '</div>'
   ))
@@ -1556,7 +1569,7 @@ hero_synergy_table <- hero_synergy_table %>%
     '<div style="position: relative; display: inline-block;">',
        '<img src="', icon1, '" height="65px" style="border-radius: 12px;">',
        '<div style="position: absolute; bottom: 6px; left: 3px; background: ',rolebg_color,'; border-radius: 4px; padding: 2px 4px; height: 22px; display: flex; align-items: center;">',
-         '<img src="https://mrapi.org/assets/roles/', tolower(role1), '.png" height="18px">',
+         '<img src="../icons/role_icons/', tolower(role1), '.png" height="18px">',
        '</div>',
      '</div>'
   ))
