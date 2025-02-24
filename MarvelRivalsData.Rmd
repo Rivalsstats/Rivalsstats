@@ -1188,7 +1188,7 @@ parse_composition <- function(comp_string) {
     paste0(
       '<div style="display:inline-block; vertical-align: middle; margin-right: 5px; background-color:',rolebg_color,'; border-radius: 4px; padding: 2px 6px;">',
         '<span style="color:white; font-weight:bold;">', x$count, '</span> ',
-        '<img src="../icons/role_icons/', x$role, '.png" height="30px" style="vertical-align: middle;">',
+        '<img src="../icons/role_icons/', tolower(x$role), '.png" height="30px" style="vertical-align: middle;">',
       '</div>'
     )
   })
@@ -1390,7 +1390,7 @@ generate_card <- function(row) {
         
         <!-- Role and Attack Type -->
         <div id="RoleAndType" class="d-flex align-items-center mb-2">
-          <img src="icons/role_icons/{row$role}.png" alt="{row$role}" class="me-2 role" style="width: 24px; height: 24px;">
+          <img src="icons/role_icons/{tolower(row$role)}.png" alt="{tolower(row$role)}" class="me-2 role" style="width: 24px; height: 24px;">
           <span class="text-light attack-type">{row$attack_type}</span>
         </div>
       
@@ -1482,7 +1482,7 @@ generate_teamcomp_icons <- function(comp_string) {
   
   # Generate the icons for each role in the fixed order.
   icons <- sapply(ordered_data, function(item) {
-    rep_icons <- paste(rep(glue::glue('<img src="icons/role_icons/{item$role}.png" class="icon-sm" alt="{item$role}">'),
+    rep_icons <- paste(rep(glue::glue('<img src="icons/role_icons/{tolower(item$role)}.png" class="icon-sm" alt="{tolower(item$role)}">'),
                            item$count), collapse = " ")
     return(rep_icons)
   })
