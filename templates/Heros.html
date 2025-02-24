@@ -1,0 +1,1069 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Hero Counters</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="description" content="Rivalsstats displays comprehensive Marvel rivals stats including hero tierlists, win rates, and synergies. Compare your favorite heroes and see how they stack up in the latest meta!" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<script src="https://app.enzuzo.com/scripts/cookiebar/8ce2b6b4-f147-11ef-bb23-67ce764ade3c"></script>
+		<link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+		<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+		<link rel="shortcut icon" href="/favicon/favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+		<meta name="apple-mobile-web-app-title" content="Rivalstats" />
+		<link rel="manifest" href="/favicon/site.webmanifest" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+		<script ez-cb-cat="analytics">
+			!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+			posthog.init('phc_zJrM9WqVMhk8wS3cYyr6poc69tDli6yYoQvMed3ncdv', {api_host: 'https://eu.i.posthog.com'})
+		</script>
+	</head>
+	<body class="is-preload">
+		<!-- Modal for Additional Details -->
+		<div class = "modalholder">
+			<!-- Modal -->
+			<!-- Modal -->
+			<div class="modal fade" id="heroModal_PLACEHOLDER" tabindex="-1" aria-labelledby="heroModalLabel_PLACEHOLDER" aria-hidden="true" style="display: none;">
+				<div class="modal-dialog modal-xl">
+				<div class="modal-content dark-modal">
+					<div class="modal-header">
+					<h5 class="modal-title" id="heroModalLabel_PLACEHOLDER">Hero Name Details</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					
+					<div class="modal-body">
+					<!-- Section 1: Opponent Data -->
+					<h5 class="mb-3">Counters</h5>
+					
+					<!-- Row 1: Opposed Vanguards & Strategists -->
+					<!-- Example layout for Opponents -> Vanguards -->
+					<div class="row mb-4 role-section">
+						<div class="col-md-4">
+							<h6>Vanguards</h6>
+							<strong>Best:</strong>
+							<div id="BestVanguardCounters" class="d-flex gap-3 mt-1">
+								<!-- Best heroes here -->
+								<div class="text-center">
+									<img src="icons/hero_icons/Adam_Warlock.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">44.9%</span></div>
+								</div>
+								<div class="text-center">
+									<img src="icons/hero_icons/Captain_America.png" class="icon-sm" alt="Hero2">
+									<div><span class="badge bg-success">55.3%</span></div>
+								</div>
+								<div class="text-center">
+									<img src="icons/hero_icons/Cloak_&_Dagger.png" class="icon-sm" alt="Hero3">
+									<div><span class="badge bg-success">64.1%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+							<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+							<strong>Worst:</strong>
+							<div id="WorstVanguardCounters" class="d-flex gap-3 mt-1">
+								<!-- Worst heroes here -->
+								<div class="text-center">
+									<img src="icons/hero_icons/Black_Panther.png" class="icon-sm" alt="Hero4">
+									<div><span class="badge bg-danger">39.4%</span></div>
+								</div>
+								<div class="text-center">
+									<img src="icons/hero_icons/Black_Widow.png" class="icon-sm" alt="Hero5">
+									<div><span class="badge bg-danger">37.1%</span></div>
+								</div>
+								<div class="text-center">
+									<img src="icons/hero_icons/Bruce_Banner.png" class="icon-sm" alt="Hero6">
+									<div><span class="badge bg-danger">35.2%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+							<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+							<strong>All: </strong>
+							<div class="d-flex hero-carousel">
+								<div id="AllVanguardCounters" class="hero-carousel-track marquee">
+								<!-- Unique hero items -->
+								<div class="hero-item">
+									<img src="icons/hero_icons/Thor.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/The_Punisher.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/The_Thing.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Human_Torch.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Scarlet_Witch.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Spider-man.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Squirrel_Girl.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Star-lord.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Storm.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Luna_Snow.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Doctor_Strange.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Winter_Soldier.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Jeff_The_Land_Shark.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Row 2: Opposed Strategist -->
+					<div class="row mb-4 role-section">
+						<div class="col-md-4">
+							<h6>Strategist</h6>
+							<strong>Best:</strong>
+							<div id="BestStrategistCounters" class="d-flex gap-3 mt-1">
+								<!-- Best heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Adam_Warlock.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">44.9%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Captain_America.png" class="icon-sm" alt="Hero2">
+								<div><span class="badge bg-success">55.3%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Cloak_&_Dagger.png" class="icon-sm" alt="Hero3">
+								<div><span class="badge bg-success">64.1%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+							<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+							<strong>Worst:</strong>
+							<div id="WorstStrategistCounters" class="d-flex gap-3 mt-1">
+								<!-- Worst heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Panther.png" class="icon-sm" alt="Hero4">
+								<div><span class="badge bg-danger">39.4%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Widow.png" class="icon-sm" alt="Hero5">
+								<div><span class="badge bg-danger">37.1%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Bruce_Banner.png" class="icon-sm" alt="Hero6">
+								<div><span class="badge bg-danger">35.2%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+						<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+						<strong>All: </strong>
+						<div class="d-flex hero-carousel">
+							<div id="AllStategistCounters" class="hero-carousel-track marquee">
+							<!-- Unique hero items -->
+							<div class="hero-item">
+								<img src="icons/hero_icons/Thor.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/The_Punisher.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/The_Thing.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Human_Torch.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Scarlet_Witch.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Spider-man.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Squirrel_Girl.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Star-lord.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Storm.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Luna_Snow.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Doctor_Strange.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Winter_Soldier.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Jeff_The_Land_Shark.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							</div>
+						</div>
+						</div>
+					</div>
+					<!-- Row 3: Opposed Duelists -->
+					<div class="row mb-4 role-section">
+						<div class="col-md-4">
+						<h6>Duelist</h6>
+						<strong>Best:</strong>
+						<div id="BestDuelistCounters" class="d-flex gap-3 mt-1">
+							<!-- Best heroes here -->
+							<div class="text-center">
+							<img src="icons/hero_icons/Adam_Warlock.png" class="icon-sm" alt="Hero1">
+							<div><span class="badge bg-success">44.9%</span></div>
+							</div>
+							<div class="text-center">
+							<img src="icons/hero_icons/Captain_America.png" class="icon-sm" alt="Hero2">
+							<div><span class="badge bg-success">55.3%</span></div>
+							</div>
+							<div class="text-center">
+							<img src="icons/hero_icons/Cloak_&_Dagger.png" class="icon-sm" alt="Hero3">
+							<div><span class="badge bg-success">64.1%</span></div>
+							</div>
+						</div>
+						</div>
+					
+						<div class="col-md-4">
+						<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+						<strong>Worst:</strong>
+						<div id="WorstDuelistCounters" class="d-flex gap-3 mt-1">
+							<!-- Worst heroes here -->
+							<div class="text-center">
+							<img src="icons/hero_icons/Black_Panther.png" class="icon-sm" alt="Hero4">
+							<div><span class="badge bg-danger">39.4%</span></div>
+							</div>
+							<div class="text-center">
+							<img src="icons/hero_icons/Black_Widow.png" class="icon-sm" alt="Hero5">
+							<div><span class="badge bg-danger">37.1%</span></div>
+							</div>
+							<div class="text-center">
+							<img src="icons/hero_icons/Bruce_Banner.png" class="icon-sm" alt="Hero6">
+							<div><span class="badge bg-danger">35.2%</span></div>
+							</div>
+						</div>
+						</div>
+					
+						<div class="col-md-4">
+						<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+						<strong>All: </strong>
+						<div class="d-flex hero-carousel">
+							<div id="AllDuelistCounters" class="hero-carousel-track marquee">
+							<!-- Unique hero items -->
+							<div class="hero-item">
+								<img src="icons/hero_icons/Thor.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/The_Punisher.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/The_Thing.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Human_Torch.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Scarlet_Witch.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Spider-man.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Squirrel_Girl.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Star-lord.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Storm.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Luna_Snow.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Doctor_Strange.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Winter_Soldier.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Jeff_The_Land_Shark.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							</div>
+						</div>
+						</div>
+					</div>
+					<!-- Row 4: Teamcomps-->
+					<div class="row mb-4 role-section">
+						<div class="col-md-4">
+							<h6>Teamcomps</h6>
+							<strong>Best:</strong>
+							<div id="BestTeamcompCounters" class="d-flex gap-3 mt-1">
+								<!-- Best heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Adam_Warlock.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">44.9%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Captain_America.png" class="icon-sm" alt="Hero2">
+								<div><span class="badge bg-success">55.3%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Cloak_&_Dagger.png" class="icon-sm" alt="Hero3">
+								<div><span class="badge bg-success">64.1%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+							<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+							<strong>Worst:</strong>
+							<div id="WorstTeamcompCounters" class="d-flex gap-3 mt-1">
+								<!-- Worst heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Panther.png" class="icon-sm" alt="Hero4">
+								<div><span class="badge bg-danger">39.4%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Widow.png" class="icon-sm" alt="Hero5">
+								<div><span class="badge bg-danger">37.1%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Bruce_Banner.png" class="icon-sm" alt="Hero6">
+								<div><span class="badge bg-danger">35.2%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+						<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+						<strong>All: </strong>
+						<div class="d-flex hero-carousel">
+							<div id="AllTeamcompCounters" class="hero-carousel-track marquee">
+							<!-- Unique hero items -->
+							<div class="hero-item">
+								<img src="icons/hero_icons/Thor.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/The_Punisher.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/The_Thing.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Human_Torch.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Scarlet_Witch.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Spider-man.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Squirrel_Girl.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Star-lord.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Storm.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Luna_Snow.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Doctor_Strange.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Winter_Soldier.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Jeff_The_Land_Shark.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							</div>
+						</div>
+						</div>
+					</div> 
+					
+					<!-- Section 2: Allied Data -->
+					<h5 class="mb-3">Synergies</h5>
+					
+					<!-- Row 1: Allied Vanguards -->
+					<div class="row mb-4 role-section">
+						<div class="col-md-4">
+							<h6>Vanguards</h6>
+							<strong>Best:</strong>
+							<div id="BestVanguardSynergies" class="d-flex gap-3 mt-1">
+								<!-- Best heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Adam_Warlock.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">44.9%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Captain_America.png" class="icon-sm" alt="Hero2">
+								<div><span class="badge bg-success">55.3%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Cloak_&_Dagger.png" class="icon-sm" alt="Hero3">
+								<div><span class="badge bg-success">64.1%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+							<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+							<strong>Worst:</strong>
+							<div id="WorstVanguardSynergies" class="d-flex gap-3 mt-1">
+								<!-- Worst heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Panther.png" class="icon-sm" alt="Hero4">
+								<div><span class="badge bg-danger">39.4%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Widow.png" class="icon-sm" alt="Hero5">
+								<div><span class="badge bg-danger">37.1%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Bruce_Banner.png" class="icon-sm" alt="Hero6">
+								<div><span class="badge bg-danger">35.2%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+						<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+						<strong>All: </strong>
+						<div class="d-flex hero-carousel">
+							<div id="AllVanguardSynergies" class="hero-carousel-track marquee">
+							<!-- Unique hero items -->
+							<div class="hero-item">
+								<img src="icons/hero_icons/Thor.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/The_Punisher.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/The_Thing.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Human_Torch.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Scarlet_Witch.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Spider-man.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Squirrel_Girl.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Star-lord.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Storm.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Luna_Snow.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Doctor_Strange.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Winter_Soldier.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Jeff_The_Land_Shark.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							</div>
+						</div>
+						</div>
+					</div>
+					
+					<!-- Row 2: Allied Stategist -->
+					<div class="row mb-4 role-section">
+						<div class="col-md-4">
+							<h6>Strategist</h6>
+							<strong>Best:</strong>
+							<div id="BestStrategistSynergies" class="d-flex gap-3 mt-1">
+								<!-- Best heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Adam_Warlock.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">44.9%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Captain_America.png" class="icon-sm" alt="Hero2">
+								<div><span class="badge bg-success">55.3%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Cloak_&_Dagger.png" class="icon-sm" alt="Hero3">
+								<div><span class="badge bg-success">64.1%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+							<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+							<strong>Worst:</strong>
+							<div id="WorstStrategistSynergies" class="d-flex gap-3 mt-1">
+								<!-- Worst heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Panther.png" class="icon-sm" alt="Hero4">
+								<div><span class="badge bg-danger">39.4%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Widow.png" class="icon-sm" alt="Hero5">
+								<div><span class="badge bg-danger">37.1%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Bruce_Banner.png" class="icon-sm" alt="Hero6">
+								<div><span class="badge bg-danger">35.2%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+							<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+							<strong>All: </strong>
+							<div class="d-flex hero-carousel">
+								<div id="AllStrategistSynergies" class="hero-carousel-track marquee">
+								<!-- Unique hero items -->
+								<div class="hero-item">
+									<img src="icons/hero_icons/Thor.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/The_Punisher.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/The_Thing.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Human_Torch.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Scarlet_Witch.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Spider-man.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Squirrel_Girl.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Star-lord.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Storm.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Luna_Snow.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Doctor_Strange.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Winter_Soldier.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Jeff_The_Land_Shark.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Row 3: Allied Duelists -->
+					<div class="row mb-4 role-section">
+						<div class="col-md-4">
+							<h6>Duelist</h6>
+							<strong>Best:</strong>
+							<div id="BestDuelistSynergies" class="d-flex gap-3 mt-1">
+								<!-- Best heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Adam_Warlock.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">44.9%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Captain_America.png" class="icon-sm" alt="Hero2">
+								<div><span class="badge bg-success">55.3%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Cloak_&_Dagger.png" class="icon-sm" alt="Hero3">
+								<div><span class="badge bg-success">64.1%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+							<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+							<strong>Worst:</strong>
+							<div id="WorstDuelistSynergies" class="d-flex gap-3 mt-1">
+								<!-- Worst heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Panther.png" class="icon-sm" alt="Hero4">
+								<div><span class="badge bg-danger">39.4%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Widow.png" class="icon-sm" alt="Hero5">
+								<div><span class="badge bg-danger">37.1%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Bruce_Banner.png" class="icon-sm" alt="Hero6">
+								<div><span class="badge bg-danger">35.2%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+							<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+							<strong>All: </strong>
+							<div id="AllDuelistSynergies" class="d-flex hero-carousel">
+								<div class="hero-carousel-track marquee">
+								<!-- Unique hero items -->
+								<div class="hero-item">
+									<img src="icons/hero_icons/Thor.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/The_Punisher.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/The_Thing.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Human_Torch.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Scarlet_Witch.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Spider-man.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Squirrel_Girl.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Star-lord.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Storm.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Luna_Snow.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Doctor_Strange.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Winter_Soldier.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Jeff_The_Land_Shark.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Row 4: Allied Teamcomps -->
+					<div class="row mb-4 role-section">
+						<div class="col-md-4">
+							<h6>Teamcomps</h6>
+							<strong>Best:</strong>
+							<div id="BestTeamcompSynergies" class="d-flex gap-3 mt-1">
+								<!-- Best heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Adam_Warlock.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">44.9%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Captain_America.png" class="icon-sm" alt="Hero2">
+								<div><span class="badge bg-success">55.3%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Cloak_&_Dagger.png" class="icon-sm" alt="Hero3">
+								<div><span class="badge bg-success">64.1%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+							<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+							<strong>Worst:</strong>
+							<div id="WorstTeamcompSynergies" class="d-flex gap-3 mt-1">
+								<!-- Worst heroes here -->
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Panther.png" class="icon-sm" alt="Hero4">
+								<div><span class="badge bg-danger">39.4%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Black_Widow.png" class="icon-sm" alt="Hero5">
+								<div><span class="badge bg-danger">37.1%</span></div>
+								</div>
+								<div class="text-center">
+								<img src="icons/hero_icons/Bruce_Banner.png" class="icon-sm" alt="Hero6">
+								<div><span class="badge bg-danger">35.2%</span></div>
+								</div>
+							</div>
+						</div>
+					
+						<div class="col-md-4">
+						<h6>&nbsp;</h6> <!-- Blank heading to keep alignment -->
+						<strong>All: </strong>
+						<div id="AllTeamcompSynergies" class="d-flex hero-carousel">
+							<div class="hero-carousel-track marquee">
+							<!-- Unique hero items -->
+							<div class="hero-item">
+								<img src="icons/hero_icons/Thor.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/The_Punisher.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/The_Thing.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Human_Torch.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Scarlet_Witch.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Spider-man.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Squirrel_Girl.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Star-lord.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Storm.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Luna_Snow.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Doctor_Strange.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Winter_Soldier.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							<div class="hero-item">
+								<img src="icons/hero_icons/Jeff_The_Land_Shark.png" class="icon-sm" alt="Hero1">
+								<div><span class="badge bg-success">63.0%</span></div>
+							</div>
+							</div>
+						</div>
+						</div>
+					</div>
+					
+					<!-- Section 3: Overall Stats -->
+					<div class="row text-center">
+						<div class="col-md-6 mb-3">
+						<h5>Winrate</h5>
+						<span id="OverallWinrate" class="badge bg-info fs-5">58.32%</span>
+						</div>
+						<div class="col-md-6 mb-3">
+						<h5>Pickrate</h5>
+						<span id="OverallPickrate" class="badge bg-info fs-5">51.2%</span>
+						</div>
+					</div>
+					
+					</div><!-- /modal-body -->
+					
+					<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					</div>
+					
+				</div><!-- /modal-content -->
+				</div><!-- /modal-dialog -->
+			</div><!-- /modal -->
+		</div>
+		
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+				<header id="header">
+					<a href="" class="logo"><div id="last-rendered">Calculating...</div></a>
+				</header>
+
+			<!-- Nav -->
+				<nav id="nav">
+					<ul class="links">
+						<li><a href="index"> Tierlist</a></li>
+						<li><a href="RankStatistics">RankStats</li>
+						<li><a href="HeroStatistics">HeroStats</li>
+						<li><a href="HeroCounters">Counters</li>
+						<li><a href="HeroSynergies">Synergies</li>
+						<li><a href="TeamComps">Teamcomps</li>
+						<li><a href="RocketSucks">Rocket</li>
+					</ul>
+					<ul class="icons">
+						
+						<li><a href="https://discord.com/invite/v3gYmYamGJ" target="_blank" class="icon brands fa-discord"><span class="label">Discord</span></a></li>
+						<li><a href="https://github.com/Jodsderechte" target="_blank" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+						<li><a href="https://ko-fi.com/jodsderechte" target="_blank" class="icon brands fa-patreon"><span class="label">Ko-fi</span></a></li>
+					</ul>
+				</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Heroes</h1>
+									
+								</header>
+								  <div class="container my-4">
+						
+  
+									<!-- List.js container -->
+									<!-- Search Input -->
+									<input class="search form-control mb-4" placeholder="Search heroes" />
+									<div id="heros-list" class="row row-cols-1 row-cols-md-3 g-4 list">
+									  
+										<!-- Example Hero Card -->
+										<div id="AdamWarlock_Card" class="card h-100 shadow mb-3 p-3 dark-card">
+											<img src="icons/hero_icons/Adam_Warlock.png" class="card-img-top" alt="AdamWarlock">
+											<div class="card-body">
+											  <h5 class="card-title">Adam Warlock</h5>
+											  
+											  <!-- Role and Attack Type -->
+											  <div id="RoleAndType" class="d-flex align-items-center mb-2">
+												<img src="icons/role_icons/Vanguard.png" alt="Vanguard" class="me-2" style="width: 24px; height: 24px;">
+												<span class="text-light">Melee</span>
+											  </div>
+										
+											  <!-- Difficulty Rating -->
+											  <div class="mb-2 d-flex align-items-center">
+												<span class="me-1 text-warning"><i class="fas fa-star"></i></span>
+												<span class="me-1 text-warning"><i class="fas fa-star"></i></span>
+												<span class="me-1 text-warning"><i class="fas fa-star"></i></span>
+												<span class="me-1 text-warning"><i class="fas fa-star"></i></span>
+												<span class="text-secondary"><i class="far fa-star"></i></span> <!-- Empty Star -->
+											  </div>
+										
+											  <!-- Overall Stats -->
+											  <p class="card-text">
+												<div>Winrate:  <span class="badge bg-success">63.0%</span> </div>
+												<div>Pickrate:  <span id=""class="badge bg-info">17.0%</span></div>
+											  </p>
+										
+											  <!-- More Info Button -->
+											  <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#heroModal_HERONAME" data-bs-toggle="tooltip" title="Show hero counters and synergies">
+												More Info
+											  </button>
+											</div>
+										</div>
+									</div>
+										
+										<!-- Repeat similar card blocks for each hero -->
+									
+								  </div> 
+								  <p>This analysis is based on <span id="unique_matches"></span> unique competitive matches, collected by tracking the last 20 matches of Top 500 players every 6 hours. In total, <span id="unique_players"></span> unique players were recorded, either as Top 500 themselves or as opponents/teammates in these matches.</p>
+							  
+							</section>
+							
+					</div>
+
+				<!-- Copyright -->
+				<div id="copyright">
+					<ul>
+						<li>&copy; Jodsderechte</li>
+						<li><a href="Privacy.html" target="_blank">Privacy</a></li>
+						<li>Design: <a href="https://html5up.net" target="_blank">HTML5 UP</a></li>
+					</ul>
+					<br>
+					<span style="color: azure;">Marvel Rivals is a registered trademark of NetEase Games. Trademarks are the property of their respective owners. 
+						Game materials copyright NetEase Games. NetEase Games has not endorsed and is not responsible for this site or its content.
+					</span>
+				</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+			<script src="assets/js/fetchData.js"></script>
+			<script src="assets/js/iframe-resizer.parent.js"></script>
+			<script>
+				iframeResize({
+				  license: 'GPLv3',
+				  bodyMargin: '0',
+				  bodyPadding: '0',
+				  waitForLoad: true,
+				}, '.resizableIframe' );
+			</script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery.Marquee/1.5.0/jquery.marquee.min.js"></script>
+			<script>
+				$(document).ready(function () {
+				  $('.modal').on('shown.bs.modal', function () {
+					const $carouselTrack = $(this).find('.hero-carousel-track');
+				
+					if ($carouselTrack.length) {
+					  // Destroy existing marquee to prevent multiple instances
+					  $carouselTrack.marquee('destroy');
+				
+					  // Reinitialize Marquee
+					  $carouselTrack.marquee({
+						duration: 30000,  // Adjust speed (lower = faster, higher = slower)
+						gap: 0,           // No gap for smooth looping
+						delayBeforeStart: 0,
+						direction: 'left',
+						duplicated: true, // Enables seamless looping
+						startVisible: true
+					  });
+					}
+				  });
+				});
+			  </script>
+			  
+			  
+			  
+  
+			  
+			  
+			  
+			  
+			  
+			<script src="assets/js/top500Data.js" type="module"></script>
+			<script src="assets/js/lastRender.js"></script>
+
+	</body>
+</html>
