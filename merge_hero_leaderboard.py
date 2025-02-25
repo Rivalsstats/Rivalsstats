@@ -96,7 +96,7 @@ leaderboard_headers = [
 ]
 ensure_csv_with_headers(leaderboard_csv, leaderboard_headers)
 
-def fetch_data(url, retries=10, delay=2):
+async def fetch_data(url, retries=10, delay=2):
     """Fetch JSON data safely, handling rate limits and corrupt responses."""
     global private_profile_count
 
@@ -146,7 +146,7 @@ def fetch_data(url, retries=10, delay=2):
 # Async function to fetch player stats
 async def fetch_player_stats(session, player_id):
     url = f"https://mrapi.org/api/player/{player_id}"
-    return fetch_data(url)
+    return await fetch_data(url)
 
 # Async function to fetch all player stats in parallel
 async def fetch_all_players(leaderboard):
