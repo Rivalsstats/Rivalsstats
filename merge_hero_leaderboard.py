@@ -94,19 +94,57 @@ leaderboard_headers = [
 ]
 ensure_csv_with_headers(leaderboard_csv, leaderboard_headers)
 
+def fetch_data(url, retries=10, delay=2):
+    """Fetch JSON data safely, handling rate limits and corrupt responses."""
+    global private_profile_count
+
+    for attempt in range(retries):
+        try:
+            
+            response = requests.get(url, headers=headers)
+
+            # Detect Rate Limiting (429 Error)
+            if response.status_code == 429:
+                retry_after = int(response.headers.get("Retry-After", 5))  # Default 5s if not provided
+                print(f"⚠️ Rate limit hit! Sleeping for {retry_after} seconds...")
+                time.sleep(retry_after)
+                continue  # Retry after sleep
+            elif response.status_code == 500:
+                if "player" in url:  # Only count private profiles for player endpoints
+                    print(f"Private profile detected: {url}")
+                    private_profile_count += 1
+                    return None  # Don't retry on 500
+                else:
+                    print(f"⚠️ Server error (500) on {url}. Retrying...")
+                    time.sleep(delay)
+                    continue  # Retry instead of skipping
+            # Detect API Errors (500, 403, etc.)
+            if response.status_code >= 400:
+                print(f"⚠️ API Error {response.status_code}: Skipping {url}")
+                return None
+
+            # Detect Non-JSON Responses
+            content_type = response.headers.get("Content-Type", "")
+            if "application/json" not in content_type:
+                print(f"⚠️ Warning: Non-JSON response from {url}. Skipping...")
+                return None
+
+            # Try parsing JSON safely
+            return response.json()
+
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Network error fetching {url}: {e}")
+        except ValueError:
+            print(f"⚠️ Invalid JSON response from {url}, skipping...")
+        time.sleep(delay)
+
+    return None  # If all retries fail
+
+
 # Async function to fetch player stats
 async def fetch_player_stats(session, player_id):
     url = f"https://mrapi.org/api/player/{player_id}"
-    try:
-        async with session.get(url, headers=headers, timeout=5) as response:
-            if response.status == 200:
-                return await response.json()
-            else:
-                print(f"⚠️ Error: API request failed for player {player_id} (Status {response.status})")
-                return None
-    except Exception as e:
-        print(f"⚠️ Error: API request failed for player {player_id} ({e})")
-        return None
+    return fetch_data(url)
 
 # Async function to fetch all player stats in parallel
 async def fetch_all_players(leaderboard):
