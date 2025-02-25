@@ -13,7 +13,6 @@ hero_slug = sys.argv[1]
 headers = {"x-api-key": os.getenv("API_KEY")}
 
 # File paths
-historical_json = f"data/historical/heroes/{hero_slug}.json"
 meta_csv = f"data/historical/heroes/meta/{hero_slug}.csv"
 leaderboard_csv = f"data/historical/heroes/leaderboard/{hero_slug}.csv"
 latest_heroes_file = "data/latest/heroes/all_heroes.json"
@@ -58,24 +57,6 @@ else:
 # Get timestamp
 timestamp = datetime.utcnow().isoformat()
 
-# Load existing JSON if available
-if os.path.exists(historical_json):
-    with open(historical_json, "r", encoding="utf-8") as f:
-        historical_data = json.load(f)
-else:
-    historical_data = {}
-
-# Update latest hero stats JSON
-historical_data = {
-    "name": hero_data["name"],
-    "role": hero_data["role"],
-    "latest_meta": hero_data.get("meta", []),  
-    "latest_leaderboard": latest_leaderboard  
-}
-
-# Save latest JSON
-with open(historical_json, "w", encoding="utf-8") as f:
-    json.dump(historical_data, f, indent=4, ensure_ascii=False)
 
 # Ensure CSV has headers
 def ensure_csv_with_headers(file_path, headers):
