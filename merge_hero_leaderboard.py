@@ -96,59 +96,49 @@ leaderboard_headers = [
 ]
 ensure_csv_with_headers(leaderboard_csv, leaderboard_headers)
 
-async def fetch_data(url, retries=10, delay=2):
-    """Fetch JSON data safely, handling rate limits and corrupt responses."""
-    global private_profile_count
-
+# ---------------------------
+# Asynchronous API Functions
+# ---------------------------
+async def fetch_data(url, retries=10, delay=2, session=None):
+    """Fetch JSON data safely using aiohttp, handling rate limits and errors."""
+    global private_profile_count  # (Assuming private_profile_count is defined elsewhere if needed)
     for attempt in range(retries):
         try:
             print(f"Requesting {url}")
-            response = requests.get(url, headers=headers)
-
-            # Detect Rate Limiting (429 Error)
-            if response.status_code == 429:
-                retry_after = int(response.headers.get("Retry-After", 5))  # Default 5s if not provided
-                print(f"⚠️ Rate limit hit! Sleeping for {retry_after} seconds...")
-                time.sleep(retry_after)
-                continue  # Retry after sleep
-            elif response.status_code == 500:
-                if "player" in url:  # Only count private profiles for player endpoints
-                    print(f"Private profile detected: {url}")
-                    private_profile_count += 1
-                    return None  # Don't retry on 500
-                else:
-                    print(f"⚠️ Server error (500) on {url}. Retrying...")
-                    time.sleep(delay)
-                    continue  # Retry instead of skipping
-            # Detect API Errors (500, 403, etc.)
-            if response.status_code >= 400:
-                print(f"⚠️ API Error {response.status_code}: Skipping {url}")
-                return None
-
-            # Detect Non-JSON Responses
-            content_type = response.headers.get("Content-Type", "")
-            if "application/json" not in content_type:
-                print(f"⚠️ Warning: Non-JSON response from {url}. Skipping...")
-                return None
-
-            # Try parsing JSON safely
-            return response.json()
-
-        except requests.exceptions.RequestException as e:
+            async with session.get(url, headers=headers) as response:
+                if response.status == 429:
+                    retry_after = int(response.headers.get("Retry-After", 5))
+                    print(f"⚠️ Rate limit hit! Sleeping for {retry_after} seconds...")
+                    await asyncio.sleep(retry_after)
+                    continue
+                elif response.status == 500:
+                    if "player" in url:
+                        print(f"Private profile detected: {url}")
+                        private_profile_count += 1
+                        return None
+                    else:
+                        print(f"⚠️ Server error (500) on {url}. Retrying...")
+                        await asyncio.sleep(delay)
+                        continue
+                if response.status >= 400:
+                    print(f"⚠️ API Error {response.status}: Skipping {url}")
+                    return None
+                content_type = response.headers.get("Content-Type", "")
+                if "application/json" not in content_type:
+                    print(f"⚠️ Warning: Non-JSON response from {url}. Skipping...")
+                    return None
+                return await response.json()
+        except aiohttp.ClientError as e:
             print(f"❌ Network error fetching {url}: {e}")
-        except ValueError:
-            print(f"⚠️ Invalid JSON response from {url}, skipping...")
-        time.sleep(delay)
-
+        except Exception as e:
+            print(f"❌ Error fetching {url}: {e}")
+        await asyncio.sleep(delay)
     return None  # If all retries fail
 
-
-# Async function to fetch player stats
 async def fetch_player_stats(session, player_id):
     url = f"https://mrapi.org/api/player/{player_id}"
-    return await fetch_data(url)
+    return await fetch_data(url, session=session)
 
-# Async function to fetch all player stats in parallel
 async def fetch_all_players(leaderboard):
     async with aiohttp.ClientSession() as session:
         tasks = [fetch_player_stats(session, player["player_id"]) for player in leaderboard]
