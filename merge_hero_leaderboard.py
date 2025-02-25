@@ -42,11 +42,16 @@ if not hero_id:
     sys.exit(1)
 
 # Load latest leaderboard data
-if os.path.exists(latest_leaderboard_file):
+if os.path.exists(latest_leaderboard_file) and os.path.getsize(latest_leaderboard_file) > 0:
     with open(latest_leaderboard_file, "r", encoding="utf-8") as f:
-        latest_leaderboard = json.load(f)
+        try:
+            latest_leaderboard = json.load(f)
+        except json.JSONDecodeError:
+            print(f"⚠️ Warning: {latest_leaderboard_file} contains invalid JSON. Defaulting to empty list.")
+            latest_leaderboard = []
 else:
     latest_leaderboard = []
+
 
 # Get timestamp
 timestamp = datetime.utcnow().isoformat()
