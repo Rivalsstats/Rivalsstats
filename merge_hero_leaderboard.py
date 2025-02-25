@@ -101,7 +101,7 @@ def fetch_data(url, retries=10, delay=2):
 
     for attempt in range(retries):
         try:
-            
+            print(f"Requesting {url}")
             response = requests.get(url, headers=headers)
 
             # Detect Rate Limiting (429 Error)
