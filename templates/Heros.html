@@ -952,14 +952,70 @@
 
 				<!-- Main -->
 					<div id="main">
-
+						<div class="d-flex hero-carousel hero-hotlist">
+							<div class="top-trends text-center">
+							 <span> Top Trends </span> 
+							</div>
+							<div id="HeroHotlist" class="hero-carousel-track marquee">
+								<!-- Unique hero items -->
+								<div class="hero-item">
+									<img src="icons/hero_icons/Thor.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/The_Punisher.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/The_Thing.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Human_Torch.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Scarlet_Witch.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Spider-man.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Squirrel_Girl.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Star-lord.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Storm.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Luna_Snow.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Doctor_Strange.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Winter_Soldier.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+								<div class="hero-item">
+									<img src="icons/hero_icons/Jeff_The_Land_Shark.png" class="icon-sm" alt="Hero1">
+									<div><span class="badge bg-success">63.0%</span></div>
+								</div>
+							</div> 
+						</div>
 						<!-- Post -->
-							<section class="post">
-								<header class="major">
-									<h1>Heroes</h1>
-									
-								</header>
-								  <div id="heros-list-container" class="container my-4">
+
+							<section class="">
+								<div id="heros-list-container" class="container my-4">
 						
   
 									<!-- List.js container -->
@@ -1005,9 +1061,10 @@
 										<!-- Repeat similar card blocks for each hero -->
 									
 								  </div> 
-								  <p>This analysis is based on <span id="unique_matches"></span> unique competitive matches, collected by tracking the last 20 matches of Top 500 players every 6 hours. In total, <span id="unique_players"></span> unique players were recorded, either as Top 500 themselves or as opponents/teammates in these matches.</p>
+								<p>This analysis is based on <span id="unique_matches"></span> unique competitive matches, collected by tracking the last 20 matches of Top 500 players every 6 hours. In total, <span id="unique_players"></span> unique players were recorded, either as Top 500 themselves or as opponents/teammates in these matches.</p>
 							  
 							</section>
+						
 							
 					</div>
 
@@ -1045,37 +1102,7 @@
 				}, '.resizableIframe' );
 			</script>
 			<script ez-cb-cat="functional" src="https://cdnjs.cloudflare.com/ajax/libs/jQuery.Marquee/1.5.0/jquery.marquee.min.js"></script>
-			<script>
-				$(document).ready(function () {
-				  $('.modal').on('shown.bs.modal', function () {
-					const $carouselTrack = $(this).find('.hero-carousel-track');
-				
-					if ($carouselTrack.length) {
-					  // Destroy existing marquee to prevent multiple instances
-					  $carouselTrack.marquee('destroy');
-				
-					  // Reinitialize Marquee
-					  $carouselTrack.marquee({
-						duration: 30000,  // Adjust speed (lower = faster, higher = slower)
-						gap: 20,           // No gap for smooth looping
-						delayBeforeStart: 0,
-						direction: 'left',
-						duplicated: true, // Enables seamless looping
-						startVisible: true
-					  });
-					}
-				  });
-				});
-			  </script>
-			  
-			  
-			  
-  
-			  
-			  
-			  
-			  
-			  
+			<script src="assets/js/heroes.js"></script>
 			<script src="assets/js/top500Data.js" type="module"></script>
 			<script src="assets/js/lastRender.js"></script>
 

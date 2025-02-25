@@ -92,6 +92,16 @@ input, select, textarea {
 	margin-top: 10px;
 }
 
+.icon-success {
+	fill: #28a745;
+	width : 2rem;
+	height : 2rem;
+}
+.icon-danger {
+	fill: #dc3545;
+	width : 2rem;
+	height : 2rem;
+}
 
 .icon-sm {
 	width: 32px;     /* or whatever size you prefer */
@@ -175,6 +185,52 @@ height: 24px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+  }
+  .hotlist-item {
+	flex: 0 0 auto;
+	width: 250px; /* Adjust as needed */
+	/* Optional: center images if needed */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5rem;
+  }
+  .top-trends{
+	background: rgba(46, 55, 64, 1);
+	box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.6) 6px 0px 5px -2px;
+	z-index: 10;
+	border-radius: 0.2rem;
+  }
+  .top-trends > span{
+	font-family: "Source Sans Pro", Helvetica, sans-serif;
+	margin: 0.5rem;
+  }
+  /* Adjust padding when .post contains a .resizableIframe */
+  .post:has(.resizableIframe) {
+	padding: 2rem !important; /* New padding value */
+  }
+  
+  .hero-hotlist{
+	display: -moz-flex;
+	display: -webkit-flex;
+	display: -ms-flex;
+	display: flex;
+	-moz-transition: -moz-transform 1s ease, opacity 1s ease;
+	-webkit-transition: -webkit-transform 1s ease, opacity 1s ease;
+	-ms-transition: -ms-transform 1s ease, opacity 1s ease;
+	transition: transform 1s ease, opacity 1s ease;
+	background: rgba(46, 55, 64, 0.575);
+	height: 4rem;
+	line-height: 4rem;
+	overflow: hidden;
+	margin: 2rem !important;
+	padding: 0 2rem 0 0 !important;
+	position: relative;
+	width: calc(100% - 4rem);
+	max-width: 72rem;
+	z-index: 2;
+	min-height: 0 !important;
+	border-radius: 0.2rem;
   }
 
   .role-section{
@@ -3882,13 +3938,17 @@ height: 24px;
 
 /* Main */
 	#main {
-		background-color: #2E3740;
 		position: relative;
 		margin: 0 auto;
 		width: calc(100% - 4rem);
 		max-width: 72rem;
 		z-index: 2;
 	}
+		#main > section {
+			margin: 2rem;
+			border-radius: 1rem;
+			background-color: #2E3740;
+		}
 
 		#main > * {
 			padding: 4rem 4rem 2rem 4rem ;
@@ -3965,7 +4025,6 @@ height: 24px;
 			align-items: stretch;
 			text-align: center;
 			width: 100%;
-			padding: 0;
 			background-color: #2E3740; 
 		}
 			#main > .posts > * {

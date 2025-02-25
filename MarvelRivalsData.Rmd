@@ -199,6 +199,69 @@ ranks_total$rank <- factor(ranks_total$rank, levels = custom_rank_order)
 
 ```
 
+
+```{r matchSetup, echo = FALSE}
+matches_file <- "data/historical/matches.csv"
+players_file <- "data/historical/match_players.parquet"
+all_heroes <- fromJSON("data/latest/heroes/all_heroes.json")
+
+matches <- read_csv(matches_file, show_col_types = FALSE)
+
+# List all parquet files in the folder
+players_files <- list.files("data/historical/match_players/", pattern = "\\.parquet$", full.names = TRUE)
+
+# Read and combine all files into one data frame
+match_players <- players_files %>%
+  map_df(~ read_parquet(.x, show_col_types = FALSE))
+
+
+
+# Keep only competitive matches
+competitive_matches <- matches[matches$gamemode == "competitive", ]
+# Extract custom games separately
+custom_matches <- matches[matches$gamemode == "custom", ]
+
+matches <- competitive_matches
+
+# Clean match_players by keeping only relevant match_uids
+match_players <- match_players %>%
+  semi_join(matches, by = "match_uid") %>%
+  left_join(matches %>% select(match_uid, season), by = "match_uid")
+
+
+match_players$is_win <- as.logical(match_players$is_win)
+
+# Function to safely parse JSON
+safe_parse_json <- function(json_str) {
+  tryCatch(
+    {
+      # Remove leading and trailing quotes if present
+      cleaned_json <- str_remove_all(json_str, '^"|"$')
+
+      # Parse JSON
+      parsed <- fromJSON(cleaned_json, simplifyDataFrame = TRUE)
+
+      # Ensure it's always a tibble
+      if (is.data.frame(parsed)) return(as_tibble(parsed))
+      return(as_tibble(parsed))
+    },
+    error = function(e) {
+      print(paste("JSON parse error:", e$message, "for input:", json_str))  # Print the problem JSON
+      return(tibble())  # Return an empty tibble instead of NULL
+    }
+  )
+}
+
+
+healer_ids <- all_heroes %>%
+  filter(role == "STRATEGIST") %>%
+  select(id)
+
+# Extract heroes with healing abilities
+
+```
+
+
 ```{r RankHistory, echo = FALSE}
 
 population <- plot_ly(ranks, 
@@ -309,6 +372,39 @@ rank_population <- rank_population %>%
 
 
 ```
+```{r iconSetup, echo=FALSE}
+# Define the folder to store images
+dir.create("icons/hero_icons", showWarnings = FALSE)
+
+# Example: Download icons using their URL
+for (i in 1:nrow(all_heroes)) {
+  hero_name <- gsub(" ", "_", all_heroes$name[i])  # Replace spaces with underscores
+  file_path <- paste0("icons/hero_icons/", hero_name, ".png")
+
+  if (!file.exists(file_path)) {  # Only download if it doesn't exist
+    try(download.file(all_heroes$icon[i], file_path, mode = "wb"), silent = TRUE)
+  }
+  all_heroes$icon[i] <- paste0("../",file_path)
+  all_heroes$attack_type[i] <- gsub(" Heroes","", all_heroes$attack_type[i])
+}
+
+dir.create("icons/rank_icons", showWarnings = FALSE)
+
+for (rank in names(latest_rank_data)) {
+  rank_info <- latest_rank_data[[rank]]       # Extract the list for the current rank
+  rank_name <- gsub(" ", "_", rank)            # Replace spaces with underscores, if any
+  file_path <- paste0("icons/rank_icons/", rank_name, ".png")
+  
+  if (!file.exists(file_path)) {               # Only download if it doesn't exist
+    try(download.file(rank_info$image, file_path, mode = "wb"), silent = TRUE)
+  }
+  # If you need to update another data structure (e.g., all_heroes), do it accordingly.
+}
+
+
+```
+
+
 ```{r AveragePlayer, echo = FALSE}
 get_rank_image <- function(rank_division) {
   # Split the rank_division (e.g., "bronze - 1" to "bronze" and "1")
@@ -316,7 +412,7 @@ get_rank_image <- function(rank_division) {
   rank <- split_rank[[1]][1]  # Get the rank (e.g., "bronze")
   
   # Return the corresponding image URL from the JSON data
-  return(latest_rank_data[[rank]]$image)
+  return(paste0("icons/rank_icons/", rank, ".png"))
 }
 # Create a numeric rank system for easier calculations
 rank_to_numeric <- c("bronze - 3" = 1, "bronze - 2" = 2, "bronze - 1" = 3,
@@ -359,6 +455,8 @@ total_ranked_players <- rank_population_excluding_unranked %>%
 
 ```
 
+
+
 # Average Rank
 There are currently `r total_ranked_players` out of `r total_players` players who have played ranked.   
 
@@ -376,7 +474,7 @@ The average Rank is currently.
 rank_population$rank <- sapply(rank_population$rank, get_rank_image)
 
 # Convert image URLs to HTML <img> tags
-rank_population$rank <- paste0('<img src="', rank_population$rank, '" height="30px">')
+rank_population$rank <- paste0('<img src="..', rank_population$rank, '" height="30px">')
 
 
 rank_population <- rank_population %>% 
@@ -438,85 +536,6 @@ rank_pop_details
 
 ```
 
-
-
-```{r matchSetup, echo = FALSE}
-matches_file <- "data/historical/matches.csv"
-players_file <- "data/historical/match_players.parquet"
-all_heroes <- fromJSON("data/latest/heroes/all_heroes.json")
-
-matches <- read_csv(matches_file, show_col_types = FALSE)
-
-# List all parquet files in the folder
-players_files <- list.files("data/historical/match_players/", pattern = "\\.parquet$", full.names = TRUE)
-
-# Read and combine all files into one data frame
-match_players <- players_files %>%
-  map_df(~ read_parquet(.x, show_col_types = FALSE))
-
-
-
-# Keep only competitive matches
-competitive_matches <- matches[matches$gamemode == "competitive", ]
-# Extract custom games separately
-custom_matches <- matches[matches$gamemode == "custom", ]
-
-matches <- competitive_matches
-
-# Clean match_players by keeping only relevant match_uids
-match_players <- match_players %>%
-  semi_join(matches, by = "match_uid")
-
-
-match_players$is_win <- as.logical(match_players$is_win)
-
-# Function to safely parse JSON
-safe_parse_json <- function(json_str) {
-  tryCatch(
-    {
-      # Remove leading and trailing quotes if present
-      cleaned_json <- str_remove_all(json_str, '^"|"$')
-
-      # Parse JSON
-      parsed <- fromJSON(cleaned_json, simplifyDataFrame = TRUE)
-
-      # Ensure it's always a tibble
-      if (is.data.frame(parsed)) return(as_tibble(parsed))
-      return(as_tibble(parsed))
-    },
-    error = function(e) {
-      print(paste("JSON parse error:", e$message, "for input:", json_str))  # Print the problem JSON
-      return(tibble())  # Return an empty tibble instead of NULL
-    }
-  )
-}
-
-
-healer_ids <- all_heroes %>%
-  filter(role == "STRATEGIST") %>%
-  select(id)
-
-# Extract heroes with healing abilities
-
-```
-
-
-```{r iconSetup, echo=FALSE}
-# Define the folder to store images
-dir.create("icons/hero_icons", showWarnings = FALSE)
-
-# Example: Download icons using their URL
-for (i in 1:nrow(all_heroes)) {
-  hero_name <- gsub(" ", "_", all_heroes$name[i])  # Replace spaces with underscores
-  file_path <- paste0("icons/hero_icons/", hero_name, ".png")
-
-  if (!file.exists(file_path)) {  # Only download if it doesn't exist
-    try(download.file(all_heroes$icon[i], file_path, mode = "wb"), silent = TRUE)
-  }
-  all_heroes$icon[i] <- paste0("../",file_path)
-  all_heroes$attack_type[i] <- gsub(" Heroes","", all_heroes$attack_type[i])
-}
-```
 
 
 ```{r calculatePlayersAndGames, echo=FALSE}
@@ -1363,6 +1382,94 @@ hero_synergy_bidirectional <- bind_rows(hero_synergy, hero_synergy_reversed) %>%
 
 ```
 
+
+```{r emwa, echo=FALSE}
+match_players <- match_players %>%
+  mutate(match_date = as_date(match_timestamp))
+# Calculate EWMA win rate for each hero (name.y) within each season.
+hero_ewma <- match_players %>%
+  group_by(season, hero = name.y) %>%
+  group_modify(~ {
+    # Order matches chronologically within this hero-season group.
+    df <- .x %>% arrange(match_date)
+    
+    # Define the current reference date as the most recent match date in the group.
+    current_date <- max(df$match_date)
+    
+    # Filter to only include matches within the past 21 days.
+    df_recent <- df %>% filter(match_date >= current_date - days(21))
+    
+    # For each match, calculate its age in days and compute the EWMA weight using a half-life of 7 days.
+    df_recent <- df_recent %>%
+      mutate(
+        days_diff = as.numeric(difftime(current_date, match_date, units = "days")),
+        weight = 0.5^(days_diff / 7)
+      )
+    
+    # Compute the weighted wins and losses.
+    win_weighted  <- sum(df_recent$hero_adjusted_win * df_recent$weight, na.rm = TRUE)
+    loss_weighted <- sum(df_recent$hero_adjusted_loss * df_recent$weight, na.rm = TRUE)
+    total_weighted <- win_weighted + loss_weighted
+    
+    # Calculate the EWMA win rate. If total_weighted is 0, set as NA.
+    ewma_win_rate <- if (total_weighted > 0) win_weighted / total_weighted else NA_real_
+    
+    tibble(
+      current_date = current_date,
+      ewma_win_rate = ewma_win_rate,
+      match_count = nrow(df_recent)
+    )
+  }) %>%
+  ungroup()
+
+# Display the resulting EWMA win rates by season and hero.
+hero_ewma
+
+
+# Join hero_ewma (with EWMA win rate per hero) with hero_stats (with overall win_rate)
+# Assuming hero_ewma has a column "hero" that matches hero_stats$name
+hero_hotlist <- hero_ewma %>%
+  left_join(hero_stats, by = c("hero" = "name")) %>% select(hero, current_date, ewma_win_rate, match_count, win_rate, icon) %>%
+  # Calculate the difference between EWMA win rate and overall win rate
+  mutate(
+    ewma_win_rate = ewma_win_rate * 100,
+    winrate_shift = round(ewma_win_rate - win_rate,2))
+
+# View the resulting data frame
+hero_hotlist
+```
+
+
+```{r heroHotListGeneration, echo=FALSE}
+top_heroes <- hero_hotlist %>%
+  arrange(desc(abs(winrate_shift))) %>%
+  head(10) %>%
+  mutate(
+    arrow_svg = if_else(
+      winrate_shift >= 0,
+      '<svg class="icon-success" focusable="false" aria-hidden="true" viewBox="4 4 16 16" ><path d="m7 14 5-5 5 5z"></path></svg>',
+      '<svg class="icon-danger" focusable="false" aria-hidden="true" viewBox="4 4 16 16" ><path d="m7 10 5 5 5-5z"></path></svg>'
+    ),
+    color_class = if_else(winrate_shift >= 0, "text-success", "text-danger"),
+    display_shift = sprintf("%.1f%%", abs(winrate_shift)),
+    display_total = sprintf("%.1f%%", win_rate)
+  )
+
+# Generate HTML snippet for each hero and store all in a variable
+hero_hotlist_html <- top_heroes %>%
+  mutate(
+    hero_html = glue('<div class="hotlist-item">
+  <img src="{icon}" class="icon-sm" alt="{hero}">
+  <div>
+    <span class="total-winrate">{display_total}</span>
+    <span class="{color_class}">{arrow_svg} {display_shift}</span>
+  </div>
+</div>')
+  ) %>%
+  pull(hero_html) %>%
+  paste(collapse = "\n")
+```
+
 ```{r heroCardGeneration, echo=FALSE}
 
 # Helper function to generate star rating HTML
@@ -1871,6 +1978,27 @@ for (node in new_nodes_modal) {
 }
 
 
+hero_hotlist_html
+
+# Locate the existing div with id "heros-list" (this div's structure/attributes are preserved).
+hero_hotlist_node <- xml_find_first(doc, "//*[@id='HeroHotlist']")
+
+
+# Remove only its child nodes (so formatting and attributes of the modal-list div remain).
+xml_find_all(hero_hotlist_node, "./*") %>% xml_remove()
+
+# Wrap the generated cards HTML in a temporary container with a unique id.
+temp_wrapper_hotlist <- read_html(glue("<div id='tmp'>{hero_hotlist_html}</div>"))
+tmp_node_hotlist <- xml_find_first(temp_wrapper_hotlist, "//*[@id='tmp']")
+
+# Extract the card nodes (the children of the temporary wrapper).
+new_nodes_hotlist <- xml_children(tmp_node_hotlist)
+
+# Append each card node into the heros-list div.
+for (node in new_nodes_hotlist) {
+  xml_add_child(hero_hotlist_node, node)
+}
+
 
 
 # Write out the updated HTML.
@@ -2311,7 +2439,7 @@ data <- list(
   average_rank_excluding_points = average_rank_excluding_points,
   unique_matches = unique_matches,
   unique_players = unique_players,
-  latest_render = format(Sys.time(), '%Y-%m-%dT%H:%M:%S', tz = 'UTC')
+  latest_render = format(Sys.time(), '%Y-%m-%dT%H:%M:%SZ', tz = 'UTC')
 )
 
 # Write to a JSON file
