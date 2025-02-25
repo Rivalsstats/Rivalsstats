@@ -4,6 +4,7 @@ import sys
 import csv
 import asyncio
 import aiohttp
+import requests
 from datetime import datetime
 
 # Get hero slug from GitHub Actions job matrix
