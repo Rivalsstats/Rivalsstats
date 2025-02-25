@@ -31,14 +31,21 @@ if new_codes:
     for code in new_codes:
         expiring_date = code["expiringDate"]
         expiring_timestamp = int(datetime.strptime(expiring_date, "%B %d, %Y %H:%M UTC").timestamp())
-        embed = {
+       embed = {
             "title": "New Marvel Rivals Code Available! 🎁",
-            "description": f"**Code:** `{code['code']}`\n**Rewards:** {code['rewards']}\n**Expires:** <t:{expiring_timestamp}:R>",
-            "color": 0x00FF00,  # Green color
+            "color": 0xffc887,  # Green color 
+            "thumbnail": {
+                "url": "https://rivalsstats.com/favicon/web-app-manifest-512x512.png"
+            },
             "fields": [
+                {"name": "Code", "value": f"```\n{code['code']}\n```", "inline": False},
+                {"name": "Rewards", "value": code["rewards"], "inline": False},
+                {"name": "Expires", "value": f"<t:{expiring_timestamp}:R>", "inline": False},
+                # Extra field for clickable link
+                {"name": "RivalsStats", "value": "[Visit RivalsStats](https://rivalsstats.com)", "inline": False}
             ],
             "footer": {
-                "text": "Made by Jods https://rivalsstats.com/"
+                "text": "Made by Jods"
             }
         }
         embeds.append(embed)
