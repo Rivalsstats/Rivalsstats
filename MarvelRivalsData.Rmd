@@ -1401,12 +1401,12 @@ generate_card <- function(row) {
       
         <!-- Overall Stats -->
         <p class="card-text">
-          <div>Winrate: <span class="{winrate_class} overall-winrate">{row$win_rate}%</span></div>
-          <div>Pickrate: <span class="badge bg-info overall-pickrate">{row$pick_rate}%</span></div>
+          <div class="card-body-text">Winrate: <span class="{winrate_class} overall-winrate">{row$win_rate}%</span></div>
+          <div class="card-body-text">Pickrate: <span class="badge bg-info overall-pickrate">{row$pick_rate}%</span></div>
         </p>
       
         <!-- More Info Button -->
-        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#heroModal_{hero_name_clean}" title="Show hero counters and synergies">
+        <button class="btn btn-primary btn-moreinfo" type="button" data-bs-toggle="modal" data-bs-target="#heroModal_{hero_name_clean}" title="Show hero counters and synergies">
           More Info
         </button>
       </div>
