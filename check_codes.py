@@ -31,7 +31,7 @@ if new_codes:
     for code in new_codes:
         expiring_date = code["expiringDate"]
         expiring_timestamp = int(datetime.strptime(expiring_date, "%B %d, %Y %H:%M UTC").timestamp())
-       embed = {
+        embed = {
             "title": "New Marvel Rivals Code Available! 🎁",
             "color": 0xffc887,  # Green color 
             "thumbnail": {
