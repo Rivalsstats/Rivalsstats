@@ -217,14 +217,14 @@ def fetch_match_data(match_id):
     # Save match details
     append_csv(
         MATCHES_FILE,
-        ["match_uid", "replay_id", "gamemode", "match_timestamp", "season", "match_map_id"],
+        ["match_uid", "replay_id", "gamemode", "match_timestamp", "season", "match__id"],
         {
             "match_uid": match_data["match_uid"],
             "replay_id": match_data["replay_id"],
             "gamemode": match_data["gamemode"]["name"],
             "match_timestamp": extra.get("match_timestamp", ""),
             "season": extra.get("season", ""),
-            "match_map_id": extra.get("match_map_id", ""),
+            "match_map_id": extra.get("map_id", ""),
         },
     )
 
