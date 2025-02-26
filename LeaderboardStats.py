@@ -217,14 +217,14 @@ def fetch_match_data(match_id):
     # Save match details
     append_csv(
         MATCHES_FILE,
-        ["match_uid", "replay_id", "gamemode", "match_timestamp", "season", "match__id"],
+        ["match_uid", "replay_id", "gamemode", "match_timestamp", "season", "map_id"],
         {
             "match_uid": match_data["match_uid"],
             "replay_id": match_data["replay_id"],
             "gamemode": match_data["gamemode"]["name"],
             "match_timestamp": extra.get("match_timestamp", ""),
             "season": extra.get("season", ""),
-            "match_map_id": extra.get("map_id", ""),
+            "map_id": extra.get("map_id", ""),
         },
     )
 
@@ -335,7 +335,6 @@ def process_encountered_players(player_data, timestamp):
     # Process match history (only fetch unique matches)
     if "match_history" in player_data:
         for match in player_data["match_history"]:
-            print(f"DEBUG: found match data{match}")
             match_id = match["match_uid"]
             if match_id not in queried_matches:
                 queried_matches.add(match_id)
