@@ -474,7 +474,7 @@ The average Rank is currently.
 rank_population$rank <- sapply(rank_population$rank, get_rank_image)
 
 # Convert image URLs to HTML <img> tags
-rank_population$rank <- paste0('<img src="..', rank_population$rank, '" height="30px">')
+rank_population$rank <- paste0('<img src="../', rank_population$rank, '" height="30px">')
 
 
 rank_population <- rank_population %>% 
