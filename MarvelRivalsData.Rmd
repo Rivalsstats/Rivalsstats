@@ -698,7 +698,7 @@ hero_stats <- hero_stats %>%
 
 
 
-hero_stats$combined_score <- hero_stats$win_rate * sqrt(hero_stats$pick_rate)
+hero_stats$combined_score <- (hero_stats$win_rate - 50)*sqrt(hero_stats$pick_rate) + 50
 
 tier_labels <- c("S", "A", "B", "C", "D", "F")
 tier_bins <- quantile(hero_stats$win_rate, probs = c(0.95, 0.75, 0.55, 0.35, 0.15, 0), na.rm = TRUE)
@@ -962,7 +962,7 @@ hero_stats_old <- hero_stats_old %>%
 
 # Compute Combined Score for the Old Dataset
 hero_stats_old <- hero_stats_old %>%
-  mutate(combined_score = win_rate * sqrt(pick_rate))
+  mutate(combined_score = (win_rate - 50)*sqrt(pick_rate) + 50)
 
 # Assign Tiers to the Old Dataset
 hero_stats_old_combined <- hero_stats_old %>%
