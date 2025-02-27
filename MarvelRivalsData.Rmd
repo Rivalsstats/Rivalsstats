@@ -1338,15 +1338,32 @@ team_comp_stats <- team_roles_discrete %>%
 # Calculate hero-specific team composition performance.
 # For each match, join the hero (name.y) with the team comp from team_roles_discrete,
 # then group by hero and team composition to get the hero’s win rate in that comp.
-hero_team_comps <- match_players %>% 
-  select(match_uid, name.y, is_win) %>% 
-  left_join(team_roles_discrete %>% select(match_uid, composition), by = "match_uid", relationship = "many-to-many",) %>% 
-  group_by(hero = name.y, composition) %>% 
+# Step 1: Collapse each match’s data for a hero so partial contributions don’t add up more than once.
+match_hero <- match_players %>%
+  group_by(match_uid, name.y, is_win) %>%
   summarise(
-    hero_win_rate = mean(is_win, na.rm = TRUE),
-    games = n(),
+    # Sum partial contributions; if the hero was swapped, this sum should ideally not exceed 1.
+    match_adjusted_win  = sum(hero_adjusted_win, na.rm = TRUE),
+    match_adjusted_loss = sum(hero_adjusted_loss, na.rm = TRUE),
+    match_games_played  = pmin(sum(hero_games_played, na.rm = TRUE), 1),
+    .groups = "drop"
+  ) %>% rename(hero = name.y)
+
+# Step 2: Join with team composition data and aggregate to compute win rates.
+hero_team_comps <- match_hero %>%
+  left_join(
+    team_roles_discrete %>% select(match_uid, is_win, composition),
+    by = c("match_uid", "is_win")
+  ) %>%
+  group_by(hero, composition) %>%
+  summarise(
+    total_wins   = sum(match_adjusted_win, na.rm = TRUE),
+    total_losses = sum(match_adjusted_loss, na.rm = TRUE),
+    games = sum(match_games_played, na.rm = TRUE),
+    hero_win_rate = round((total_wins / (total_wins + total_losses)) * 100, 2),
     .groups = "drop"
   )
+
 
 # (Optional) To ensure reliability, filter to team comps that appear in at least 5 games.
 hero_team_comps <- hero_team_comps %>% filter(games >= 5)
@@ -1369,10 +1386,10 @@ hero_total_games <- hero_team_comps %>%
   group_by(hero) %>% 
   summarise(total_games = sum(games), .groups = "drop")
 
-# Join and filter: Only include comps that occur in at least 10% of that hero's games.
+# Join and filter: Only include comps that occur in at least 1% of that hero's games.
 hero_team_comps <- hero_team_comps %>% 
   left_join(hero_total_games, by = "hero") %>%
-  filter(games >= 0.1 * total_games)
+  filter(games >= 0.01 * total_games)
 
 # Define a helper function to extract the count for a given role from a composition string.
 get_role_count <- function(comp_string, role_name) {
@@ -1458,10 +1475,18 @@ parse_composition <- function(comp_string) {
 
 # For each hero, join their match record with the opponent team comp.
 # (team_roles_discrete has one row per team per match, with the computed composition.)
-hero_vs_opponent_comp <- match_players %>%
-  select(match_uid, name.y, is_win) %>% 
-  rename(hero = name.y) %>% 
-  # Join the opponent's team comp using match_uid.
+hero_match <- match_players %>%
+  group_by(match_uid, name.y, is_win) %>%
+  summarise(
+    # Since a hero can only be on one team per match, 
+    # just take the win status from the first row.
+    hero_win = as.numeric(first(is_win)),
+    .groups = "drop"
+  )
+
+# Step 2: Join with the opponent team composition.
+hero_vs_opponent_comp <- hero_match %>%
+  rename(hero = name.y) %>%
   inner_join(
     team_roles_discrete %>% 
       select(match_uid, is_win, composition) %>% 
@@ -1469,9 +1494,8 @@ hero_vs_opponent_comp <- match_players %>%
     by = "match_uid",
     relationship = "many-to-many"
   ) %>%
-  # Filter to ensure we're comparing opposing teams.
-  filter(is_win != opponent_is_win) %>%
-  mutate(hero_win = as.numeric(is_win))  # 1 if hero's team won, 0 if lost
+  # Ensure we compare the hero's team to the opponent's team.
+  filter(is_win != opponent_is_win)
 
 # Group by hero and the opponent team comp to compute stats.
 hero_vs_opponent_comp_stats <- hero_vs_opponent_comp %>%
@@ -1490,7 +1514,7 @@ hero_total_games_opponent <- hero_vs_opponent_comp_stats %>%
 # Filter: only keep opponent comps that occur in at least 10% of that hero’s games.
 hero_vs_opponent_comp_stats <- hero_vs_opponent_comp_stats %>%
   left_join(hero_total_games_opponent, by = "hero") %>%
-  filter(games >= 0.1 * total_games)
+  filter(games >= 0.01 * total_games)
 
 # Now, for each hero:
 # - "Best Opponent Team Comp": the opponent comp where the hero's win rate is lowest (i.e. best to face)
