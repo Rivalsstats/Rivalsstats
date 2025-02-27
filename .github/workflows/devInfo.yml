@@ -19,15 +19,20 @@ jobs:
       BASE_URL: "https://marvelrivalsapi.com/api/v1/"
       API_TOKEN: ${{ secrets.MARVEL_RIVALS_KEY}}
       DEV_DIARIES_URL: "dev-diaries"
+      PATCH_NOTES_URL: "patch-notes"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Fetch Marvel Rivals Hero Stats
+      - name: Fetch Dev Diaries
         run: |
           curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${DEV_DIARIES_URL}" \
+          -o data/latest/latest_dev_diaries.json 
+      - name: Fetch Patch notes
+        run: |
+          curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${PATCH_NOTES_URL}" \
           -o data/latest/latest_dev_diaries.json 
 
       - name: Commit and push changes
