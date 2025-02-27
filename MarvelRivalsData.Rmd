@@ -2170,12 +2170,12 @@ mutate(
 
 hero_vs_opponent_comp_stats <- hero_vs_opponent_comp_stats %>% 
 mutate(
-  win_rate = round(win_rate*100,2),
+  win_rate = round(win_rate,2),
 ) 
 
 hero_team_comps <- hero_team_comps %>% 
 mutate(
-  hero_win_rate = round(hero_win_rate*100,2),
+  hero_win_rate = round(hero_win_rate,2),
 ) 
 
 
