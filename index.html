@@ -30,13 +30,61 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Rivalstats">
 <link rel="manifest" href="/favicon/site.webmanifest">
-<script ez-cb-cat="analytics">
+<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<script src="/assets/js/bootstrap.bundle.min.js"></script><script src="/assets/js/list.min.js"></script><script ez-cb-cat="analytics">
 			!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
 			posthog.init('phc_zJrM9WqVMhk8wS3cYyr6poc69tDli6yYoQvMed3ncdv', {api_host: 'https://eu.i.posthog.com'})
 		</script>
 </head>
 <body class="is-preload">
+		<div id="modal-list" class="modalholder">
+			<!-- Modal -->
+			<!-- Modal -->
+			<div class="modal fade" id="CalculationFormulaModal" tabindex="-1" aria-labelledby="CalculationFormulaModalLabel" aria-hidden="true" style="display: none;">
+				<div class="modal-dialog modal-xl">
+				<div class="modal-content dark-modal">
+					<div class="modal-header">
+					<h5 class="modal-title" id="CalculationFormulaModalLabel">Tierlist - behind the scenes</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					
+					<div class="modal-body">
+						<h6>Our champion rankings are calculated using the following formula:</h6>
+						<div class="formula">
+							$$ \text{Score} = (\text{Win Rate} - 50) \times \sqrt{\text{Pick Rate}} + 50 $$
+						</div>
+					
+						<ul>
+<li>Win Rate: A 50% win rate is considered average.</li>
+							<li>Adjustment: Any win rate above or below 50% is scaled by the square root of the champion’s pick rate. This means that champions played more frequently (with higher pick rates) have their win rates weighted more heavily.</li>
+							<li>Purpose: This method helps balance performance (win rate) with reliability (sample size), so that a champion with a high win rate from a very small sample doesn’t get overrated compared to a champion with a slightly above-average win rate that’s played much more often.</li>
+						</ul>
+<p class="disclaimer">Please note that while this formula provides a balanced view of champion performance, it is a heuristic and may not capture every nuance of gameplay.</p>
+						<h6>Tier Explanation</h6>
 
+						<p>Our tier list is based on each champion's combined score, which factors in both win rate and pick rate. We rank champions using percentiles:</p>
+						<ul>
+<li>S-Tier: Champions in the top 5% (95th percentile and above).</li>
+							<li>A-Tier: Champions between the 75th and 95th percentiles.</li>
+							<li>B-Tier: Champions between the 55th and 75th percentiles.</li>
+							<li>C-Tier: Champions between the 35th and 55th percentiles.</li>
+							<li>D-Tier: Champions between the 15th and 35th percentiles.</li>
+							<li>F-Tier: Champions in the bottom 15%.</li>
+						</ul>
+<p class="disclaimer">This method ensures that a 50% win rate is average, and champions with above-average performance and a robust sample size are rewarded, while those with lower performance or less data are appropriately ranked.</p>
+					</div>
+<!-- /modal-body -->
+					
+					<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					</div>
+					
+				</div>
+<!-- /modal-content -->
+				</div>
+<!-- /modal-dialog -->
+			</div>
+		</div>
 		<!-- Wrapper -->
 			<div id="wrapper" class="fade-in">
 
@@ -84,7 +132,32 @@
 									
 									
 								<div class="hotlist-item">
+  <img src="icons/hero_icons/Jeff_The_Land_Shark.png" class="icon-sm" alt="Jeff The Land Shark"><div>
+    <span class="text-danger"><svg class="icon-danger" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 10 5 5 5-5z"></path></svg></span>
+  </div>
+</div>
+<div class="hotlist-item">
+  <img src="icons/hero_icons/Wolverine.png" class="icon-sm" alt="Wolverine"><div>
+    <span class="text-danger"><svg class="icon-danger" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 10 5 5 5-5z"></path></svg></span>
+  </div>
+</div>
+<div class="hotlist-item">
+  <img src="icons/hero_icons/Venom.png" class="icon-sm" alt="Venom"><div>
+    <span class="text-danger"><svg class="icon-danger" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 10 5 5 5-5z"></path></svg></span>
+  </div>
+</div>
+<div class="hotlist-item">
+  <img src="icons/hero_icons/Star-lord.png" class="icon-sm" alt="Star-lord"><div>
+    <span class="text-success"><svg class="icon-success" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 14 5-5 5 5z"></path></svg></span>
+  </div>
+</div>
+<div class="hotlist-item">
   <img src="icons/hero_icons/Mister_Fantastic.png" class="icon-sm" alt="Mister Fantastic"><div>
+    <span class="text-success"><svg class="icon-success" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 14 5-5 5 5z"></path></svg></span>
+  </div>
+</div>
+<div class="hotlist-item">
+  <img src="icons/hero_icons/Peni_Parker.png" class="icon-sm" alt="Peni Parker"><div>
     <span class="text-success"><svg class="icon-success" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 14 5-5 5 5z"></path></svg></span>
   </div>
 </div>
@@ -94,43 +167,18 @@
   </div>
 </div>
 <div class="hotlist-item">
-  <img src="icons/hero_icons/Groot.png" class="icon-sm" alt="Groot"><div>
-    <span class="text-danger"><svg class="icon-danger" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 10 5 5 5-5z"></path></svg></span>
-  </div>
-</div>
-<div class="hotlist-item">
   <img src="icons/hero_icons/Captain_America.png" class="icon-sm" alt="Captain America"><div>
     <span class="text-success"><svg class="icon-success" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 14 5-5 5 5z"></path></svg></span>
   </div>
 </div>
 <div class="hotlist-item">
-  <img src="icons/hero_icons/Cloak_&amp;_Dagger.png" class="icon-sm" alt="Cloak &amp; Dagger"><div>
+  <img src="icons/hero_icons/Iron_Man.png" class="icon-sm" alt="Iron Man"><div>
     <span class="text-danger"><svg class="icon-danger" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 10 5 5 5-5z"></path></svg></span>
   </div>
 </div>
 <div class="hotlist-item">
-  <img src="icons/hero_icons/Iron_Fist.png" class="icon-sm" alt="Iron Fist"><div>
+  <img src="icons/hero_icons/Namor.png" class="icon-sm" alt="Namor"><div>
     <span class="text-danger"><svg class="icon-danger" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 10 5 5 5-5z"></path></svg></span>
-  </div>
-</div>
-<div class="hotlist-item">
-  <img src="icons/hero_icons/Scarlet_Witch.png" class="icon-sm" alt="Scarlet Witch"><div>
-    <span class="text-danger"><svg class="icon-danger" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 10 5 5 5-5z"></path></svg></span>
-  </div>
-</div>
-<div class="hotlist-item">
-  <img src="icons/hero_icons/Invisible_Woman.png" class="icon-sm" alt="Invisible Woman"><div>
-    <span class="text-success"><svg class="icon-success" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 14 5-5 5 5z"></path></svg></span>
-  </div>
-</div>
-<div class="hotlist-item">
-  <img src="icons/hero_icons/Spider-man.png" class="icon-sm" alt="Spider-man"><div>
-    <span class="text-danger"><svg class="icon-danger" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 10 5 5 5-5z"></path></svg></span>
-  </div>
-</div>
-<div class="hotlist-item">
-  <img src="icons/hero_icons/Peni_Parker.png" class="icon-sm" alt="Peni Parker"><div>
-    <span class="text-success"><svg class="icon-success" focusable="false" aria-hidden="true" viewbox="4 4 16 16"><path d="m7 14 5-5 5 5z"></path></svg></span>
   </div>
 </div>
 </div> 
@@ -141,10 +189,10 @@
 										<!-- Repeat for each hero -->
 										<!-- More hero entries -->
 									  <div class="hero">
-    <img src="icons/hero_icons/Magneto.png" alt="Magneto"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
+    <img src="icons/hero_icons/Groot.png" alt="Groot"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Luna_Snow.png" alt="Luna Snow"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
+    <img src="icons/hero_icons/Adam_Warlock.png" alt="Adam Warlock"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
 </div>
 </div>
 									</div>
@@ -154,28 +202,28 @@
 										  <!-- Repeat for each hero -->
 										  <!-- More hero entries -->
 										<div class="hero">
-    <img src="icons/hero_icons/Invisible_Woman.png" alt="Invisible Woman"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
+    <img src="icons/hero_icons/Rocket_Raccoon.png" alt="Rocket Raccoon"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Doctor_Strange.png" alt="Doctor Strange"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
+    <img src="icons/hero_icons/Thor.png" alt="Thor"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
+</div>
+<div class="hero">
+    <img src="icons/hero_icons/Mantis.png" alt="Mantis"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
+</div>
+<div class="hero">
+    <img src="icons/hero_icons/Wolverine.png" alt="Wolverine"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+</div>
+<div class="hero">
+    <img src="icons/hero_icons/Star-lord.png" alt="Star-lord"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+</div>
+<div class="hero">
+    <img src="icons/hero_icons/Venom.png" alt="Venom"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
+</div>
+<div class="hero">
+    <img src="icons/hero_icons/Magik.png" alt="Magik"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
     <img src="icons/hero_icons/Loki.png" alt="Loki"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
-</div>
-<div class="hero">
-    <img src="icons/hero_icons/The_Thing.png" alt="The Thing"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
-</div>
-<div class="hero">
-    <img src="icons/hero_icons/Winter_Soldier.png" alt="Winter Soldier"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
-</div>
-<div class="hero">
-    <img src="icons/hero_icons/Hela.png" alt="Hela"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
-</div>
-<div class="hero">
-    <img src="icons/hero_icons/Cloak_&amp;_Dagger.png" alt="Cloak &amp; Dagger"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
-</div>
-<div class="hero">
-    <img src="icons/hero_icons/Rocket_Raccoon.png" alt="Rocket Raccoon"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
 </div>
 </div>
 									  </div>
@@ -185,25 +233,25 @@
 										  <!-- Repeat for each hero -->
 										  <!-- More hero entries -->
 										<div class="hero">
-    <img src="icons/hero_icons/Star-lord.png" alt="Star-lord"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Spider-man.png" alt="Spider-man"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Namor.png" alt="Namor"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Mister_Fantastic.png" alt="Mister Fantastic"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Adam_Warlock.png" alt="Adam Warlock"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
+    <img src="icons/hero_icons/Peni_Parker.png" alt="Peni Parker"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Groot.png" alt="Groot"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
+    <img src="icons/hero_icons/Bruce_Banner.png" alt="Bruce Banner"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Mantis.png" alt="Mantis"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
+    <img src="icons/hero_icons/Storm.png" alt="Storm"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Psylocke.png" alt="Psylocke"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Iron_Fist.png" alt="Iron Fist"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Venom.png" alt="Venom"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
+    <img src="icons/hero_icons/Scarlet_Witch.png" alt="Scarlet Witch"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 </div>
 									  </div>
@@ -213,25 +261,25 @@
 										  <!-- Repeat for each hero -->
 										  <!-- More hero entries -->
 										<div class="hero">
-    <img src="icons/hero_icons/Magik.png" alt="Magik"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Black_Panther.png" alt="Black Panther"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Wolverine.png" alt="Wolverine"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Hela.png" alt="Hela"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Bruce_Banner.png" alt="Bruce Banner"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
+    <img src="icons/hero_icons/Captain_America.png" alt="Captain America"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/The_Punisher.png" alt="The Punisher"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Iron_Man.png" alt="Iron Man"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Storm.png" alt="Storm"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Invisible_Woman.png" alt="Invisible Woman"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Iron_Fist.png" alt="Iron Fist"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/The_Thing.png" alt="The Thing"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Spider-man.png" alt="Spider-man"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Jeff_The_Land_Shark.png" alt="Jeff The Land Shark"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
 </div>
 </div>
 									  </div>
@@ -241,25 +289,25 @@
 										  <!-- Repeat for each hero -->
 										  <!-- More hero entries -->
 										<div class="hero">
-    <img src="icons/hero_icons/Thor.png" alt="Thor"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
+    <img src="icons/hero_icons/Luna_Snow.png" alt="Luna Snow"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Jeff_The_Land_Shark.png" alt="Jeff The Land Shark"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
+    <img src="icons/hero_icons/Psylocke.png" alt="Psylocke"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Human_Torch.png" alt="Human Torch"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Doctor_Strange.png" alt="Doctor Strange"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Mister_Fantastic.png" alt="Mister Fantastic"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Magneto.png" alt="Magneto"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Black_Panther.png" alt="Black Panther"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Namor.png" alt="Namor"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Captain_America.png" alt="Captain America"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
+    <img src="icons/hero_icons/The_Punisher.png" alt="The Punisher"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Hawkeye.png" alt="Hawkeye"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Black_Widow.png" alt="Black Widow"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 </div>
 									  </div>
@@ -269,27 +317,29 @@
 										  <!-- Repeat for each hero -->
 										  <!-- More hero entries -->
 										<div class="hero">
+    <img src="icons/hero_icons/Hawkeye.png" alt="Hawkeye"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+</div>
+<div class="hero">
+    <img src="icons/hero_icons/Winter_Soldier.png" alt="Winter Soldier"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+</div>
+<div class="hero">
     <img src="icons/hero_icons/Squirrel_Girl.png" alt="Squirrel Girl"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Scarlet_Witch.png" alt="Scarlet Witch"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Human_Torch.png" alt="Human Torch"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
     <img src="icons/hero_icons/Moon_Knight.png" alt="Moon Knight"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
 </div>
 <div class="hero">
-    <img src="icons/hero_icons/Black_Widow.png" alt="Black Widow"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
-</div>
-<div class="hero">
-    <img src="icons/hero_icons/Peni_Parker.png" alt="Peni Parker"><img src="icons/role_icons/vanguard.png" class="role-icon" alt="vanguard">
-</div>
-<div class="hero">
-    <img src="icons/hero_icons/Iron_Man.png" alt="Iron Man"><img src="icons/role_icons/duelist.png" class="role-icon" alt="duelist">
+    <img src="icons/hero_icons/Cloak_&amp;_Dagger.png" alt="Cloak &amp; Dagger"><img src="icons/role_icons/strategist.png" class="role-icon" alt="strategist">
 </div>
 </div>
 									  </div>
-								  </section><header class="major"><p>Rankings based on performance and popularity in Top 500</p>
-								  </header></section><section class="posts"><article><header><h2><a href="HeroStatistics.html">Pickrate</a></h2>
+								  </section><button type="button" data-bs-toggle="modal" data-bs-target="#CalculationFormulaModal" title="Show Calculation Formula">
+									Calculation Formula
+								</button>
+							</section><section class="posts"><article><header><h2><a href="HeroStatistics.html">Pickrate</a></h2>
 									</header><a href="HeroStatistics" class="image fit"><img src="rendered/PickrateTierlist.png" alt=""></a>
 									<p>The tier list ranks heroes by their pick rate, with the most popular choices dominating the top tiers. Heroes in the higher tiers are frequently picked by players due to their strong abilities, versatility, or current meta relevance, while those in the lower tiers see less frequent play, often due to perceived weaknesses or niche roles.</p>
 									<ul class="actions special">
@@ -319,6 +369,6 @@
 			</div>
 
 		<!-- Scripts -->
-			<script src="/assets/js/bootstrap.bundle.min.js"></script><script src="/assets/js/list.min.js"></script><script src="assets/js/jquery.min.js"></script><script src="assets/js/jquery.scrollex.min.js"></script><script src="assets/js/jquery.scrolly.min.js"></script><script src="assets/js/browser.min.js"></script><script src="assets/js/breakpoints.min.js"></script><script src="assets/js/util.js"></script><script src="assets/js/main.js"></script><script src="assets/js/fetchData.js"></script><script src="assets/js/lastRender.js"></script><script src="assets/js/jquery-marquee.js"></script><script src="assets/js/heroes.js"></script>
+			<script src="/assets/js/bootstrap.bundle.min.js"></script><script src="/assets/js/list.min.js"></script><script src="assets/js/jquery.min.js"></script><script src="assets/js/jquery.scrollex.min.js"></script><script src="assets/js/jquery.scrolly.min.js"></script><script src="assets/js/browser.min.js"></script><script src="assets/js/breakpoints.min.js"></script><script src="assets/js/util.js"></script><script src="assets/js/main.js"></script><script src="assets/js/fetchData.js"></script><script src="assets/js/lastRender.js"></script><script src="assets/js/jquery-marquee.js"></script><script src="assets/js/heroes.js"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>
