@@ -35,7 +35,7 @@ jobs:
     # specify the environment variables used by the packager, matching the secrets from the project on GitHub
     env:
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-      FILE_PATH: 'MarvelRivalsData.html Heroes.html Index.html'
+      FILE_PATH: 'MarvelRivalsData.html Heroes.html index.html'
       RENDERED_PATH: 'rendered'
 
     # "steps" holds a list of all the steps needed to package and release our AddOn
