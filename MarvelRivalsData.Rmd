@@ -257,6 +257,24 @@ healer_ids <- all_heroes %>%
   filter(role == "STRATEGIST") %>%
   select(id)
 
+# Determine current season – here we assume the highest season value is the current one
+current_season <- max(matches$season)
+matches <- matches %>%
+  filter(season == current_season)
+
+match_players <- match_players %>%
+  mutate(match_date = as.Date(as.POSIXct(match_timestamp, origin = "1970-01-01", tz = "UTC")))
+
+matches <- matches %>%
+  mutate(match_date = as.Date(as.POSIXct(match_timestamp, origin = "1970-01-01", tz = "UTC")))
+
+current_season_start <- matches %>%
+  summarise(season_start = min(match_date)) %>%
+  pull(season_start)
+
+# Calculate days passed since season start
+days_since_start <- as.numeric(Sys.Date() - current_season_start)
+
 # Extract heroes with healing abilities
 
 ```
@@ -571,6 +589,8 @@ match_players <- match_players %>%
   mutate(
     hero_healed = ifelse(hero_data_hero_id %in% healer_ids$id, hero_healed, NA)  # Remove healing if not a healer
   )
+
+
 ```
 
 ```{r calculateHeroStats, echo = FALSE}
@@ -897,6 +917,221 @@ combined_tierlist <- ggplot(hero_stats_combined, aes(x = position, y = factor(co
 
 ggsave("rendered/CombinedTierlist.png", combined_tierlist, width = 8, height = 6, dpi = 300)
 
+```
+
+```{r tierlistEmwa, echo=FALSE}
+# Define the number of days to exclude for recent trends
+comparison_days <- ifelse(days_since_start < 14, 1, 7)  # 1 day early-season, 7 days later
+
+# Find the cut-off date for excluding recent matches
+comparison_cutoff <-  max(matches$match_timestamp, na.rm = TRUE) - (24 * 60 * 60*comparison_days)
+
+# Split the dataset
+matches_old <- matches %>%
+  filter(match_timestamp <= comparison_cutoff)  # Excludes the most recent `comparison_days`
+
+# === Calculate hero stats for the old dataset (baseline) ===
+hero_stats_old <- match_players %>%
+  filter(match_uid %in% matches_old$match_uid) %>%
+  group_by(hero_data_hero_id) %>%
+  summarise(
+    avg_kills = round(mean(hero_data_kills, na.rm = TRUE),2),
+    avg_deaths = round(mean(hero_data_deaths, na.rm = TRUE),2),
+    avg_assists = round(mean(hero_data_assists, na.rm = TRUE),2),
+    avg_hero_damage = round(mean(hero_damage, na.rm = TRUE),0),
+    avg_hero_healed = round(mean(hero_healed, na.rm = TRUE),0),
+    avg_damage_taken = round(mean(damage_taken, na.rm = TRUE),0),
+    avg_playtime = round(mean(hero_data_playtime, na.rm = TRUE),0),
+    total_wins = sum(hero_adjusted_win, na.rm = TRUE),
+    total_losses = sum(hero_adjusted_loss, na.rm = TRUE),
+    games_played = round(sum(hero_games_played, na.rm = TRUE)),  # Sum of participations
+    win_rate = round((total_wins / (total_wins + total_losses)) * 100,2)
+    
+  )
+
+total_games <- sum(hero_stats_old$games_played, na.rm = TRUE)/6
+
+# Compute pick rate
+hero_stats_old <- hero_stats_old %>%
+  mutate(
+    pick_rate = round((games_played / total_games) * 100,2) 
+  )
+
+hero_stats_old <- hero_stats_old %>%
+  mutate(hero_data_hero_id = as.character(hero_data_hero_id))
+
+# Compute Combined Score for the Old Dataset
+hero_stats_old <- hero_stats_old %>%
+  mutate(combined_score = win_rate * sqrt(pick_rate))
+
+# Assign Tiers to the Old Dataset
+hero_stats_old_combined <- hero_stats_old %>%
+  mutate(
+    combined_tier = case_when(
+      combined_score >= quantile(combined_score, 0.95, na.rm = TRUE) ~ "S-Tier",
+      combined_score >= quantile(combined_score, 0.75, na.rm = TRUE) ~ "A-Tier",
+      combined_score >= quantile(combined_score, 0.55, na.rm = TRUE) ~ "B-Tier",
+      combined_score >= quantile(combined_score, 0.35, na.rm = TRUE) ~ "C-Tier",
+      combined_score >= quantile(combined_score, 0.15, na.rm = TRUE) ~ "D-Tier",
+      TRUE ~ "F-Tier"
+    )
+  ) %>%
+  select(hero_data_hero_id, combined_tier)  # Keep only necessary columns
+
+# Merge old and new tiers to detect changes
+hero_trend_analysis <- hero_stats_combined %>%
+  select(hero_data_hero_id, name, icon, combined_tier, combined_score) %>%
+  left_join(hero_stats_old %>% select(hero_data_hero_id, combined_score), by = "hero_data_hero_id", suffix = c("_recent", "_old")) %>%
+  mutate(
+    score_shift = combined_score_recent - combined_score_old
+  ) %>%
+  filter(!is.na(score_shift)) %>%  # Remove missing values
+  arrange(desc(abs(score_shift)))  # Sort by biggest changes
+
+
+# Merge old and new tiers to detect actual tier jumps
+hero_tier_changes <- hero_stats_combined %>%
+  select(hero_data_hero_id, name, icon, combined_tier) %>%
+  left_join(hero_stats_old_combined, by = "hero_data_hero_id", suffix = c("_recent", "_old")) %>%
+  mutate(
+    tier_shift = as.integer(factor(combined_tier_recent, levels = c("S-Tier", "A-Tier", "B-Tier", "C-Tier", "D-Tier", "F-Tier"))) - 
+                 as.integer(factor(combined_tier_old, levels = c("S-Tier", "A-Tier", "B-Tier", "C-Tier", "D-Tier", "F-Tier")))
+  ) %>%
+  filter(!is.na(tier_shift) & tier_shift != 0) %>%  # Keep only heroes that changed tiers
+  arrange(desc(abs(tier_shift)))  # Sort by biggest tier jumps
+
+
+top_trending_heroes <- hero_trend_analysis %>%
+  filter(!(hero_data_hero_id %in% hero_tier_changes$hero_data_hero_id)) %>%
+  head(10) %>%
+  mutate(
+    arrow_svg = if_else(
+      score_shift > 0,
+      '<svg class="icon-success" focusable="false" aria-hidden="true" viewBox="4 4 16 16" ><path d="m7 14 5-5 5 5z"></path></svg>',
+      '<svg class="icon-danger" focusable="false" aria-hidden="true" viewBox="4 4 16 16" ><path d="m7 10 5 5 5-5z"></path></svg>'
+    ),
+    color_class = if_else(score_shift > 0, "text-success", "text-danger"),
+    display_shift = sprintf("%.2f", abs(score_shift)),
+  )
+
+# Generate HTML for trending heroes
+hero_trending_html <- top_trending_heroes %>%
+  mutate(
+    hero_html = glue::glue('<div class="hotlist-item">
+      <img src="{icon}" class="icon-sm" alt="{name}">
+      <div>
+        <span class="{color_class}">{arrow_svg}</span>
+      </div>
+    </div>')
+  ) %>%
+  pull(hero_html) %>%
+  paste(collapse = "\n")
+
+if (exists("top_tier_changes") && nrow(top_tier_changes) > 0) {
+# === Generate HTML for the Tier Trends ===
+  hero_tier_html <- top_tier_changes %>%
+    mutate(
+      hero_html = glue::glue('<div class="hotlist-item">
+        <img src="{icon}" class="icon-sm" alt="{name}">
+        <div>
+          <span class="{color_class}">{arrow_svg} {display_shift}</span>
+          <span class="total-tier">{display_tier}</span>
+        </div>
+      </div>')
+    ) %>%
+    pull(hero_html) %>%
+    paste(collapse = "\n")
+} else {
+  hero_tier_html <- ""  # Empty string if no tier changes
+}  
+
+hero_combined_tier_html <- paste(hero_trending_html, hero_tier_html, sep = "\n")
+
+
+```
+
+
+```{r writeTierlistHtml, echo=FALSE}
+# Set your input and output file paths
+input_html  <- "templates/Tierlist.html"
+output_html <- "Index.html"
+
+
+# Function to generate the hero icon block for a single hero.
+generate_hero_icon <- function(row) {
+  # Build the HTML for the hero icon using glue() for interpolation.
+  # The hero icon uses the icon file and the hero's name for the alt text.
+  # The role icon uses the lower-case version of the role (both in filename and alt text).
+  icon_html <- glue('
+    <div class="hero">
+      <img src="{row$icon}" alt="{row$name}">
+      <img src="icons/role_icons/{tolower(row$role)}.png" class="role-icon" alt="{tolower(row$role)}">
+    </div>
+  ', .open = "{", .close = "}")
+  
+  return(icon_html)
+}
+
+doc <- read_html(input_html)
+
+# Define the tiers in the order you want to process.
+tiers <- c("S", "A", "B", "C", "D", "F")
+
+# Iterate over each tier.
+for (active_tier in tiers) {
+  # Filter the heroes for the current tier and sort by combined_score (highest first).
+  heroes_in_tier <- hero_stats_combined %>%
+    filter(combined_tier == paste0(active_tier, "-Tier")) %>%
+    arrange(desc(combined_score))
+  
+  # Generate the HTML for all hero icons in this tier.
+  icons_html <- paste(
+    sapply(seq_len(nrow(heroes_in_tier)), function(i) {
+      generate_hero_icon(as.list(heroes_in_tier[i, ]))
+    }),
+    collapse = "\n"
+  )
+  
+  # Build the id for the tier div (e.g., "s-tier-heroes" for tier "S").
+  tier_div_id <- paste0(tolower(active_tier), "-tier-heroes")
+  tier_div_node <- xml_find_first(doc, glue('//*[@id="{tier_div_id}"]'))
+  
+  # Remove any existing children so we can replace them with our new icons.
+  xml_find_all(tier_div_node, "./*") %>% xml_remove()
+  
+  # Wrap the generated icons HTML in a temporary container.
+  temp_wrapper <- read_html(glue("<div id='tmp'>{icons_html}</div>"))
+  tmp_node <- xml_find_first(temp_wrapper, "//*[@id='tmp']")
+  
+  # Extract the generated icon nodes.
+  new_nodes <- xml_children(tmp_node)
+  
+  # Append each new icon node into the tier div.
+  for (node in new_nodes) {
+    xml_add_child(tier_div_node, node)
+  }
+}
+
+
+tier_trends_node <- xml_find_first(doc, glue('//*[@id="TierHotlist"]'))
+
+# Remove any existing children so we can replace them with our new icons.
+xml_find_all(tier_trends_node, "./*") %>% xml_remove()
+
+# Wrap the generated icons HTML in a temporary container.
+temp_wrapper <- read_html(glue("<div id='tmp'>{hero_combined_tier_html}</div>"))
+tmp_node <- xml_find_first(temp_wrapper, "//*[@id='tmp']")
+
+# Extract the generated icon nodes.
+new_nodes <- xml_children(tmp_node)
+
+# Append each new icon node into the tier div.
+for (node in new_nodes) {
+  xml_add_child(tier_trends_node, node)
+}
+
+# Write the updated HTML to disk
+write_html(doc, output_html)
 ```
 
 # Hero Counters
@@ -1384,8 +1619,6 @@ hero_synergy_bidirectional <- bind_rows(hero_synergy, hero_synergy_reversed) %>%
 
 
 ```{r emwa, echo=FALSE}
-match_players <- match_players %>%
-  mutate(match_date = as_date(match_timestamp))
 # Calculate EWMA win rate for each hero (name.y) within each season.
 hero_ewma <- match_players %>%
   group_by(season, hero = name.y) %>%
