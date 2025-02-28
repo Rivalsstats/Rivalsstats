@@ -217,7 +217,7 @@ def fetch_match_data(match_id):
     # Save match details
     append_csv(
         MATCHES_FILE,
-        ["match_uid", "replay_id", "gamemode", "match_timestamp", "season", "map_id"],
+        ["match_uid", "replay_id", "gamemode", "match_timestamp", "season", "map_id", "mvp", "svp", "winning_team_score", "losing_team_score"],
         {
             "match_uid": match_data["match_uid"],
             "replay_id": match_data["replay_id"],
@@ -225,6 +225,10 @@ def fetch_match_data(match_id):
             "match_timestamp": extra.get("match_timestamp", ""),
             "season": extra.get("season", ""),
             "map_id": extra.get("map_id", ""),
+            "mvp": match_data["mvp"]["player_uid"],
+            "svp": match_data["svp"]["player_uid"],
+            "winning_team_score": extra.get("winning_team_score", ""),
+            "losing_team_score": extra.get("losing_team_score", ""),   
         },
     )
 
@@ -256,7 +260,7 @@ def fetch_match_data(match_id):
                 "hero_healed": player["hero_healed"],
                 "damage_taken": player["damage_taken"],
                 "hero_data": f'"{hero_data_str}"',
-                "match_timestamp": extra.get("match_timestamp", "") 
+                "match_timestamp": .get("match_timestamp", "") 
             },
         )
 
@@ -341,10 +345,16 @@ def process_encountered_players(player_data, timestamp):
                 matches_to_fetch.append(match_id)
             
             if match_id not in match_extra_info:
+                is_win = match.get("stats", {}).get("is_win", False)
+                score = match.get("score", {})
+                winning_score = score.get("ally") if is_win else score.get("enemy")
+                losing_score = score.get("enemy") if is_win else score.get("ally")
                 match_extra_info[match_id] = {
                 "match_timestamp": match.get("match_timestamp", ""),
                 "season": match.get("season", ""),
                 "map_id": match.get("match_map", {}).get("id", ""),
+                "winning_team_score": winning_score,
+                "losing_team_score": losing_score,   
             }
 
     # Fetch teammates and matches in parallel
