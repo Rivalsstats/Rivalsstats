@@ -1,10 +1,12 @@
 # This is a basic workflow to help you get started with Actions
 
-name: request Dev/Patch info
+name: request Dev/Patch/balcne info
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
+  schedule:
+    - cron: "45 23 * * *"  # Runs at 23:45 every day
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -20,6 +22,7 @@ jobs:
       API_TOKEN: ${{ secrets.MARVEL_RIVALS_KEY}}
       DEV_DIARIES_URL: "dev-diaries"
       PATCH_NOTES_URL: "patch-notes"
+      BALANCE_NOTES_URL: "balances"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -34,7 +37,10 @@ jobs:
         run: |
           curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${PATCH_NOTES_URL}" \
           -o data/latest/latest_patch_notes.json 
-
+      - name: Fetch Balance notes
+        run: |
+          curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${BALANCE_NOTES_URL}" \
+          -o data/latest/latest_balance_notes.json 
       - name: Commit and push changes
         run: |
           set -e  # Exit script on any command failure
@@ -49,7 +55,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Updated Dev Diaries"
+            git commit -m "Updated Game Info"
           fi
       
           # Pull latest changes, fail only on actual errors
