@@ -20,6 +20,7 @@ jobs:
     env:
       BASE_URL: "https://mrapi.org/api/"
       STATS_URL: "player/"
+      PLAYER_UPDATE_URL: "player-update/"
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
       USERS_TO_CHECK: '["258927695"]'  # Define user IDs as a JSON array
 
@@ -33,6 +34,8 @@ jobs:
           USERS=$(echo '${{ env.USERS_TO_CHECK }}' | jq -r '.[]')
           for USER in $USERS; do
             echo "Fetching data for user: $USER"
+            curl -X GET "${BASE_URL}${PLAYER_UPDATE_URL}${USER}" \
+              -H "x-api-key: ${API_TOKEN}"
             curl -X GET "${BASE_URL}${STATS_URL}${USER}" \
               -H "x-api-key: ${API_TOKEN}" \
               -o "data/latest/users/${USER}.json"
