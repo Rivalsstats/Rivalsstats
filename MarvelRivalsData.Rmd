@@ -1474,19 +1474,7 @@ parse_composition <- function(comp_string) {
 # ----- Compute Opponent Team Composition Performance per Hero -----
 
 # For each hero, join their match record with the opponent team comp.
-# (team_roles_discrete has one row per team per match, with the computed composition.)
-hero_match <- match_players %>%
-  group_by(match_uid, name.y, is_win) %>%
-  summarise(
-    # Since a hero can only be on one team per match, 
-    # just take the win status from the first row.
-    hero_win = as.numeric(first(is_win)),
-    .groups = "drop"
-  )
-
-# Step 2: Join with the opponent team composition.
-hero_vs_opponent_comp <- hero_match %>%
-  rename(hero = name.y) %>%
+hero_vs_opponent_comp <- match_hero %>%
   inner_join(
     team_roles_discrete %>% 
       select(match_uid, is_win, composition) %>% 
@@ -1494,16 +1482,18 @@ hero_vs_opponent_comp <- hero_match %>%
     by = "match_uid",
     relationship = "many-to-many"
   ) %>%
-  # Ensure we compare the hero's team to the opponent's team.
+  # We only want the row from the opposing team.
   filter(is_win != opponent_is_win)
 
 # Group by hero and the opponent team comp to compute stats.
 hero_vs_opponent_comp_stats <- hero_vs_opponent_comp %>%
   group_by(hero, opponent_comp) %>%
   summarise(
-    win_rate = mean(hero_win, na.rm = TRUE),  # from the perspective of the hero’s team
-    games = n(),
-    .groups = "drop"
+    total_wins   = sum(match_adjusted_win, na.rm = TRUE),
+    total_losses = sum(match_adjusted_loss, na.rm = TRUE),
+    games        = sum(match_games_played, na.rm = TRUE),
+    win_rate     = round((total_losses / (total_wins + total_losses)) * 100, 2),
+    .groups      = "drop"
   )
 
 # For each hero, compute total games (across all opponent comps).
@@ -2170,7 +2160,7 @@ mutate(
 
 hero_vs_opponent_comp_stats <- hero_vs_opponent_comp_stats %>% 
 mutate(
-  win_rate = round(win_rate*100,2),
+  win_rate = round(win_rate,2),
 ) 
 
 hero_team_comps <- hero_team_comps %>% 
