@@ -260,7 +260,7 @@ def fetch_match_data(match_id):
                 "hero_healed": player["hero_healed"],
                 "damage_taken": player["damage_taken"],
                 "hero_data": f'"{hero_data_str}"',
-                "match_timestamp": .get("match_timestamp", "") 
+                "match_timestamp": extra.get("match_timestamp", "") 
             },
         )
 
