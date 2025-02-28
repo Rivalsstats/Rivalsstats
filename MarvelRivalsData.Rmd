@@ -1212,7 +1212,7 @@ hero_counters <- hero_matchups %>%
     wins = sum(weighted_win),
     losses = sum(weighted_loss),
     total_matches = wins + losses,
-    win_rate = (wins / total_matches) * 100,
+    win_rate = (losses / total_matches) * 100,
     .groups = "drop"
   ) %>%
   arrange(desc(win_rate))
