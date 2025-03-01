@@ -32,6 +32,19 @@ function initMarquee($container) {
 $(document).ready(function () {
 // Initialize marquee for items outside modals
 initMarquee($(document));
+document.querySelectorAll("#copy-btn").forEach((button) => {
+    console.log("adding event listeners")
+    button.addEventListener("click", function () {
+        console.log("clicked")
+      const parentDiv = this.closest(".details"); // Find closest parent match-header
+      const replayId = parentDiv.querySelector("#replay-id").textContent; // Select replay ID inside same match-header
+        
+      navigator.clipboard.writeText(replayId).then(() => {
+        this.textContent = "Copied!";
+        setTimeout(() => (this.textContent = "Copy"), 1500); // Reset text after 1.5s
+      });
+    });
+  });
 
 // Also initialize for items inside modals when they're shown
 $('.modal').on('shown.bs.modal', function () {
