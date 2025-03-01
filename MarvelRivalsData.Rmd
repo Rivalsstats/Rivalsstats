@@ -585,10 +585,7 @@ match_players <- match_players %>%
     hero_adjusted_loss = hero_win_weight * (1 - is_win), # Weighted loss contribution
     hero_games_played = hero_win_weight                  # Partial game participation
   ) %>%
-  ungroup() %>%
-  mutate(
-    hero_healed = ifelse(hero_data_hero_id %in% healer_ids$id, hero_healed, NA)  # Remove healing if not a healer
-  )
+  ungroup() 
 
 
 ```
@@ -614,6 +611,10 @@ hero_stats <- match_players %>%
   ) %>%
   arrange(desc(win_rate))
 
+hero_stats <- hero_stats %>%
+  mutate(
+    avg_hero_healed = ifelse(hero_data_hero_id %in% healer_ids$id, avg_hero_healed, NA)  # Remove healing if not a healer
+  )
 
 # Merge hero stats with hero icons (Ensure proper data type matching)
 hero_stats <- hero_stats %>%
@@ -1686,6 +1687,171 @@ hero_hotlist <- hero_ewma %>%
 hero_hotlist
 ```
 
+```{r spectateHighlights, echo=FALSE}
+valid_plays <- match_players %>%
+  filter(playtime_percentage >= 0.9)
+
+# 3. Join with matches to get replay_id for spectating
+spectate_data <- valid_plays %>%
+  inner_join(matches, by = "match_uid")
+
+all_plays <- spectate_data %>%
+  mutate(
+    performance = case_when(
+      # For DPS: More kills (and some assists) combined with a high hit rate,
+      # but penalize heavy damage taken.
+      role == "DUELIST" ~ (hero_data_kills + 0.5 * hero_data_assists) * hero_data_hit_rate / (damage_taken + 1),
+      
+      # For Support: Prioritize healing output and some damage contribution,
+      # while penalizing deaths.
+      role == "STRATEGIST" ~ (hero_healed + 0.3 * hero_damage) / ifelse(hero_data_deaths == 0, 1, hero_data_deaths),
+      
+      # For Tank: Reward high damage taken (as a proxy for tanking) and damage output,
+      # but again penalize deaths.
+      role == "VANGUARD" ~ (damage_taken + hero_damage) / ifelse(hero_data_deaths == 0, 1, hero_data_deaths),
+      
+      # Default (if role isn’t defined or is different)
+      TRUE ~ NA_real_
+    )
+  )
+
+# 2. Compute match-level competitiveness factor.
+#    For each match, we sum performance for each team.
+match_team_perf <- all_plays %>%
+  group_by(match_uid, is_win) %>%
+  summarise(team_perf = sum(performance, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = is_win, values_from = team_perf, names_prefix = "win_") %>%
+  # Competitiveness factor: ratio of losing team’s performance to winning team’s performance.
+  mutate(competitiveness = win_FALSE / win_TRUE) %>%
+  filter(win_TRUE > 0)
+
+# 3. Focus on winning games and join match details (including replay_id and total_playtime).
+winning_plays <- all_plays %>%
+  filter(is_win == TRUE) %>%  
+  inner_join(match_team_perf %>% select(match_uid, competitiveness), by = "match_uid") %>%
+  mutate(
+    performance_adjusted = performance * (total_playtime / median(total_playtime, na.rm = TRUE)) * competitiveness
+  )
+
+# 4. Identify "consistent players": for each player and hero, require at least 3 wins 
+#    then compute average adjusted performance and record their best game.
+consistent_players <- winning_plays %>%
+  group_by(player_uid, name.y, role) %>%   # group by player and hero
+  filter(n() >= 10) %>%                     # only keep heroes with at least 3 games per player
+  summarise(
+    avg_perf = mean(performance_adjusted, na.rm = TRUE),
+    best_game_perf = max(performance_adjusted, na.rm = TRUE),
+    best_replay = replay_id[which.max(performance_adjusted)],
+    best_match_id = match_uid[which.max(performance_adjusted)],
+    total_games = n(),
+    .groups = "drop"
+  )
+
+# 5b. Alternatively, you might want to factor both consistency and the standout game.
+#     Here we define an overall score combining best game performance and average consistency.
+consistent_players <- consistent_players %>%
+  mutate(overall_score = best_game_perf * log(1 + avg_perf))
+
+top_game_per_hero <- consistent_players %>%
+  group_by(name.y, role) %>%
+  slice_max(overall_score, n = 1, with_ties = FALSE) %>%
+  ungroup()
+
+
+
+```
+
+```{r spectateScoreboard, echo=FALSE}
+
+get_scoreboard_data <- function(match_id, match_players, matches) {
+  
+  if (is.null(match_id) || length(match_id) == 0 || !match_id %in% matches$match_uid) {
+    warning(paste("Match ID", match_id, "not found in matches data"))
+    return(data.frame())
+  }
+  # Filter to the relevant match
+  scoreboard_data <- match_players %>%
+    filter(match_uid == match_id) %>%
+    
+    # Compute medals for this match
+    group_by(match_uid) %>%
+    mutate(
+      medal_damage        = hero_damage == max(hero_damage, na.rm = TRUE),
+      medal_kills         = hero_data_kills == max(hero_data_kills, na.rm = TRUE),
+      medal_assists       = hero_data_assists == max(hero_data_assists, na.rm = TRUE),
+      medal_damage_taken  = damage_taken == max(damage_taken, na.rm = TRUE),
+      medal_healing       = hero_healed == max(hero_healed, na.rm = TRUE)
+    ) %>%
+    ungroup() %>%
+    
+    # Join to get replay_id, total_playtime, etc.
+    left_join(matches, by = "match_uid") %>%
+    
+    # Create is_mvp and is_svp booleans
+    mutate(
+        is_mvp = if_else(coalesce(player_uid, 0) == coalesce(mvp, 0), TRUE, FALSE),
+        is_svp = if_else(coalesce(player_uid, 0) == coalesce(svp, 0), TRUE, FALSE)
+    )%>%
+    
+    # Pick columns in a scoreboard-friendly order
+    select(
+      match_uid,
+      replay_id,
+      is_win,         # so you can show "Victory" / "Defeat"
+      role,           # role (Tank, DPS, Support)
+      icon,
+      name.y,
+      name.x,
+      player_uid,
+      hero_data_kills,
+      hero_data_deaths,
+      hero_data_assists,
+      medal_damage,
+      medal_kills,
+      medal_assists,
+      medal_damage_taken,
+      medal_healing,
+      hero_damage,
+      damage_taken,
+      hero_healed,
+      hero_data_hit_rate,
+      total_playtime,
+      is_mvp,
+      is_svp
+    )
+  
+  return(scoreboard_data)
+}
+
+scoreboard_list <- top_game_per_hero %>%
+  rowwise() %>%
+  mutate(
+    scoreboard = list(get_scoreboard_data(
+      match_id       = best_match_id,
+      match_players  = match_players,
+      matches        = matches
+    ))
+  ) %>%
+  ungroup()
+
+scoreboard_list <- scoreboard_list %>%
+  mutate(scoreboard = map(scoreboard, ~
+    .x %>%
+      left_join(match_players %>% select(player_uid, name.y, hero_playtime = hero_data_playtime, match_uid),
+                by = c("player_uid", "name.y", "match_uid"))
+  ))
+
+scoreboard_list <- scoreboard_list %>%
+  mutate(scoreboard = map(scoreboard, ~
+    .x %>%
+      group_by(player_uid) %>%
+      mutate(is_main = hero_playtime == max(hero_playtime, na.rm = TRUE)) %>%
+      ungroup()
+  ))
+
+
+```
+
 
 ```{r heroHotListGeneration, echo=FALSE}
 top_heroes <- hero_hotlist %>%
@@ -1774,6 +1940,247 @@ generate_card <- function(row) {
 
 ```
 
+
+```{r highlightGameGeneration, echo=FALSE}
+build_player_row <- function(row) {
+  # Determine extra CSS class and badge text.
+  extra_class <- ""
+  badge_text <- ""
+  if (row$is_mvp) {
+    extra_class <- "mvp-row"
+    badge_text <- '<span class="mvp-badge">MVP</span>'
+  } else if (row$is_svp) {
+    extra_class <- "svp-row"
+    badge_text <- '<span class="svp-badge">SVP</span>'
+  }
+  else{
+    extra_class <- ""
+    badge_text <- ""
+  }
+  if (!row$is_main) {
+    extra_class <- paste(extra_class, "alt-row")
+  }
+  # Role icon path
+  role_icon_path <- glue("icons/role_icons/{tolower(row$role)}.png")
+  hero_icon_path <- row$icon
+  # Ensure medal values are numeric, defaulting to 0 if NA
+  # Only display these columns for main rows; leave blank for alternate rows.
+  name_disp   <- if (row$is_main) row$name.x else ""
+  dmg_disp    <- if (row$is_main) round(row$hero_damage,0) else ""
+  blocked_disp<- if (row$is_main) round(row$damage_taken,0) else ""
+  heal_disp   <- if (row$is_main) round(row$hero_healed,0) else ""
+  
+  # Build medal icons only for main rows.
+  medals <- c()
+  if (row$is_main) {
+    if (isTRUE(row$medal_damage)) 
+      medals <- c(medals, '<img class="medal-icon" src="icons/medals/damage.png" alt="Damage">')
+    if (isTRUE(row$medal_kills)) 
+      medals <- c(medals, '<img class="medal-icon" src="icons/medals/kills.png" alt="Kills">')
+    if (isTRUE(row$medal_assists)) 
+      medals <- c(medals, '<img class="medal-icon" src="icons/medals/assists.png" alt="Assists">')
+    if (isTRUE(row$medal_damage_taken)) 
+      medals <- c(medals, '<img class="medal-icon" src="icons/medals/blocked.png" alt="Blocked">')
+    if (isTRUE(row$medal_healing)) 
+      medals <- c(medals, '<img class="medal-icon" src="icons/medals/healing.png" alt="Healing">')
+  }
+  medal_icons_html <- if(length(medals) > 0) paste(medals, collapse = " ") else "—"
+  
+  # Process hit rate
+  hit_rate <- ifelse(is.na(row$hero_data_hit_rate), 0, as.numeric(row$hero_data_hit_rate)) * 100
+  
+  html <- glue('
+    <tr class="{extra_class}">
+      <td>
+        <div class="player-cell-wrapper">
+          <div class="player-cell">
+            <div class="player-icons">
+              <div class="role-icon-container">
+                <img class="highlight-role-icon" src="{role_icon_path}" alt="{row$role}" />
+              </div>
+              <img class="hero-icon" src="{hero_icon_path}" alt="" />
+            </div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="player-name">
+          {name_disp}
+          {if(row$is_main) badge_text else ""}
+        </div>
+      </td>
+      <td>{row$hero_data_kills}</td>
+      <td>{row$hero_data_deaths}</td>
+      <td>{row$hero_data_assists}</td>
+      <td>{medal_icons_html}</td>
+      <td>{dmg_disp}</td>
+      <td>{blocked_disp}</td>
+      <td>{heal_disp}</td>
+      <td>{sprintf("%.0f%%", hit_rate)}</td>
+    </tr>
+  ', .trim = FALSE)
+  
+  return(html)
+}
+# This function builds the HTML for a single match.
+build_match_html <- function(match_row) {
+  # Extract match-level info from the row.
+  # We assume that the match-level info (e.g., replay_id, match_uid, total_playtime, match_map)
+  # is either available in the row or inside the nested scoreboard (all rows should have the same values).
+  if (is.null(match_row) || (is.data.frame(match_row) && nrow(match_row) == 0) || (is.list(match_row) && length(match_row) == 0)) {
+    print("match_row is NULL, empty data frame, or empty list. Returning early.")
+    return(NULL)
+  }
+  match_id   <- match_row$match_uid
+  replay_id  <- match_row$replay_id
+  
+  if (is.null(match_id) || length(match_id) == 0 || is.na(match_id)) {
+    print("match_id is NULL, character(0), or NA. Returning early.")
+    return(NULL)
+  }
+
+  # Here we assume the nested scoreboard data frame has a column total_playtime
+  # (which is constant per match) and a column match_map (if available).
+  sb <- match_row$scoreboard[[1]]
+  if (is.list(sb)) {
+    sb <- bind_rows(sb)
+  }
+  
+  total_playtime <- max(sb$total_playtime)
+  # Format duration as M:SS (assuming total_playtime is in seconds)
+  duration_text <- sprintf("%d:%02d", total_playtime %/% 60, total_playtime %% 60)
+  match <- matches %>% filter(match_uid == sb$match_uid[1])
+  map_name <- "Unknown Map"
+  map_name <- match$match_map_id
+  # Split the scoreboard into victory and defeat teams (is_win is a boolean)
+  victory_rows <- sb %>% filter(is_win == TRUE)
+  defeat_rows  <- sb %>% filter(is_win == FALSE)
+  
+  # Helper function to generate an HTML row for a player.
+  # Note: Adjust the paths for the icons as needed.
+
+# Build HTML rows, ensuring victory_rows & defeat_rows are data frames
+if (is.list(victory_rows)) {
+  victory_rows <- bind_rows(victory_rows)
+}
+if (is.list(defeat_rows)) {
+  defeat_rows <- bind_rows(defeat_rows)
+}
+
+role_order <- c("VANGUARD", "DUELIST", "STRATEGIST")
+
+# Ensure victory_rows is sorted in the correct order
+victory_rows <- victory_rows %>%
+  # Preserve original row order so non-main rows keep their relative order.
+  mutate(orig_order = row_number()) 
+
+# Compute each player's main role (using only rows where is_main == TRUE)
+player_main_roles <- victory_rows %>%
+  filter(is_main) %>%
+  group_by(player_uid) %>%
+  summarise(player_main_role = min(role))  # min() works on factors when levels are ordered
+
+# Join that key back to the main data and arrange accordingly.
+victory_rows <- victory_rows %>%
+  left_join(player_main_roles, by = "player_uid") %>%
+  # Ensure the main role is treated as an ordered factor.
+  mutate(player_main_role = factor(player_main_role, levels = role_order, ordered = TRUE)) %>%
+  arrange(player_main_role, player_uid, desc(is_main), orig_order) %>%
+  select(-orig_order, -player_main_role)
+
+# For defeat_rows, do the same:
+defeat_rows <- defeat_rows %>%
+  mutate(orig_order = row_number())
+
+player_main_roles_defeat <- defeat_rows %>%
+  filter(is_main) %>%
+  group_by(player_uid) %>%
+  summarise(player_main_role = min(role))
+
+defeat_rows <- defeat_rows %>%
+  left_join(player_main_roles_defeat, by = "player_uid") %>%
+  mutate(player_main_role = factor(player_main_role, levels = role_order, ordered = TRUE)) %>%
+  arrange(player_main_role, player_uid, desc(is_main), orig_order) %>%
+  select(-orig_order, -player_main_role)
+# Apply function safely
+victory_html <- paste(
+  sapply(seq_len(nrow(victory_rows)), function(i) build_player_row(as.list(victory_rows[i, ]))),
+  collapse = "\n"
+)
+defeat_html  <- paste(
+  sapply(seq_len(nrow(defeat_rows)), function(i) build_player_row(as.list(defeat_rows[i, ]))),
+  collapse = "\n"
+)
+
+  # Finally, build the full match HTML using glue:
+  match_html <- glue('
+    <h5 class="mb-3">highlight-match</h5>
+    <div class="highlight-match">
+      <div class="match-header">
+        <h1>Match <span id="match-id">{match_id}</span></h1>
+        <div class="details">
+          <span><strong>Duration:</strong> <span id="match-duration">{duration_text}</span></span>
+          <span><strong>Map:</strong> <span id="match-map">{map_name}</span></span>
+          <span><strong>Replay ID:</strong> <span id="replay-id">{replay_id}</span></span>
+          <button id="copy-btn" class="btn btn-sm btn-outline-light ms-2">Copy Replay ID</button>
+        </div>
+      </div>
+  
+      <!-- VICTORY SECTION -->
+      <div class="team-section table-responsive">
+        <table class="scoreboard-table">
+          <thead>
+            <tr>
+              <th class="victory-title">VICTORY</th>
+              <th>Player</th>
+              <th>K</th>
+              <th>D</th>
+              <th>A</th>
+              <th>Medals</th>
+              <th>Damage</th>
+              <th>Blocked</th>
+              <th>Heal</th>
+              <th>Hit Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {victory_html}
+          </tbody>
+        </table>
+      </div>
+  
+      <!-- DEFEAT SECTION -->
+      <div class="team-section table-responsive">
+        <table class="scoreboard-table">
+          <thead>
+            <tr>
+              <th class="defeat-title">DEFEAT</th>
+              <th>Player</th>
+              <th>K</th>
+              <th>D</th>
+              <th>A</th>
+              <th>Medals</th>
+              <th>Damage</th>
+              <th>Blocked</th>
+              <th>Heal</th>
+              <th>Accuracy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {defeat_html}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ', .trim = FALSE)
+  return(match_html)
+}
+
+
+
+```
+
+
 ```{r heroModalGeneration, echo=FALSE}
 
 # Helper: Determine badge class based on win_rate.
@@ -1858,6 +2265,36 @@ generate_teamcomp_item <- function(comp, win_rate) {
     </div>
   ', .open = "{", .close = "}")
 }
+
+build_scoreboard_section <- function(hero_name, scoreboard_list) {
+  # Use Filter to get all items in the list where the hero's name matches.
+  filtered <- subset(scoreboard_list, name.y == hero_name)
+  # If no record is found, return a fallback message.
+  if(length(filtered) == 0) {
+    return("<p>No top match data available for this hero.</p>")
+  }
+  
+  # Select the first (or best) record.
+  match_row <- filtered
+  
+  # Prepare the list for build_match_html(). We assume:
+  # - 'best_match_id' holds the match identifier,
+  # - 'best_replay' holds the replay ID,
+  # - 'scoreboard' is already the nested data frame with the detailed data.
+  match_row_list <- list(
+    match_uid  = match_row$best_match_id,
+    replay_id  = match_row$best_replay,
+    scoreboard = list(match_row$scoreboard)
+  )
+  # Generate the HTML for this match's scoreboard.
+  scoreboard_section_html <- build_match_html(match_row_list)
+  if(length(scoreboard_section_html) == 0) {
+    scoreboard_section_html <- "<p>Scoreboard data could not be generated.</p>"
+  }
+  
+  return(scoreboard_section_html)
+}
+
 
 # Main function: Generate the modal HTML for one hero.
 generate_modal <- function(hero_data, hero_counters, hero_synergy) {
@@ -2085,7 +2522,7 @@ generate_modal <- function(hero_data, hero_counters, hero_synergy) {
 </div>
 ', .open = "{", .close = "}")
   
-  
+  scoreboard_section_html <- build_scoreboard_section(hero_data$name, scoreboard_list)
   # Build the final modal HTML.
   modal_html <- glue::glue('
 <div class="modal fade" id="heroModal_{hero_name_clean}" tabindex="-1" aria-labelledby="heroModalLabel_{hero_name_clean}" aria-hidden="true">
@@ -2127,6 +2564,8 @@ generate_modal <- function(hero_data, hero_counters, hero_synergy) {
         <h5 class="mb-3">Synergies</h5>
         {synergies_html}
         {teamcomp_synergies_html}
+        <!-- Section 4: Top Match Scoreboard -->
+        {scoreboard_section_html}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
