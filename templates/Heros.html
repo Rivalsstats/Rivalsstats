@@ -914,215 +914,237 @@
 						</div>
 					</div>
 					<h5 class="mb-3">highlight-match</h5>
-					<div class="highlight-match">
-					  <div class="match-header">
-						<h1>Match <span id="match-id">MATCH_UID_PLACEHOLDER</span></h1>
-						<div class="details">
-						  <span><strong>Duration:</strong> <span id="match-duration">MATCH_DURATION_PLACEHOLDER</span></span>
-						  <span><strong>Map:</strong> <span id="match-map">MAP_NAME_PLACEHOLDER</span></span>
-						  <span><strong>Replay ID:</strong> <span id="replay-id">REPLAY_ID_PLACEHOLDER</span></span>
-						  <button id="copy-btn" class="btn btn-sm btn-outline-light ms-2">Copy Replay ID</button>
+					<div class="accordion" id="matchesAccordion">
+						<div class="accordion-item">
+						  <h2 class="accordion-header" id="heading_PLACEHOLDER">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+							  data-bs-target="#collapse_PLACEHOLDER" aria-expanded="false" aria-controls="collapse_PLACEHOLDER">
+							  <div class="match-summary">
+								<div class="summary-top">
+									<div id="Stats">5/4/4</div>
+									<div id="match-duration-3">⏳ Duration: 11:23</div>
+									<div id="match-map-3">🗺️ Map: Arena Alpha</div>
+								</div>
+							  </div>
+							</button>
+						  </h2>
+						  <div id="collapse_PLACEHOLDER" class="accordion-collapse collapse" aria-labelledby="heading_PLACEHOLDER" data-bs-parent="#matchesAccordion">
+							<div class="accordion-body">
+										<div class="highlight-match">
+											<div class="match-header">
+											<h1>Match <span id="match-id">MATCH_UID_PLACEHOLDER</span></h1>
+											<div class="details">
+												<span><strong>Duration:</strong> <span id="match-duration">MATCH_DURATION_PLACEHOLDER</span></span>
+												<span><strong>Map:</strong> <span id="match-map">MAP_NAME_PLACEHOLDER</span></span>
+												<span><strong>Replay ID:</strong> <span id="replay-id">REPLAY_ID_PLACEHOLDER</span></span>
+												<button id="copy-btn" class="btn btn-sm btn-outline-light ms-2">Copy Replay ID</button>
+											</div>
+											</div>
+											<!-- Ban row -->
+											<div class="ban-row">
+											<img src="icons/hero_icons/Hawkeye.png" alt="Ban1">
+											<img src="icons/hero_icons/Invisible_Woman.png" alt="Ban2">
+											<span>Ban</span>
+											<img src="icons/hero_icons/Human_Torch.png" alt="Ban3">
+											<img src="icons/hero_icons/Hela.png" alt="Ban4">
+											</div>
+										
+											<!-- VICTORY SECTION -->
+											<div class="team-section table-responsive">
+											<table class="scoreboard-table">
+												<thead>
+												<tr>
+													<th class="victory-title">VICTORY</th>
+													<th>Player</th>
+													<th>K</th>
+													<th>D</th>
+													<th>A</th>
+													<th>Medals</th>
+													<th>Damage</th>
+													<th>Blocked</th>
+													<th>Heal</th>
+													<th>Accuracy</th>
+												</tr>
+												</thead>
+												<tbody>
+												<!-- Example MVP row -->
+												<tr class="mvp-row">
+													<td>
+													<div class="player-cell-wrapper">
+														<div class="player-cell">
+														<div class="player-icons">
+															<div class="role-icon-container">
+															<img
+																class="highlight-role-icon"
+																src="icons/role_icons/vanguard.png"
+																alt="STRATEGIST"
+															/>
+															</div>
+															<img
+															class="hero-icon"
+															src="icons/hero_icons/Groot.png"
+															alt="Groot"
+															/>
+														</div>
+														</div>
+													</div>
+													</td>
+													<td>
+													<div class="player-name">
+													Hans
+													<span class="mvp-badge">MVP</span>
+													</div>
+													</td>
+													<td>1</td>
+													<td>2</td>
+													<td>3</td>
+													<td>1</td>
+													<td>25000</td>
+													<td>20000</td>
+													<td>15000</td>
+													<td>50%</td>
+												</tr>
+												<!-- More players... -->
+												<tr>
+													<td>
+													<div class="player-cell-wrapper">
+														<div class="player-cell">
+														<div class="player-icons">
+															<div class="role-icon-container">
+															<img
+																class="highlight-role-icon"
+																src="icons/role_icons/STRATEGIST.png"
+																alt="STRATEGIST"
+															/>
+															</div>
+															<img
+															class="hero-icon"
+															src="icons/hero_icons/Black_Panther.png"
+															alt="Groot"
+															/>
+														</div>
+														</div>
+													</div>
+													</td>
+													<td>
+													<div class="player-name">
+													Jods
+													</div>
+													</td>
+													<td>1</td>
+													<td>2</td>
+													<td>3</td>
+													<td>1</td>
+													<td>25000</td>
+													<td>20000</td>
+													<td>15000</td>
+													<td>50%</td>
+												</tr>
+												</tbody>
+											</table>
+											</div>
+										
+											<!-- DEFEAT SECTION -->
+											<div class="team-section table-responsive">
+											<table class="scoreboard-table">
+												<thead>
+												<tr>
+													<th class="defeat-title">DEFEAT</th>
+													<th>Player</th>
+													<th>K</th>
+													<th>D</th>
+													<th>A</th>
+													<th>Medals</th>
+													<th>Damage</th>
+													<th>Blocked</th>
+													<th>Heal</th>
+													<th>Accuracy</th>
+												</tr>
+												</thead>
+												<tbody>
+												<!-- Example MVP row -->
+												<tr class="svp-row">
+													<td>
+													<div class="player-cell-wrapper">
+														<div class="player-cell">
+														<div class="player-icons">
+															<div class="role-icon-container">
+															<img
+																class="highlight-role-icon"
+																src="icons/role_icons/strategist.png"
+																alt="STRATEGIST"
+															/>
+															</div>
+															<img
+															class="hero-icon"
+															src="icons/hero_icons/Cloak_&_Dagger.png"
+															alt="Groot"
+															/>
+														</div>
+														</div>
+													</div>
+													</td>
+													<td>
+													<div class="player-name">
+													Tanz Kahans
+													<span class="svp-badge">SVP</span>
+													</div>
+													</td>
+													<td>1</td>
+													<td>2</td>
+													<td>3</td>
+													<td>1</td>
+													<td>25000</td>
+													<td>20000</td>
+													<td>15000</td>
+													<td>50%</td>
+												</tr>
+												<!-- More players... -->
+												<tr>
+													<td>
+													<div class="player-cell-wrapper">
+														<div class="player-cell">
+														<div class="player-icons">
+															<div class="role-icon-container">
+															<img
+																class="highlight-role-icon"
+																src="icons/role_icons/vanguard.png"
+																alt="STRATEGIST"
+															/>
+															</div>
+															<img
+															class="hero-icon"
+															src="icons/hero_icons/Captain_America.png"
+															alt="Groot"
+															/>
+														</div>
+														</div>
+													</div>
+													</td>
+													<td>
+													<div class="player-name">
+													Schmanz
+													</div>
+													</td>
+													<td>1</td>
+													<td>2</td>
+													<td>3</td>
+													<td>1</td>
+													<td>25000</td>
+													<td>20000</td>
+													<td>15000</td>
+													<td>50%</td>
+												</tr>
+												</tbody>
+											</table>
+											</div>
+										</div>
+								</div>
+							  </div>
 						</div>
-					  </div>
-					  <!-- Ban row -->
-					  <div class="ban-row">
-						<img src="icons/hero_icons/Hawkeye.png" alt="Ban1">
-						<img src="icons/hero_icons/Invisible_Woman.png" alt="Ban2">
-						<span>Ban</span>
-						<img src="icons/hero_icons/Human_Torch.png" alt="Ban3">
-						<img src="icons/hero_icons/Hela.png" alt="Ban4">
-					  </div>
-				  
-					  <!-- VICTORY SECTION -->
-					  <div class="team-section table-responsive">
-						<table class="scoreboard-table">
-						  <thead>
-							<tr>
-							  <th class="victory-title">VICTORY</th>
-							  <th>Player</th>
-							  <th>K</th>
-							  <th>D</th>
-							  <th>A</th>
-							  <th>Medals</th>
-							  <th>Damage</th>
-							  <th>Blocked</th>
-							  <th>Heal</th>
-							  <th>Accuracy</th>
-							</tr>
-						  </thead>
-						  <tbody>
-							<!-- Example MVP row -->
-							<tr class="mvp-row">
-							  <td>
-								<div class="player-cell-wrapper">
-								  <div class="player-cell">
-									<div class="player-icons">
-									  <div class="role-icon-container">
-										<img
-										  class="highlight-role-icon"
-										  src="icons/role_icons/vanguard.png"
-										  alt="STRATEGIST"
-										/>
-									  </div>
-									  <img
-										class="hero-icon"
-										src="icons/hero_icons/Groot.png"
-										alt="Groot"
-									  />
-									</div>
-								  </div>
-								</div>
-							  </td>
-							  <td>
-							  <div class="player-name">
-								Hans
-								<span class="mvp-badge">MVP</span>
-							  </div>
-							  </td>
-							  <td>1</td>
-							  <td>2</td>
-							  <td>3</td>
-							  <td>1</td>
-							  <td>25000</td>
-							  <td>20000</td>
-							  <td>15000</td>
-							  <td>50%</td>
-							</tr>
-							<!-- More players... -->
-							<tr>
-							  <td>
-								<div class="player-cell-wrapper">
-								  <div class="player-cell">
-									<div class="player-icons">
-									  <div class="role-icon-container">
-										<img
-										  class="highlight-role-icon"
-										  src="icons/role_icons/STRATEGIST.png"
-										  alt="STRATEGIST"
-										/>
-									  </div>
-									  <img
-										class="hero-icon"
-										src="icons/hero_icons/Black_Panther.png"
-										alt="Groot"
-									  />
-									</div>
-								  </div>
-								</div>
-							  </td>
-							  <td>
-							  <div class="player-name">
-								Jods
-							  </div>
-							  </td>
-							  <td>1</td>
-							  <td>2</td>
-							  <td>3</td>
-							  <td>1</td>
-							  <td>25000</td>
-							  <td>20000</td>
-							  <td>15000</td>
-							  <td>50%</td>
-							</tr>
-						  </tbody>
-						</table>
-					  </div>
-				  
-					  <!-- DEFEAT SECTION -->
-					  <div class="team-section table-responsive">
-						<table class="scoreboard-table">
-						  <thead>
-							<tr>
-							  <th class="defeat-title">DEFEAT</th>
-							  <th>Player</th>
-							  <th>K</th>
-							  <th>D</th>
-							  <th>A</th>
-							  <th>Medals</th>
-							  <th>Damage</th>
-							  <th>Blocked</th>
-							  <th>Heal</th>
-							  <th>Accuracy</th>
-							</tr>
-						  </thead>
-						  <tbody>
-							<!-- Example MVP row -->
-							<tr class="svp-row">
-							  <td>
-								<div class="player-cell-wrapper">
-								  <div class="player-cell">
-									<div class="player-icons">
-									  <div class="role-icon-container">
-										<img
-										  class="highlight-role-icon"
-										  src="icons/role_icons/strategist.png"
-										  alt="STRATEGIST"
-										/>
-									  </div>
-									  <img
-										class="hero-icon"
-										src="icons/hero_icons/Cloak_&_Dagger.png"
-										alt="Groot"
-									  />
-									</div>
-								  </div>
-								</div>
-							  </td>
-							  <td>
-							  <div class="player-name">
-								Tanz Kahans
-								<span class="svp-badge">SVP</span>
-							  </div>
-							  </td>
-							  <td>1</td>
-							  <td>2</td>
-							  <td>3</td>
-							  <td>1</td>
-							  <td>25000</td>
-							  <td>20000</td>
-							  <td>15000</td>
-							  <td>50%</td>
-							</tr>
-							<!-- More players... -->
-							<tr>
-							  <td>
-								<div class="player-cell-wrapper">
-								  <div class="player-cell">
-									<div class="player-icons">
-									  <div class="role-icon-container">
-										<img
-										  class="highlight-role-icon"
-										  src="icons/role_icons/vanguard.png"
-										  alt="STRATEGIST"
-										/>
-									  </div>
-									  <img
-										class="hero-icon"
-										src="icons/hero_icons/Captain_America.png"
-										alt="Groot"
-									  />
-									</div>
-								  </div>
-								</div>
-							  </td>
-							  <td>
-							  <div class="player-name">
-								Schmanz
-							  </div>
-							  </td>
-							  <td>1</td>
-							  <td>2</td>
-							  <td>3</td>
-							  <td>1</td>
-							  <td>25000</td>
-							  <td>20000</td>
-							  <td>15000</td>
-							  <td>50%</td>
-							</tr>
-						  </tbody>
-						</table>
-					  </div>
+					
 					</div>
+
 					
 					</div><!-- /modal-body -->
 					
@@ -1231,7 +1253,7 @@
 									<!-- List.js container -->
 									<!-- Search Input -->
 									<input class="search form-control mb-4" placeholder="Search heroes" />
-									<div id="heros-list" class="row row-cols-1 row-cols-md-3 g-4 list">
+									<div id="heros-list" class="row row-cols-1 row-cols-md-4 g-4 list">
 											<!-- Example Hero Card -->
 											<div id="AdamWarlock_Card" class="card h-100 shadow mb-3 p-3 dark-card">
 												<img src="icons/hero_icons/Adam_Warlock.png" class="card-img-top" alt="AdamWarlock">

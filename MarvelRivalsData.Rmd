@@ -204,6 +204,8 @@ ranks_total$rank <- factor(ranks_total$rank, levels = custom_rank_order)
 matches_file <- "data/historical/matches.csv"
 players_file <- "data/historical/match_players.parquet"
 all_heroes <- fromJSON("data/latest/heroes/all_heroes.json")
+all_maps <- fromJSON("data/latest/latest_maps.json")
+
 
 matches <- read_csv(matches_file, show_col_types = FALSE)
 
@@ -214,7 +216,18 @@ players_files <- list.files("data/historical/match_players/", pattern = "\\.parq
 match_players <- players_files %>%
   map_df(~ read_parquet(.x, show_col_types = FALSE))
 
-
+sanitize_player_name <- function(name) {
+  # Ensure the name is a character string
+  name <- as.character(name)
+  # Replace special HTML characters with their HTML entities
+  name <- gsub("&", "&amp;", name, fixed = TRUE)
+  name <- gsub("<", "&lt;", name, fixed = TRUE)
+  name <- gsub(">", "&gt;", name, fixed = TRUE)
+  name <- gsub("\"", "&quot;", name, fixed = TRUE)
+  name <- gsub("'", "&#39;", name, fixed = TRUE)
+  return(name)
+}
+match_players$name <- sapply(match_players$name, sanitize_player_name)
 
 # Keep only competitive matches
 competitive_matches <- matches[matches$gamemode == "competitive", ]
@@ -1754,7 +1767,7 @@ consistent_players <- consistent_players %>%
 
 top_game_per_hero <- consistent_players %>%
   group_by(name.y, role) %>%
-  slice_max(overall_score, n = 1, with_ties = FALSE) %>%
+  slice_max(overall_score, n = 5, with_ties = FALSE) %>%
   ungroup()
 
 
@@ -2023,7 +2036,7 @@ build_player_row <- function(row) {
   return(html)
 }
 # This function builds the HTML for a single match.
-build_match_html <- function(match_row) {
+build_match_html <- function(match_row, hero_name) {
   # Extract match-level info from the row.
   # We assume that the match-level info (e.g., replay_id, match_uid, total_playtime, match_map)
   # is either available in the row or inside the nested scoreboard (all rows should have the same values).
@@ -2050,8 +2063,18 @@ build_match_html <- function(match_row) {
   # Format duration as M:SS (assuming total_playtime is in seconds)
   duration_text <- sprintf("%d:%02d", total_playtime %/% 60, total_playtime %% 60)
   match <- matches %>% filter(match_uid == sb$match_uid[1])
-  map_name <- "Unknown Map"
-  map_name <- match$match_map_id
+  print(match$match_map_id)
+  
+  if (!is.na(match$match_map_id) && !is.null(match$match_map_id) && match$match_map_id != "N/A" && match$match_map_id != "") {
+    map_name <- all_maps$name[all_maps$id == match$match_map_id]
+    if (length(map_name) == 0) {
+      map_name <- "Unknown Map"
+    } else {
+      map_name <- map_name[1]
+    }
+  } else {
+    map_name <- "Unknown Map"
+  }
   # Split the scoreboard into victory and defeat teams (is_win is a boolean)
   victory_rows <- sb %>% filter(is_win == TRUE)
   defeat_rows  <- sb %>% filter(is_win == FALSE)
@@ -2103,73 +2126,119 @@ defeat_rows <- defeat_rows %>%
   arrange(player_main_role, player_uid, desc(is_main), orig_order) %>%
   select(-orig_order, -player_main_role)
 # Apply function safely
-victory_html <- paste(
-  sapply(seq_len(nrow(victory_rows)), function(i) build_player_row(as.list(victory_rows[i, ]))),
-  collapse = "\n"
-)
-defeat_html  <- paste(
-  sapply(seq_len(nrow(defeat_rows)), function(i) build_player_row(as.list(defeat_rows[i, ]))),
-  collapse = "\n"
-)
+victory_html <- if (nrow(defeat_rows) > 0) {
+  paste(
+    sapply(seq_len(nrow(victory_rows)), function(i) build_player_row(as.list(victory_rows[i, ]))),
+    collapse = "\n"
+  )
+} else {
+  ""
+}
+defeat_html <- if (nrow(defeat_rows) > 0) {
+  paste(
+    sapply(seq_len(nrow(defeat_rows)), function(i) build_player_row(as.list(defeat_rows[i, ]))),
+    collapse = "\n"
+  )
+} else {
+  ""
+}
 
+if(hero_name == "Hela") {
+  print(paste("printing game: ", match_id))  
+  print("victory")
+  print(victory_html)
+  print("defeat")
+  print(defeat_html)
+}
+
+  #extract stats
+   hero_stats_row <- victory_rows %>% filter(name.y == hero_name, is_main == TRUE)
+   if(nrow(hero_stats_row) > 0) {
+      hero_kills <- hero_stats_row$hero_data_kills[1]
+      hero_deaths <- hero_stats_row$hero_data_deaths[1]
+      hero_assists <- hero_stats_row$hero_data_assists[1]
+      hero_player_name <- hero_stats_row$name.x[1]
+    } else {
+      hero_kills <- hero_deaths <- hero_assists <- "N/A"
+      hero_player_name <- hero_name
+    }
+
+  stats_text <- paste(hero_kills,"/",hero_deaths,"/",hero_assists)
   # Finally, build the full match HTML using glue:
   match_html <- glue('
-    <h5 class="mb-3">highlight-match</h5>
-    <div class="highlight-match">
-      <div class="match-header">
-        <h1>Match <span id="match-id">{match_id}</span></h1>
-        <div class="details">
-          <span><strong>Duration:</strong> <span id="match-duration">{duration_text}</span></span>
-          <span><strong>Map:</strong> <span id="match-map">{map_name}</span></span>
-          <span><strong>Replay ID:</strong> <span id="replay-id">{replay_id}</span></span>
-          <button id="copy-btn" class="btn btn-sm btn-outline-light ms-2">Copy Replay ID</button>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading_{match_id}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{match_id}" aria-expanded="false" aria-controls="collapse_{match_id}">
+          <div class="match-summary">
+            <div class="summary-top">
+              <div id="Stats">{stats_text}</div>
+              <div id="Name">{hero_player_name}</div>
+              <div id="match-duration-{match_id}">⏳ {duration_text}</div>
+              <div id="match-map-{match_id}">🗺️ {map_name}</div>
+            </div>
+          </div>
+        </button>
+      </h2>
+      <div id="collapse_{match_id}" class="accordion-collapse collapse" aria-labelledby="heading_{match_id}" data-bs-parent="#matchesAccordion">
+        <div class="accordion-body">
+          <div class="highlight-match">
+            <div class="match-header">
+              <h1>Match <span id="match-id">{match_id}</span></h1>
+              <div class="details">
+                <span><strong>Duration:</strong> <span id="match-duration">{duration_text}</span></span>
+                <span><strong>Map:</strong> <span id="match-map">{map_name}</span></span>
+                <span><strong>Replay ID:</strong> <span id="replay-id">{replay_id}</span></span>
+                <button id="copy-btn-{match_id}" class="btn btn-sm btn-outline-light ms-2">Copy Replay ID</button>
+              </div>
+            </div>
+  
+            <!-- VICTORY SECTION -->
+            <div class="team-section table-responsive">
+              <table class="scoreboard-table">
+                <thead>
+                  <tr>
+                    <th class="victory-title">VICTORY</th>
+                    <th>Player</th>
+                    <th>K</th>
+                    <th>D</th>
+                    <th>A</th>
+                    <th>Medals</th>
+                    <th>Damage</th>
+                    <th>Blocked</th>
+                    <th>Heal</th>
+                    <th>Hit Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {victory_html}
+                </tbody>
+              </table>
+            </div>
+  
+            <!-- DEFEAT SECTION -->
+            <div class="team-section table-responsive">
+              <table class="scoreboard-table">
+                <thead>
+                  <tr>
+                    <th class="defeat-title">DEFEAT</th>
+                    <th>Player</th>
+                    <th>K</th>
+                    <th>D</th>
+                    <th>A</th>
+                    <th>Medals</th>
+                    <th>Damage</th>
+                    <th>Blocked</th>
+                    <th>Heal</th>
+                    <th>Accuracy</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {defeat_html}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
-  
-      <!-- VICTORY SECTION -->
-      <div class="team-section table-responsive">
-        <table class="scoreboard-table">
-          <thead>
-            <tr>
-              <th class="victory-title">VICTORY</th>
-              <th>Player</th>
-              <th>K</th>
-              <th>D</th>
-              <th>A</th>
-              <th>Medals</th>
-              <th>Damage</th>
-              <th>Blocked</th>
-              <th>Heal</th>
-              <th>Hit Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {victory_html}
-          </tbody>
-        </table>
-      </div>
-  
-      <!-- DEFEAT SECTION -->
-      <div class="team-section table-responsive">
-        <table class="scoreboard-table">
-          <thead>
-            <tr>
-              <th class="defeat-title">DEFEAT</th>
-              <th>Player</th>
-              <th>K</th>
-              <th>D</th>
-              <th>A</th>
-              <th>Medals</th>
-              <th>Damage</th>
-              <th>Blocked</th>
-              <th>Heal</th>
-              <th>Accuracy</th>
-            </tr>
-          </thead>
-          <tbody>
-            {defeat_html}
-          </tbody>
-        </table>
       </div>
     </div>
   ', .trim = FALSE)
@@ -2281,13 +2350,17 @@ build_scoreboard_section <- function(hero_name, scoreboard_list) {
   # - 'best_match_id' holds the match identifier,
   # - 'best_replay' holds the replay ID,
   # - 'scoreboard' is already the nested data frame with the detailed data.
-  match_row_list <- list(
-    match_uid  = match_row$best_match_id,
-    replay_id  = match_row$best_replay,
-    scoreboard = list(match_row$scoreboard)
-  )
+  match_htmls <- sapply(seq_len(nrow(filtered)), function(i) {
+    match_row <- filtered[i, ]
+    match_row_list <- list(
+      match_uid  = match_row$best_match_id,
+      replay_id  = match_row$best_replay,
+      scoreboard = list(match_row$scoreboard)
+    )
+    build_match_html(match_row_list, hero_name)
+  })
   # Generate the HTML for this match's scoreboard.
-  scoreboard_section_html <- build_match_html(match_row_list)
+  scoreboard_section_html <- paste(match_htmls, collapse = "\n")
   if(length(scoreboard_section_html) == 0) {
     scoreboard_section_html <- "<p>Scoreboard data could not be generated.</p>"
   }
@@ -2565,7 +2638,10 @@ generate_modal <- function(hero_data, hero_counters, hero_synergy) {
         {synergies_html}
         {teamcomp_synergies_html}
         <!-- Section 4: Top Match Scoreboard -->
-        {scoreboard_section_html}
+				<h5 class="mb-3">highlight-match</h5>
+				<div class="accordion" data-bs-theme="dark" id="matchesAccordion">
+          {scoreboard_section_html}
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
