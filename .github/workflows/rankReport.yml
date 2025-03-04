@@ -113,17 +113,6 @@ jobs:
             fetch-depth: 0  # gets git history for changelogs
             token: ${{ secrets.WORKFLOW_TOKEN }} 
 
-        # Install pngquant for image compression
-        - name: Install pngquant
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y pngquant
-    
-        # Compress the PNG file to reduce its size
-        - name: Compress RocketHate.png
-          run: |
-            pngquant --quality=65-80 --force --output ./rendered/RocketHate-compressed.png ./rendered/RocketHate.png
-
         - uses: myConsciousness/bluesky-post@v5
           with:
             text: |
@@ -134,7 +123,7 @@ jobs:
               [Full data & analysis](https://rivalsstats.com)
               #MarvelRivals #Tierlist
             media: "./${{ needs.setup.outputs.rank_image }}"
-            media-alt: "Rocket Stats"
+            media-alt: "Rank Stats"
             identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
             password: ${{ secrets.BLUESKY_PASSWORD }}
             link-preview-url: "https://rivalsstats.com"
