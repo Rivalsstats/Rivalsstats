@@ -119,6 +119,17 @@ jobs:
             fetch-depth: 0  # gets git history for changelogs
             token: ${{ secrets.WORKFLOW_TOKEN }} 
 
+        # Install pngquant for image compression
+        - name: Install pngquant
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y pngquant
+    
+        # Compress the PNG file to reduce its size
+        - name: Compress CombinedTierlist.png
+          run: |
+            pngquant --quality=65-80 --force --output ./rendered/CombinedTierlist-compressed.png
+
         - uses: myConsciousness/bluesky-post@v5
           with:
             text: |
@@ -127,7 +138,7 @@ jobs:
               Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} ${{ needs.setup.outputs.biggest_negative_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
               [Full data & analysis](https://rivalsstats.com)
               #MarvelRivals #Tierlist
-            media: "./rendered/CombinedTierlist.png"
+            media: "./rendered/CombinedTierlist-compressed.png"
             media-alt: "Combined Tierlist"
             identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
             password: ${{ secrets.BLUESKY_PASSWORD }}
