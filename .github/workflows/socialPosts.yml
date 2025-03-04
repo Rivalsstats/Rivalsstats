@@ -128,7 +128,7 @@ jobs:
         # Compress the PNG file to reduce its size
         - name: Compress CombinedTierlist.png
           run: |
-            pngquant --quality=65-80 --force --output ./rendered/CombinedTierlist-compressed.png
+            pngquant --quality=65-80 --force --output ./rendered/CombinedTierlist-compressed.png ./rendered/CombinedTierlist.png
 
         - uses: myConsciousness/bluesky-post@v5
           with:
