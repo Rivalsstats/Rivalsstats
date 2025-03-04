@@ -43,17 +43,15 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - name: reddit
-          uses: bluwy/release-for-reddit-action@v2
+          uses: meysam81/reddit-scheduled-submit@v1.1.1
           with:
             username: ${{ secrets.REDDIT_USERNAME }}
             password: ${{ secrets.REDDIT_PASSWORD }}
-            app-id: ${{ secrets.REDDIT_APP_ID }}
-            app-secret: ${{ secrets.REDDIT_APP_SECRET }}
+            client-id: ${{ secrets.REDDIT_APP_ID }}
+            client-secret: ${{ secrets.REDDIT_APP_SECRET }}
             subreddit: ${{ secrets.REDDIT_SUBREDDIT }}
             title: "Daily MarvelRivals Meta Report is out!"
-            url: "https://raw.githubusercontent.com/Rivalsstats/Rivalsstats/refs/heads/main/rendered/data.json"
-            flair-id: ${{ secrets.REDDIT_FLAIR_ID }}  # https://www.reddit.com/r/<subreddit>>/api/link_flair.json
-            comment: |
+            message: |
               Combined Tierlist: https://rivalsstats.com/rendered/CombinedTierlist.png
               Ranked by Pickrate: https://rivalsstats.com/rendered/PickrateTierlist.png
               Ranked by Winrate: https://rivalsstats.com/rendered/WinrateTierlist.png
