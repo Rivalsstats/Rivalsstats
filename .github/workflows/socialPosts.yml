@@ -81,6 +81,7 @@ jobs:
             Combined Tierlist
   reddit:
       runs-on: ubuntu-latest
+      if: FALSE
       needs: setup
       steps:
         - name: reddit
@@ -104,4 +105,31 @@ jobs:
               Ranked by Winrate: https://rivalsstats.com/rendered/WinrateTierlist.png
 
               Full data & analysis: https://rivalsstats.com/
+  bsky-post:
+      runs-on: ubuntu-latest
+      needs: setup
+      steps:
+        - uses: actions/checkout@v3
 
+        - uses: myConsciousness/bluesky-post@v5
+          with:
+            text: |
+              🔥 @MarvelRivals Meta Report for ${{ needs.setup.outputs.start_time }} is out! 🔥
+              Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
+              Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
+              Left: Combined Tierlist | Top Right: Ranked by Pickrate | Bottom Right: Ranked by Winrate.
+              [Full data & analysis](https://rivalsstats.com)
+              #MarvelRivals #Tierlist
+            media: |
+              ./rendered/CombinedTierlist.png
+              ./rendered/PickrateTierlist.png
+              ./rendered/WinrateTierlist.png
+            media-alt: |
+              Pickrate Tierlist
+              Winrate Tierlist
+              Combined Tierlist
+            identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
+            password: ${{ secrets.BLUESKY_PASSWORD }}
+            link-preview-url: "https://atprotodart.com"
+            tags: "marvel,rivals,meta,data-science"
+            labels: "marvel,rivals,meta,data-science"
