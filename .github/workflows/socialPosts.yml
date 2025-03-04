@@ -52,7 +52,6 @@ jobs:
 
             
   twitter:
-    if: FALSE
     needs: setup
     runs-on: ubuntu-latest
     steps:  
@@ -85,7 +84,6 @@ jobs:
             Combined Tierlist
   reddit:
       runs-on: ubuntu-latest
-      if: FALSE
       needs: setup
       steps:
         - name: reddit
