@@ -1,0 +1,141 @@
+name: Rank Report
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  schedule:
+    - cron: "00 6 * * *"  # Runs at 18:00 every day
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      start_time: ${{ steps.get_time.outputs.start_time }}
+      rank_image: ${{ steps.extract_rank.outputs.rank_image }}
+      average_rank_including_name: ${{ steps.extract_rank.outputs.average_rank_including_name }}
+      average_rank_including_points: ${{ steps.extract_rank.outputs.average_rank_including_points }}
+      average_rank_excluding_name: ${{ steps.extract_rank.outputs.average_rank_excluding_name }}
+      average_rank_excluding_points: ${{ steps.extract_rank.outputs.average_rank_excluding_points }}
+      total_ranked_players: ${{ steps.extract_rank.outputs.total_ranked_players }}
+      total_players: ${{ steps.extract_rank.outputs.total_players }}
+    steps:  
+      - name: Clone project
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # gets git history for changelogs
+          token: ${{ secrets.WORKFLOW_TOKEN }} 
+      - name: Get Time
+        id: get_time
+        shell: bash
+        run: |
+          echo "start_time=$(TZ=":Europe/Berlin" date '+%m/%d/%Y')" >> $GITHUB_OUTPUT
+      - name: Extract rank info
+        id: extract_rank
+        run: |
+          rank_image=$(jq -r '.rank_image[0]' rendered/data.json)
+          average_rank_including_name=$(jq -r '.average_rank_including_name[0]' rendered/data.json)
+          average_rank_including_points=$(jq -r '.average_rank_including_points[0]' rendered/data.json)
+          average_rank_excluding_name=$(jq -r '.average_rank_excluding_name[0]' rendered/data.json)
+          average_rank_excluding_points=$(jq -r '.average_rank_excluding_points[0]' rendered/data.json)
+          total_ranked_players=$(jq -r '.total_ranked_players[0].total' rendered/data.json)
+          total_players=$(jq -r '.total_players[0].total' rendered/data.json)
+          
+          echo "rank_image=$rank_image" >> $GITHUB_OUTPUT
+          echo "average_rank_including_name=$average_rank_including_name" >> $GITHUB_OUTPUT
+          echo "average_rank_including_points=$average_rank_including_points" >> $GITHUB_OUTPUT
+          echo "average_rank_excluding_name=$average_rank_excluding_name" >> $GITHUB_OUTPUT
+          echo "average_rank_excluding_points=$average_rank_excluding_points" >> $GITHUB_OUTPUT
+          echo "total_ranked_players=$total_ranked_players" >> $GITHUB_OUTPUT
+          echo "total_players=$total_players" >> $GITHUB_OUTPUT
+
+
+          
+
+
+            
+  twitter:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:  
+      - name: Clone project
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # gets git history for changelogs
+          token: ${{ secrets.WORKFLOW_TOKEN }} 
+      - uses: nearform-actions/github-action-notify-twitter@v1.2.3
+        with:
+          message: |
+            🔥 @MarvelRivals Ranked Report for ${{ needs.setup.outputs.start_time }} 🔥
+            The average Rank is currently: ${{ needs.setup.outputs.average_rank_including_name }} - ${{ needs.setup.outputs.average_rank_including_points }} lp
+            Excluding b3 its: ${{ needs.setup.outputs.average_rank_excluding_name }} - ${{ needs.setup.outputs.average_rank_excluding_points }} lp
+            There are currently ${{ needs.setup.outputs.total_ranked_players }} out of ${{ needs.setup.outputs.total_players }} players who are outside of b3.
+            Full data & analysis: https://rivalsstats.com/
+            #MarvelRivals #Tierlist
+
+          twitter-app-key: ${{ secrets.TWITTER_APP_KEY }}
+          twitter-app-secret: ${{ secrets.TWITTER_APP_SECRET }}
+          twitter-access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          twitter-access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          media: |
+            ./${{ needs.setup.outputs.rank_image }}
+          media-alt-text: |
+            Rocket Stats
+  reddit:
+      runs-on: ubuntu-latest
+      needs: setup
+      steps:
+        - name: reddit
+          uses: meysam81/reddit-scheduled-submit@v1.1.1
+          with:
+            username: ${{ secrets.REDDIT_USERNAME }}
+            password: ${{ secrets.REDDIT_PASSWORD }}
+            client-id: ${{ secrets.REDDIT_APP_ID }}
+            client-secret: ${{ secrets.REDDIT_APP_SECRET }}
+            subreddit: ${{ secrets.REDDIT_SUBREDDIT }}
+            title: "🔥 Rocket Report for ${{ needs.setup.outputs.start_time }}! 🔥"
+            message: |
+              The average Rank is currently: ${{ needs.setup.outputs.average_rank_including_name }} - ${{ needs.setup.outputs.average_rank_including_points }} lp
+              
+              Excluding b3 its: ${{ needs.setup.outputs.average_rank_excluding_name }} - ${{ needs.setup.outputs.average_rank_excluding_points }} lp
+              
+              There are currently ${{ needs.setup.outputs.total_ranked_players }} out of ${{ needs.setup.outputs.total_players }} players who are outside of b3.
+
+              Full data & analysis: https://rivalsstats.com/
+  bsky-post:
+      runs-on: ubuntu-latest
+      needs: setup
+      steps:
+        - name: Clone project
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 0  # gets git history for changelogs
+            token: ${{ secrets.WORKFLOW_TOKEN }} 
+
+        # Install pngquant for image compression
+        - name: Install pngquant
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y pngquant
+    
+        # Compress the PNG file to reduce its size
+        - name: Compress RocketHate.png
+          run: |
+            pngquant --quality=65-80 --force --output ./rendered/RocketHate-compressed.png ./rendered/RocketHate.png
+
+        - uses: myConsciousness/bluesky-post@v5
+          with:
+            text: |
+              🔥 @marvel-rivals.bsky.social‬ Rocket Report for ${{ needs.setup.outputs.start_time }}! 🔥
+              The average Rank is currently: ${{ needs.setup.outputs.average_rank_including_name }} - ${{ needs.setup.outputs.average_rank_including_points }} lp
+              Excluding b3 its: ${{ needs.setup.outputs.average_rank_excluding_name }} - ${{ needs.setup.outputs.average_rank_excluding_points }} lp
+              There are currently ${{ needs.setup.outputs.total_ranked_players }} out of ${{ needs.setup.outputs.total_players }} players who are outside of b3.
+              [Full data & analysis](https://rivalsstats.com)
+              #MarvelRivals #Tierlist
+            media: "./${{ needs.setup.outputs.rank_image }}"
+            media-alt: "Rocket Stats"
+            identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
+            password: ${{ secrets.BLUESKY_PASSWORD }}
+            link-preview-url: "https://rivalsstats.com"
+            tags: "marvel,rivals,ranked,data-science"
