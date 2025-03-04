@@ -64,7 +64,7 @@ jobs:
       - uses: nearform-actions/github-action-notify-twitter@v1.2.3
         with:
           message: |
-            🔥 @MarvelRivals Meta Report for ${{ needs.setup.outputs.start_time }} is out! 🔥
+            🔥 @MarvelRivals Meta Report for ${{ needs.setup.outputs.start_time }} 🔥
             Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} ${{ needs.setup.outputs.biggest_positive_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
             Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} ${{ needs.setup.outputs.biggest_negative_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
             Left: Combined Tierlist | Top Right: Ranked by Pickrate | Bottom Right: Ranked by Winrate.
@@ -96,7 +96,7 @@ jobs:
             client-id: ${{ secrets.REDDIT_APP_ID }}
             client-secret: ${{ secrets.REDDIT_APP_SECRET }}
             subreddit: ${{ secrets.REDDIT_SUBREDDIT }}
-            title: "Meta Report for ${{ needs.setup.outputs.start_time }} is out!"
+            title: "🔥 Meta Report for ${{ needs.setup.outputs.start_time }}! 🔥"
             message: |
               Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} ${{ needs.setup.outputs.biggest_positive_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
               
@@ -122,12 +122,12 @@ jobs:
         - uses: myConsciousness/bluesky-post@v5
           with:
             text: |
-              🔥 @marvel-rivals.bsky.social‬ Meta Report for ${{ needs.setup.outputs.start_time }} is out! 🔥
+              🔥 @marvel-rivals.bsky.social‬ Meta Report for ${{ needs.setup.outputs.start_time }}! 🔥
               Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} ${{ needs.setup.outputs.biggest_positive_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
               Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} ${{ needs.setup.outputs.biggest_negative_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
               [Full data & analysis](https://rivalsstats.com)
               #MarvelRivals #Tierlist
-            media: "/rendered/CombinedTierlist.png"
+            media: "./rendered/CombinedTierlist.png"
             media-alt: "Combined Tierlist"
             identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
             password: ${{ secrets.BLUESKY_PASSWORD }}
