@@ -3188,27 +3188,6 @@ htmltools::save_html(htmlContent, "rendered/TeamCompCounters.html" )
 team_comp_counters_vis
 ```
 
-```{r saveData, echo=FALSE}
-hotlist_data <- list(hero_hotlist)
-# Your data
-data <- list(
-  total_ranked_players = total_ranked_players,
-  total_players = total_players,
-  rank_image = rank_image,
-  average_rank_including_name = average_rank_including_name,
-  average_rank_including_points = average_rank_including_points,
-  rank_image_ex = rank_image_ex,
-  average_rank_excluding_name = average_rank_excluding_name,
-  average_rank_excluding_points = average_rank_excluding_points,
-  unique_matches = unique_matches,
-  unique_players = unique_players,
-  latest_render = format(Sys.time(), '%Y-%m-%dT%H:%M:%SZ', tz = 'UTC'),
-  hotlist_data = hotlist_data
-)
-
-# Write to a JSON file
-write_json(data, "rendered/data.json", pretty = TRUE)
-```
 
 
 ```{r rockethate, echo=FALSE}
@@ -3339,40 +3318,76 @@ rocket_icon <- hero_stats %>%
 
 # Create a data frame for visualization
 winrate_df <- data.frame(
-  Category = c("1 vs 2+ Defensive Ults", "Overall","+ Ammo Overload", "- Ammo Overload"),
+  Category = c("With 1 vs 2+ Defensive Ults", "Overall", "With Ammo Overload", "Without Ammo Overload"),  # Full names for legend
   WinRate = c(
-              round(rocket_win_rate * 100, 1), 
-              round(rocket_overall_winrate, 1),
-              round(rocket_win_rate_with_punisher * 100, 1), 
-              round(rocket_win_rate_punisher * 100, 1)
-              )
+    round(rocket_win_rate * 100, 1), 
+    round(rocket_overall_winrate, 1),
+    round(rocket_win_rate_with_punisher * 100, 1), 
+    round(rocket_win_rate_punisher * 100, 1)
+  )
 ) %>% arrange(desc(WinRate))
+
+winrate_df$Category <- factor(winrate_df$Category, levels = c(
+  "Overall", 
+  "With 1 vs 2+ Defensive Ults", 
+  "With Ammo Overload", 
+  "Without Ammo Overload"
+))
 
 # Create a bar chart
 cud_palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00")
 
 rockethate_vis <- ggplot(winrate_df, aes(x = Category, y = WinRate, fill = Category)) +
-  geom_bar(stat = "identity", show.legend = FALSE) +
-  geom_text(aes(label = paste0(WinRate, "%")), vjust = -0.5, size = 5, color = highlight_color) +  # Text in white
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(WinRate, "%")), vjust = -0.5, size = 5, color = highlight_color) +  
   labs(
-    title = "Rocket Raccoon's Win Rates Under Different Conditions",
+    title = "Rocket's Win Rates Under Different Conditions",
     x = "Condition",
-    y = "Win Rate (%)"
+    y = "Win Rate (%)",
+    fill = "Category"  # Legend title
   ) +
   ylim(0, 100) +
-  theme_minimal(base_family = "sans") +  # Use minimal theme with base font family
+  theme_minimal(base_family = "sans") +  
   theme(
-    plot.title = element_text(hjust = 0.5, size = 14, face = "bold", color = highlight_color),  # Title in white
-    axis.text.x = element_text(size = 12, color = highlight_color),  # Axis text in white
-    axis.text.y = element_text(size = 12, color = highlight_color),  # Axis text in white
-    axis.title = element_text(size = 13, face = "bold", color = highlight_color),  # Axis title in white
-    panel.background = element_rect(fill = bg_color, color = NA),  # Dark panel background
-    plot.background = element_rect(fill = bg_color, color = NA),  # Dark plot background
-    panel.grid = element_line(color = gridl_color, linewidth = 0.2),  # Subtle grid lines with `linewidth`
-    axis.ticks = element_line(color = highlight_color, linewidth = 0.5)  # White axis ticks
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold", color = highlight_color),  
+    axis.text.x = element_blank(),  
+    axis.text.y = element_text(size = 12, color = highlight_color),  
+    axis.title = element_text(size = 13, face = "bold", color = highlight_color),  
+    legend.title = element_text(size = 12, face = "bold", color = highlight_color),  # Legend title color
+    legend.text = element_text(size = 12, color = highlight_color),  # Legend text color
+    panel.background = element_rect(fill = bg_color, color = NA),  
+    plot.background = element_rect(fill = bg_color, color = NA),  
+    panel.grid = element_line(color = gridl_color, linewidth = 0.2),  
+    axis.ticks = element_line(color = highlight_color, linewidth = 0.5)  
   ) +
-  scale_fill_manual(values = cud_palette)  # Apply CUD colors
+  scale_fill_manual(values = cud_palette, labels = winrate_df$Category)  # Match colors & use full labels in legend
 
 ggsave("rendered/RocketHate.png", rockethate_vis, width = 8, height = 6, dpi = 300)
 rockethate_vis 
+```
+
+```{r saveData, echo=FALSE}
+hotlist_data <- list(hero_hotlist)
+# Your data
+data <- list(
+  total_ranked_players = total_ranked_players,
+  total_players = total_players,
+  rank_image = rank_image,
+  average_rank_including_name = average_rank_including_name,
+  average_rank_including_points = average_rank_including_points,
+  rank_image_ex = rank_image_ex,
+  average_rank_excluding_name = average_rank_excluding_name,
+  average_rank_excluding_points = average_rank_excluding_points,
+  unique_matches = unique_matches,
+  unique_players = unique_players,
+  latest_render = format(Sys.time(), '%Y-%m-%dT%H:%M:%SZ', tz = 'UTC'),
+  hotlist_data = hotlist_data,
+  rocket_overall_winrate = rocket_overall_winrate,
+  rocket_win_rate_one_defensive = rocket_win_rate,
+  rocket_win_rate_no_punisher = rocket_win_rate_punisher,
+  rocket_win_rate_with_punisher = rocket_win_rate_with_punisher,
+)
+
+# Write to a JSON file
+write_json(data, "rendered/data.json", pretty = TRUE)
 ```
