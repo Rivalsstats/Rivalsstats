@@ -9,14 +9,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup:
+            
+  twitter:
     runs-on: ubuntu-latest
-    steps:
+    steps:  
       - name: Clone project
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # gets git history for changelogs
-          token: ${{ secrets.WORKFLOW_TOKEN }}  
+          token: ${{ secrets.WORKFLOW_TOKEN }} 
       - uses: nearform-actions/github-action-notify-twitter@v1.2.3
         with:
           message: |
@@ -37,4 +38,23 @@ jobs:
             Pickrate Tierlist
             Winrate Tierlist
             Combined Tierlist
+  reddit:
+      runs-on: ubuntu-latest
+      steps:
+        - name: reddit
+          uses: bluwy/release-for-reddit-action@v2
+          with:
+            username: ${{ secrets.REDDIT_USERNAME }}
+            password: ${{ secrets.REDDIT_PASSWORD }}
+            app-id: ${{ secrets.REDDIT_APP_ID }}
+            app-secret: ${{ secrets.REDDIT_APP_SECRET }}
+            subreddit: ${{ secrets.REDDIT_SUBREDDIT }}
+            title: "🔥 Daily MarvelRivals Meta Report is out! 🔥"
+            url: "https://rivalsstats.com/"
+            flair-id: ${{ secrets.REDDIT_FLAIR_ID }}  # https://www.reddit.com/r/<subreddit>>/api/link_flair.json
+            comment: |
+              Combined Tierlist: https://rivalsstats.com/rendered/CombinedTierlist.png
+              Ranked by Pickrate: https://rivalsstats.com/rendered/PickrateTierlist.png
+              Ranked by Winrate: https://rivalsstats.com/rendered/WinrateTierlist.png
+              Full data & analysis: https://rivalsstats.com/
 
