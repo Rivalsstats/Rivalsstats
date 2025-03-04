@@ -20,6 +20,7 @@ jobs:
           fetch-depth: 0  # gets git history for changelogs
           token: ${{ secrets.WORKFLOW_TOKEN }} 
       - name: Get Time
+        id: get_time
         shell: bash
         run: |
           echo "start_time=$(TZ=":Europe/Berlin" date '+%m/%d/%Y')" >> $GITHUB_OUTPUT
