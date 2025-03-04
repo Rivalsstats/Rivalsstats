@@ -15,8 +15,10 @@ jobs:
       start_time: ${{ steps.get_time.outputs.start_time }}
       biggest_positive_hero: ${{ steps.extract_hotlist.outputs.biggest_positive_hero }}
       biggest_positive_winrate: ${{ steps.extract_hotlist.outputs.biggest_positive_winrate }}
+      biggest_positive_winrate_shift: ${{ steps.extract_hotlist.outputs.biggest_positive_winrate_shift }}
       biggest_negative_hero: ${{ steps.extract_hotlist.outputs.biggest_negative_hero }}
       biggest_negative_winrate: ${{ steps.extract_hotlist.outputs.biggest_negative_winrate }}
+      biggest_negative_winrate_shift: ${{ steps.extract_hotlist.outputs.biggest_negative_winrate_shift }}
     steps:  
       - name: Clone project
         uses: actions/checkout@v3
@@ -34,15 +36,17 @@ jobs:
           # Extract the hero with the maximum positive winrate shift
           pos_hero=$(jq -r '.hotlist_data[0] | max_by(.winrate_shift) | .hero' rendered/data.json)
           pos_winrate=$(jq -r '.hotlist_data[0] | max_by(.winrate_shift) | .win_rate' rendered/data.json)
-          
+          pos_winrate_shift=$(jq -r '.hotlist_data[0] | max_by(.winrate_shift) | .winrate_shift' rendered/data.json)
           # Extract the hero with the minimum (most negative) winrate shift
           neg_hero=$(jq -r '.hotlist_data[0] | min_by(.winrate_shift) | .hero' rendered/data.json)
           neg_winrate=$(jq -r '.hotlist_data[0] | min_by(.winrate_shift) | .win_rate' rendered/data.json)
-          
+          neg_winrate_shift=$(jq -r '.hotlist_data[0] | min_by(.winrate_shift) | .winrate_shift' rendered/data.json)
           echo "biggest_positive_hero=$pos_hero" >> $GITHUB_OUTPUT
           echo "biggest_positive_winrate=$pos_winrate" >> $GITHUB_OUTPUT
+          echo "biggest_positive_winrate_shift=$pos_winrate_shift" >> $GITHUB_OUTPUT
           echo "biggest_negative_hero=$neg_hero" >> $GITHUB_OUTPUT
           echo "biggest_negative_winrate=$neg_winrate" >> $GITHUB_OUTPUT
+          echo "biggest_negative_winrate_shift=$neg_winrate_shift" >> $GITHUB_OUTPUT
           
 
 
@@ -61,8 +65,8 @@ jobs:
         with:
           message: |
             🔥 @MarvelRivals Meta Report for ${{ needs.setup.outputs.start_time }} is out! 🔥
-            Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
-            Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
+            Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} ${{ needs.setup.outputs.biggest_positive_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
+            Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} ${{ needs.setup.outputs.biggest_negative_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
             Left: Combined Tierlist | Top Right: Ranked by Pickrate | Bottom Right: Ranked by Winrate.
             Full data & analysis: https://rivalsstats.com/
             #MarvelRivals #Tierlist
@@ -94,10 +98,10 @@ jobs:
             subreddit: ${{ secrets.REDDIT_SUBREDDIT }}
             title: "Meta Report for ${{ needs.setup.outputs.start_time }} is out!"
             message: |
-              Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
-
-              Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
-
+              Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} ${{ needs.setup.outputs.biggest_positive_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
+              
+              Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} ${{ needs.setup.outputs.biggest_negative_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
+            
               Combined Tierlist: https://rivalsstats.com/rendered/CombinedTierlist.png
 
               Ranked by Pickrate: https://rivalsstats.com/rendered/PickrateTierlist.png
@@ -109,14 +113,18 @@ jobs:
       runs-on: ubuntu-latest
       needs: setup
       steps:
-        - uses: actions/checkout@v3
+        - name: Clone project
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 0  # gets git history for changelogs
+            token: ${{ secrets.WORKFLOW_TOKEN }} 
 
         - uses: myConsciousness/bluesky-post@v5
           with:
             text: |
               🔥 @marvel-rivals.bsky.social‬ Meta Report for ${{ needs.setup.outputs.start_time }} is out! 🔥
-              Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
-              Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
+              Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} ${{ needs.setup.outputs.biggest_positive_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
+              Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} ${{ needs.setup.outputs.biggest_negative_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
               Left: Combined Tierlist | Top Right: Ranked by Pickrate | Bottom Right: Ranked by Winrate.
               [Full data & analysis](https://rivalsstats.com)
               #MarvelRivals #Tierlist
@@ -130,6 +138,5 @@ jobs:
               Combined Tierlist
             identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
             password: ${{ secrets.BLUESKY_PASSWORD }}
-            link-preview-url: "https://atprotodart.com"
+            link-preview-url: "https://rivalsstats.com"
             tags: "marvel,rivals,meta,data-science"
-            labels: "marvel,rivals,meta,data-science"
