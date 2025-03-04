@@ -127,14 +127,8 @@ jobs:
               Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} ${{ needs.setup.outputs.biggest_negative_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
               [Full data & analysis](https://rivalsstats.com)
               #MarvelRivals #Tierlist
-            media: |
-              ./rendered/CombinedTierlist.png
-              ./rendered/PickrateTierlist.png
-              ./rendered/WinrateTierlist.png
-            media-alt: |
-              Pickrate Tierlist
-              Winrate Tierlist
-              Combined Tierlist
+            media: "/rendered/CombinedTierlist.png"
+            media-alt: "Combined Tierlist"
             identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
             password: ${{ secrets.BLUESKY_PASSWORD }}
             link-preview-url: "https://rivalsstats.com"
