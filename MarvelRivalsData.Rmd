@@ -3189,6 +3189,7 @@ team_comp_counters_vis
 ```
 
 ```{r saveData, echo=FALSE}
+hotlist_data <- list(hero_hotlist)
 # Your data
 data <- list(
   total_ranked_players = total_ranked_players,
@@ -3201,7 +3202,8 @@ data <- list(
   average_rank_excluding_points = average_rank_excluding_points,
   unique_matches = unique_matches,
   unique_players = unique_players,
-  latest_render = format(Sys.time(), '%Y-%m-%dT%H:%M:%SZ', tz = 'UTC')
+  latest_render = format(Sys.time(), '%Y-%m-%dT%H:%M:%SZ', tz = 'UTC'),
+  hotlist_data = hotlist_data
 )
 
 # Write to a JSON file
