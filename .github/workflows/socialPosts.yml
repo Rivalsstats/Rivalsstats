@@ -33,11 +33,11 @@ jobs:
         run: |
           # Extract the hero with the maximum positive winrate shift
           pos_hero=$(jq -r '.hotlist_data[0] | max_by(.winrate_shift) | .hero' rendered/data.json)
-          pos_winrate=$(jq -r '.hotlist_data[0] | max_by(.winrate_shift) | .win_rate' rendered/data.json))
+          pos_winrate=$(jq -r '.hotlist_data[0] | max_by(.winrate_shift) | .win_rate' rendered/data.json)
           
           # Extract the hero with the minimum (most negative) winrate shift
           neg_hero=$(jq -r '.hotlist_data[0] | min_by(.winrate_shift) | .hero' rendered/data.json)
-          neg_winrate=$(jq -r '.hotlist_data[0] | min_by(.winrate_shift) | .win_rate' rendered/data.json))
+          neg_winrate=$(jq -r '.hotlist_data[0] | min_by(.winrate_shift) | .win_rate' rendered/data.json)
           
           echo "biggest_positive_hero=$pos_hero" >> $GITHUB_OUTPUT
           echo "biggest_positive_winrate=$pos_winrate" >> $GITHUB_OUTPUT
