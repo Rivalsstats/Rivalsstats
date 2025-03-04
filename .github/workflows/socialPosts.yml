@@ -17,6 +17,13 @@ jobs:
         with:
           fetch-depth: 0  # gets git history for changelogs
           token: ${{ secrets.WORKFLOW_TOKEN }}
+      - uses: noweh/post-tweet-v2-action@v1.0
+        with:
+          message: "Hi, this is a test!"
+          consumer-key: ${{ secrets.TWITTER_APP_KEY }}
+          consumer-secret: ${{ secrets.TWITTER_APP_SECRET }}
+          access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}    
       - uses: nearform-actions/github-action-notify-twitter@master
         with:
           message: |
@@ -25,4 +32,12 @@ jobs:
           twitter-app-secret: ${{ secrets.TWITTER_APP_SECRET }}
           twitter-access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           twitter-access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          media: |
+            /rendered/PickrateTierlist.png
+            /rendered/WinrateTierlist.png
+            /rendered/CombinedTierlist.png
+          media-alt-text: |
+            Pickrate Tierlist
+            Winrate Tierlist
+            Combined Tierlist
 
