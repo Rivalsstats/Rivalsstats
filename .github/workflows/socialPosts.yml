@@ -12,8 +12,13 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-       - uses: nearform-actions/github-action-notify-twitter@master
-         with:
+      - name: Clone project
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # gets git history for changelogs
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+      - uses: nearform-actions/github-action-notify-twitter@master
+        with:
           message: |
             Daylie @MarvelRivals meta Report. Full Data here: https://rivalsstats.com/ #MarvelRivals 
           twitter-app-key: ${{ secrets.TWITTER_APP_KEY }}
