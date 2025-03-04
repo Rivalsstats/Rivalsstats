@@ -20,7 +20,7 @@ jobs:
       - name: Get Time
         shell: bash
         run: |
-          echo "START_TIME=$(TZ=":Europe/Berlin" date -R|sed 's/.....$//')" >> $GITHUB_ENV
+          echo "START_TIME=$(TZ=":Europe/Berlin" date -R|sed 's/.....$//')" >> $GITHUB_OUTPUT
           echo ${{ env.START_TIME }}
 
 
