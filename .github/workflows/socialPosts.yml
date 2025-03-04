@@ -9,6 +9,21 @@ on:
   workflow_dispatch:
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:  
+      - name: Clone project
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # gets git history for changelogs
+          token: ${{ secrets.WORKFLOW_TOKEN }} 
+      - name: Get Time
+        shell: bash
+        run: |
+          echo "START_TIME=$(TZ=":Europe/Berlin" date -R|sed 's/.....$//')" >> $GITHUB_ENV
+          echo ${{ env.START_TIME }}
+
+
             
   twitter:
     if: FALSE
@@ -22,7 +37,7 @@ jobs:
       - uses: nearform-actions/github-action-notify-twitter@v1.2.3
         with:
           message: |
-            🔥 @MarvelRivals Meta Report for ${{ github.event.repository.updated_at}} is out! 🔥
+            🔥 @MarvelRivals Meta Report for ${{ env.START_TIME }} is out! 🔥
             Left: Combined Tierlist | Top Right: Ranked by Pickrate | Bottom Right: Ranked by Winrate.
             Full data & analysis: https://rivalsstats.com/
             #MarvelRivals #Tierlist
@@ -50,7 +65,7 @@ jobs:
             client-id: ${{ secrets.REDDIT_APP_ID }}
             client-secret: ${{ secrets.REDDIT_APP_SECRET }}
             subreddit: ${{ secrets.REDDIT_SUBREDDIT }}
-            title: "Meta Report for ${{ github.event.repository.updated_at}} is out!"
+            title: "Meta Report for ${{ env.START_TIME }} is out!"
             message: |
               Combined Tierlist: https://rivalsstats.com/rendered/CombinedTierlist.png
 
