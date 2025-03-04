@@ -20,15 +20,19 @@ jobs:
       - uses: nearform-actions/github-action-notify-twitter@v1.2.3
         with:
           message: |
-            Daylie @MarvelRivals meta Report. Full Data here: https://rivalsstats.com/ #MarvelRivals 
+            🔥 Daily @MarvelRivals Meta Report is out! 🔥
+            Left: Combined Tierlist | Top Right: Ranked by Pickrate | Bottom Right: Ranked by Winrate.
+            Full data & analysis: https://rivalsstats.com/
+            #MarvelRivals #Tierlist
+
           twitter-app-key: ${{ secrets.TWITTER_APP_KEY }}
           twitter-app-secret: ${{ secrets.TWITTER_APP_SECRET }}
           twitter-access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           twitter-access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
           media: |
+            ./rendered/CombinedTierlist.png
             ./rendered/PickrateTierlist.png
             ./rendered/WinrateTierlist.png
-            ./rendered/CombinedTierlist.png
           media-alt-text: |
             Pickrate Tierlist
             Winrate Tierlist
