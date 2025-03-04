@@ -3302,16 +3302,24 @@ filtered_matches_punisher <- matched_teams_punisher %>%
   filter(
     # On Rocket's team: Rocket must have played at least 50%
     rocket_play_rr >= play_threshold,
-    # And exactly one other hero (support_count) is from the defensive set.
-    support_count_rr == 1,
-    # On the opposing team: At least 2 heroes from the defensive ult set.
-    support_count_opp >= 2,
     # Exclude teams that contain Punisher or Winter Soldier.
     !has_excluded_hero_rr
   )
 
 # ----- STEP 5: Compute Rocket Raccoon's Win Rate -----
 rocket_win_rate_punisher <- mean(filtered_matches_punisher$is_win_rr)
+
+filtered_matches_with_punisher <- matched_teams_punisher %>%
+  filter(
+    # On Rocket's team: Rocket must have played at least 50%
+    rocket_play_rr >= play_threshold,
+    # Exclude teams that contain Punisher or Winter Soldier.
+    has_excluded_hero_rr
+  )
+
+# ----- STEP 5: Compute Rocket Raccoon's Win Rate -----
+rocket_win_rate_with_punisher <- mean(filtered_matches_with_punisher$is_win_rr)
+
 
 ```
 
@@ -3331,10 +3339,13 @@ rocket_icon <- hero_stats %>%
 
 # Create a data frame for visualization
 winrate_df <- data.frame(
-  Category = c("Without Punisher/WS", "Single vs 2+ Defensive Ults", "Overall Win Rate"),
-  WinRate = c(round(rocket_win_rate_punisher * 100, 1), 
+  Category = c("1 vs 2+ Defensive Ults", "Overall","+ Ammo Overload", "- Ammo Overload"),
+  WinRate = c(
               round(rocket_win_rate * 100, 1), 
-              round(rocket_overall_winrate, 1))
+              round(rocket_overall_winrate, 1),
+              round(rocket_win_rate_with_punisher * 100, 1), 
+              round(rocket_win_rate_punisher * 100, 1)
+              )
 ) %>% arrange(desc(WinRate))
 
 # Create a bar chart
