@@ -94,7 +94,7 @@ jobs:
             client-id: ${{ secrets.REDDIT_APP_ID }}
             client-secret: ${{ secrets.REDDIT_APP_SECRET }}
             subreddit: ${{ secrets.REDDIT_SUBREDDIT }}
-            title: "🔥 Rocket Report for ${{ needs.setup.outputs.start_time }}! 🔥"
+            title: "🔥 Ranked Report for ${{ needs.setup.outputs.start_time }}! 🔥"
             message: |
               The average Rank is currently: ${{ needs.setup.outputs.average_rank_including_name }} - ${{ needs.setup.outputs.average_rank_including_points }} lp
               
@@ -116,7 +116,7 @@ jobs:
         - uses: myConsciousness/bluesky-post@v5
           with:
             text: |
-              🔥 @marvel-rivals.bsky.social‬ Rocket Report for ${{ needs.setup.outputs.start_time }}! 🔥
+              🔥 @marvel-rivals.bsky.social‬ Ranked Report for ${{ needs.setup.outputs.start_time }}! 🔥
               The average Rank is currently: ${{ needs.setup.outputs.average_rank_including_name }} - ${{ needs.setup.outputs.average_rank_including_points }} lp
               Excluding b3 its: ${{ needs.setup.outputs.average_rank_excluding_name }} - ${{ needs.setup.outputs.average_rank_excluding_points }} lp
               There are currently ${{ needs.setup.outputs.total_ranked_players }} out of ${{ needs.setup.outputs.total_players }} players who are outside of b3.
