@@ -31,10 +31,10 @@ jobs:
       - name: Extract rocket info
         id: extract_rocket
         run: |
-          rocket_overall_winrate=$(jq -r '.rocket_overall_winrate' rendered/data.json)
-          rocket_win_rate_one_defensive=$(jq -r '.rocket_win_rate' rendered/data.json)
-          rocket_win_rate_no_punisher=$(jq -r '.rocket_win_rate_punisher' rendered/data.json)
-          rocket_win_rate_with_punisher=$(jq -r '.rocket_win_rate_with_punisher' rendered/data.json)
+          rocket_overall_winrate=$(jq -r '.rocket_overall_winrate[0]' rendered/data.json | xargs)
+          rocket_win_rate_one_defensive=$(jq -r '.rocket_win_rate_one_defensive[0]' rendered/data.json | xargs)
+          rocket_win_rate_no_punisher=$(jq -r '.rocket_win_rate_no_punisher[0]' rendered/data.json | xargs)
+          rocket_win_rate_with_punisher=$(jq -r '.rocket_win_rate_with_punisher[0]' rendered/data.json | xargs)
           
           echo "rocket_overall_winrate=$rocket_overall_winrate" >> $GITHUB_OUTPUT
           echo "rocket_win_rate_one_defensive=$rocket_win_rate_one_defensive" >> $GITHUB_OUTPUT
