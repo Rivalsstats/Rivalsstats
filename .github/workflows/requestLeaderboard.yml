@@ -19,9 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASE_URL: "https://mrapi.org/api/"
-      API_TOKEN: ${{ secrets.API_KEY_RIVALS }}
-      CODES_URL: "codes"
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+      API_KEY_MRAPI: ${{ secrets.API_KEY_RIVALS }}
+      API_KEY_RIVALS: ${{ secrets.MARVEL_RIVALS_KEY }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
