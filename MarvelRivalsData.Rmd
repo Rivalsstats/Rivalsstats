@@ -230,7 +230,7 @@ sanitize_player_name <- function(name) {
 match_players$name <- sapply(match_players$name, sanitize_player_name)
 
 # Keep only competitive matches
-competitive_matches <- matches[matches$gamemode == "competitive", ]
+competitive_matches <- matches[tolower(matches$gamemode) == "competitive", ]
 # Extract custom games separately
 custom_matches <- matches[matches$gamemode == "custom", ]
 
@@ -587,6 +587,12 @@ match_players <- match_players %>%
   unnest_longer(hero_data) %>%  # Expand hero list
   unnest_wider(hero_data, names_sep = "_",)  # Split hero_data into columns
 
+#merge and remove data created by using different api endpoints
+match_players <- match_players %>%
+  mutate(hero_data_playtime = coalesce(hero_data_playtime, hero_data_play_time)) %>%
+  mutate(hero_data_hit_rate = coalesce(hero_data_hit_rate, hero_data_session_hit_rate)) %>%
+  mutate(hero_data_playtime = round(hero_data_playtime,0)) %>%
+  select(-hero_data_play_time, -hero_data_hero_icon, -hero_data_session_hit_rate)
 
 # Fix winrate and loss calculation
 match_players <- match_players %>%
@@ -3365,6 +3371,198 @@ rockethate_vis <- ggplot(winrate_df, aes(x = Category, y = WinRate, fill = Categ
 ggsave("rendered/RocketHate.png", rockethate_vis, width = 8, height = 6, dpi = 300)
 rockethate_vis 
 ```
+
+```{r createIndex, echo=TRUE, message=FALSE, warning=FALSE}
+# Initialize slim index list (one entry per match)
+slim_index <- list()
+
+players <- match_players %>%
+  mutate(match_uid = as.character(match_uid),
+         player_uid = as.character(player_uid),
+         hero_id = as.character(hero_id))
+
+# Loop over each match to build the minimal index
+for(match_uid in unique(matches$match_uid)){
+  # Get match metadata row (assuming one row per match)
+  match_info <- matches[matches$match_uid == match_uid, ]
+  
+  # Filter player data for this match
+  current_match_players <- players %>% filter(match_uid == !!match_uid)
+  
+  # --- Compute match duration ---
+  # Using playtime_percentage (0-1) and hero_data_playtime to estimate duration
+  if("playtime_percentage" %in% colnames(current_match_players) && "hero_data_playtime" %in% colnames(match_players)){
+    durations <- current_match_players %>%
+      filter(playtime_percentage > 0) %>%
+      mutate(estimated_duration = hero_data_playtime / playtime_percentage) %>%
+      pull(estimated_duration)
+    match_duration <- if(length(durations) > 0) max(durations, na.rm = TRUE) else NA
+  } else {
+    match_duration <- NA
+  }
+  
+  # --- Build teams facets ---
+  # Separate players by outcome (win vs loss)
+  winning_players <- current_match_players %>% filter(is_win == TRUE)
+  losing_players <- current_match_players %>% filter(is_win == FALSE)
+  
+  # Updated extraction: use hero_id and hero_data_playtime directly.
+  extract_hero_info <- function(player_row) {
+    list(
+      hero_id = as.character(player_row$hero_id),
+      playtime = player_row$hero_data_playtime
+    )
+  }
+  
+  # Build minimal heroes list for each outcome
+  winning_heroes <- if(nrow(winning_players) > 0) {
+    lapply(seq_len(nrow(winning_players)), function(i) {
+      extract_hero_info(winning_players[i, ])
+    })
+  } else {
+    list()
+  }
+  
+  losing_heroes <- if(nrow(losing_players) > 0) {
+    lapply(seq_len(nrow(losing_players)), function(i) {
+      extract_hero_info(losing_players[i, ])
+    })
+  } else {
+    list()
+  }
+  
+  # Build teams structure: one for winners and one for losers.
+  teams <- list(
+    list(outcome = "win", heroes = winning_heroes),
+    list(outcome = "loss", heroes = losing_heroes)
+  )
+  
+  # Create a slim entry for the match with only the filtering facets.
+  slim_index[[match_uid]] <- list(
+    match_uid = match_uid,
+    season = match_info$season,
+    match_timestamp = match_info$match_timestamp,
+    gamemode = match_info$gamemode,
+    map = all_maps$name[all_maps$id == match_info$match_map_id],
+    duration = match_duration,
+    teams = teams
+  )
+  file_path <- file.path("data", "matches", paste0(match_uid, ".json"))
+  if(file.exists(file_path)) {
+    # Load the existing JSON file
+    match_data <- fromJSON(file_path)
+    
+    # Flag to track if we updated any field
+    updated <- FALSE
+    
+    # Check and add missing fields from slim_index
+    if(is.null(match_data$season)) {
+      match_data$season <- match_info$season
+      updated <- TRUE
+    }
+    if(is.null(match_data$match_timestamp)) {
+      match_data$match_timestamp <- match_info$match_timestamp
+      updated <- TRUE
+    }
+    if(is.null(match_data$map)) {
+      match_data$map <- all_maps$name[all_maps$id == match_info$match_map_id]
+      updated <- TRUE
+    }
+    if(is.null(match_data$duration) || !isTRUE(all.equal(match_data$duration, match_duration, tolerance = 1e-3))) {
+      match_data$duration <- match_duration
+      updated <- TRUE
+    }
+    
+    # Write the updated data back if any changes were made
+    if(updated) {
+      write(toJSON(match_data, auto_unbox = TRUE, pretty = TRUE), file = file_path)
+    }
+  }
+}
+
+# --- Build an inverted index for heroes by team outcome ---
+hero_index <- list()
+for(match_uid in names(slim_index)) {
+  for(team in slim_index[[match_uid]]$teams) {
+    for(hero in team$heroes) {
+      hero_id <- hero$hero_id
+      if(!is.na(slim_index[[match_uid]]$duration) && (hero$playtime / slim_index[[match_uid]]$duration) < 0.8) {
+        next  # Skip this hero if playtime is less than 80% of the match duration.
+      }
+      if(match_uid == "4891597_1741915329_220_11001_10"){
+        print(hero_id)
+        print(hero$playtime / slim_index[[match_uid]]$duration)
+      }
+      # Initialize with outcome-specific vectors if not already initialized
+      if(is.null(hero_index[[hero_id]])) {
+         hero_index[[hero_id]] <- list(win = character(), loss = character())
+      }
+      # Use the outcome to append the match UID accordingly
+      outcome <- team$outcome  # "win" or "loss"
+      hero_index[[hero_id]][[outcome]] <- unique(c(hero_index[[hero_id]][[outcome]], match_uid))
+    }
+  }
+}
+
+
+all_match_uids <- names(slim_index)
+
+sorted_match_uids <- all_match_uids[order(sapply(slim_index, function(x) x$match_timestamp), decreasing = TRUE)]
+
+# Select a preview of 50 matches (for example, the most recent ones)
+preview_uids <- head(sorted_match_uids, 50)
+preview_index <- slim_index[preview_uids]
+
+preview_index <- lapply(slim_index[preview_uids], function(match) {
+  # Return only the elements except 'teams'
+  match[setdiff(names(match), "teams")]
+})
+
+
+# For all other matches, just save their match_uids
+other_uids <- setdiff(all_match_uids, preview_uids)
+
+```
+
+```{r exportIndex, echo=TRUE}
+# Define the output file path for your JSON index
+output_file <- "data/index.json"
+
+# Convert the index to JSON
+json_index <- toJSON(preview_index, pretty = TRUE, auto_unbox = TRUE)
+
+# Write the JSON file to disk
+write(json_index, file = output_file)
+
+cat("Index exported to:", output_file)
+```
+
+```{r exportHeroIndex, echo=TRUE}
+# Define the output file path for your JSON index
+output_file <- "data/heroes_index.json"
+
+# Convert the index to JSON
+json_index <- toJSON(hero_index, pretty = TRUE, auto_unbox = TRUE)
+
+# Write the JSON file to disk
+write(json_index, file = output_file)
+
+cat("Index exported to:", output_file)
+```
+
+```{r exportMatchIndex, echo=TRUE}
+# Define the output file path for your JSON index
+output_file <- "data/match_index.json"
+
+# Convert the index to JSON
+json_index <- toJSON(other_uids, pretty = TRUE, auto_unbox = TRUE)
+
+# Write the JSON file to disk
+write(json_index, file = output_file)
+
+cat("Index exported to:", output_file)
+```
+
 
 ```{r saveData, echo=FALSE}
 hotlist_data <- list(hero_hotlist)
