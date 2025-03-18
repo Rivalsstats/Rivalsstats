@@ -31,6 +31,7 @@ MATCH_PLAYERS_FILE = "data/historical/match_players/"
 
 # Constants
 MAX_PARALLEL_REQUESTS = 10  # Keep this low to avoid hitting API limits
+DEFAULT_DELAY = 60  # Default delay between requests (in seconds)
 headers = {"x-api-key": os.getenv("API_KEY_MRAPI")}
 headers_rivals = {"x-api-key": os.getenv("API_KEY_RIVALS")}
 # Rate Limiting
@@ -90,7 +91,7 @@ total_scanned_players = 0
 
 
 
-def fetch_data(url, retries=10, delay=2, headers_override=None):
+def fetch_data(url, retries=10, delay=DEFAULT_DELAY, headers_override=None):
     """
     Fetch JSON data safely, handling rate limits and corrupt responses.
     An optional headers_override can be provided.
@@ -136,13 +137,13 @@ def fetch_data(url, retries=10, delay=2, headers_override=None):
 
     return None  # If all retries fail
 
-def fetch_with_backup(primary_url, backup_url, retries=10, delay=2):
+def fetch_with_backup(primary_url, backup_url = "", retries=10, delay=DEFAULT_DELAY):
     """
     Try fetching data using the primary_url. If it fails (i.e. returns None),
     then try the backup_url using the backup header.
     """
     data = fetch_data(primary_url, 3, delay)
-    if data is None:
+    if data is None and backup_url != "":
         data = fetch_data(backup_url, retries, delay, headers_override=headers_rivals)
     return data
 
@@ -208,11 +209,11 @@ def fetch_match_data(match_id):
         csv_data = {
             "match_uid": match_data.get("match_uid", match_id),
             "replay_id": match_data.get("replay_id", ""),
-            "gamemode": match_data.get("game_mode", {}).get("game_mode_name", ""),
+            "gamemode": match_data.get("game_mode", {}).get("game_mode_name", "").lower(),
             "match_timestamp": extra.get("match_timestamp", ""),
             "mvp": match_data.get("mvp_uid", ""),
             "svp": match_data.get("svp_uid", ""),
-            "season": extra.get("season", ""),
+            "season": str(int(str(extra.get("season", 0)).strip()) + 1) if str(extra.get("season", 0)).strip().isdigit() else "",
             "map_id": extra.get("map_id", ""),
             "winning_team_score": extra.get("winning_team_score", ""),
             "losing_team_score": extra.get("losing_team_score", "")
@@ -303,8 +304,7 @@ def fetch_player_details_parallel(players_to_fetch):
 # Fetch and process a single player's data
 def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
      # Trigger player update
-    fetch_with_backup(PLAYER_UPDATE_URL.format(player_id),
-                      PLAYER_UPDATE_URL_RIVALS.format(player_id))
+    fetch_with_backup(PLAYER_UPDATE_URL.format(player_id))
     
     player_data = fetch_with_backup(PLAYER_API_URL.format(player_id),
                                     PLAYER_API_URL_RIVALS.format(player_id))
