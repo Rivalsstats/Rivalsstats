@@ -1,53 +1,42 @@
 {
-  "match_uid": "4890799_1741989618_661_11001_10",
-  "game_mode": {
-    "game_mode_id": 2,
-    "game_mode_name": "Competitive"
-  },
+  "match_id": "4890799_1741989618_661_11001_10",
   "replay_id": "10744436014",
-  "mvp_uid": 1646290343,
-  "mvp_hero_id": 1037,
-  "svp_uid": 1209453028,
-  "svp_hero_id": 1037,
-  "dynamic_fields": {
-    "ban_pick_info": [
-      {
-        "hero_id": 1016,
-        "is_pick": 0,
-        "battle_side": 1
-      },
-      {
-        "hero_id": 1027,
-        "is_pick": 0,
-        "battle_side": 0
-      },
-      {
-        "hero_id": 1048,
-        "is_pick": 0,
-        "battle_side": 1
-      },
-      {
-        "hero_id": 1041,
-        "is_pick": 0,
-        "battle_side": 0
-      }
-    ]
+  "game_mode": "Competitive",
+  "mvp": {
+    "player_id": 1646290343,
+    "hero_id": 1037
   },
-  "match_players": [
+  "svp": {
+    "player_id": 1209453028,
+    "hero_id": 1037
+  },
+  "bans": [
     {
-      "player_uid": 1646290343,
-      "nick_name": "BOLBOL",
-      "player_icon": 31017001,
-      "camp": 1,
-      "cur_hero_id": 1037,
-      "cur_hero_icon": "/heroes/transformations/magneto-headbig-0.webp",
-      "is_win": 1,
-      "kills": 24,
-      "deaths": 8,
-      "assists": 7,
-      "total_hero_damage": 34882.0881,
-      "total_hero_heal": 0,
-      "total_damage_taken": 54343.4447,
+      "team": 1,
+      "hero_id": 1016
+    },
+    {
+      "team": 0,
+      "hero_id": 1027
+    },
+    {
+      "team": 1,
+      "hero_id": 1048
+    },
+    {
+      "team": 0,
+      "hero_id": 1041
+    }
+  ],
+  "players": [
+    {
+      "player_id": 1646290343,
+      "nickname": "BOLBOL",
+      "team": 1,
+      "is_win": true,
+      "damage_dealt": 34882.0881,
+      "healing": 0,
+      "damage_taken": 54343.4447,
       "badges": [
         {
           "name": "MVP",
@@ -55,32 +44,25 @@
           "count": 1
         }
       ],
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1037,
           "play_time": 994.2244,
           "kills": 24,
           "deaths": 8,
           "assists": 7,
-          "session_hit_rate": 0.6937,
-          "hero_icon": "/heroes/transformations/magneto-headbig-0.webp"
+          "hit_rate": 0.6937
         }
       ]
     },
     {
-      "player_uid": 1463808624,
-      "nick_name": "Valentina Eve",
-      "player_icon": 31031202,
-      "camp": 1,
-      "cur_hero_id": 1031,
-      "cur_hero_icon": "/heroes/transformations/luna-snow-headbig-0.webp",
-      "is_win": 1,
-      "kills": 10,
-      "deaths": 3,
-      "assists": 30,
-      "total_hero_damage": 9340.7156,
-      "total_hero_heal": 56646.6051,
-      "total_damage_taken": 13512.1698,
+      "player_id": 1463808624,
+      "nickname": "Valentina Eve",
+      "team": 1,
+      "is_win": true,
+      "damage_dealt": 9340.7156,
+      "healing": 56646.6051,
+      "damage_taken": 13512.1698,
       "badges": [
         {
           "name": "Gifted Healer",
@@ -88,42 +70,34 @@
           "count": 1
         }
       ],
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1031,
           "play_time": 994.2244,
           "kills": 10,
           "deaths": 3,
           "assists": 30,
-          "session_hit_rate": 0.5391,
-          "hero_icon": "/heroes/transformations/luna-snow-headbig-0.webp"
+          "hit_rate": 0.5391
         }
       ]
     },
     {
-      "player_uid": 2029356264,
-      "nick_name": "m0xyy",
-      "player_icon": 31050001,
-      "camp": 1,
-      "cur_hero_id": 1020,
-      "cur_hero_icon": "/heroes/transformations/mantis-headbig-0.webp",
-      "is_win": 1,
-      "kills": 15,
-      "deaths": 12,
-      "assists": 25,
-      "total_hero_damage": 18253.826,
-      "total_hero_heal": 19088.3647,
-      "total_damage_taken": 15896.3562,
+      "player_id": 2029356264,
+      "nickname": "m0xyy",
+      "team": 1,
+      "is_win": true,
+      "damage_dealt": 18253.826,
+      "healing": 19088.3647,
+      "damage_taken": 15896.3562,
       "badges": {},
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1045,
           "play_time": 119.2929,
           "kills": 1,
           "deaths": 2,
           "assists": 0,
-          "session_hit_rate": 0.4,
-          "hero_icon": "/heroes/transformations/namor-headbig-0.webp"
+          "hit_rate": 0.4
         },
         {
           "hero_id": 1021,
@@ -131,8 +105,7 @@
           "kills": 0,
           "deaths": 1,
           "assists": 0,
-          "session_hit_rate": 0.4667,
-          "hero_icon": "/heroes/transformations/hawkeye-headbig-0.webp"
+          "hit_rate": 0.4667
         },
         {
           "hero_id": 1020,
@@ -140,62 +113,47 @@
           "kills": 14,
           "deaths": 9,
           "assists": 25,
-          "session_hit_rate": 0.3699,
-          "hero_icon": "/heroes/transformations/mantis-headbig-0.webp"
+          "hit_rate": 0.3699
         }
       ]
     },
     {
-      "player_uid": 1304846932,
-      "nick_name": "MEWWWWWWWWWWW",
-      "player_icon": 31048001,
-      "camp": 1,
-      "cur_hero_id": 1024,
-      "cur_hero_icon": "/heroes/transformations/hela-headbig-0.webp",
-      "is_win": 1,
-      "kills": 32,
-      "deaths": 14,
-      "assists": 2,
-      "total_hero_damage": 33005.1436,
-      "total_hero_heal": 0,
-      "total_damage_taken": 15036.4351,
+      "player_id": 1304846932,
+      "nickname": "MEWWWWWWWWWWW",
+      "team": 1,
+      "is_win": true,
+      "damage_dealt": 33005.1436,
+      "healing": 0,
+      "damage_taken": 15036.4351,
       "badges": {},
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1024,
           "play_time": 994.2244,
           "kills": 32,
           "deaths": 14,
           "assists": 2,
-          "session_hit_rate": 0.5431,
-          "hero_icon": "/heroes/transformations/hela-headbig-0.webp"
+          "hit_rate": 0.5431
         }
       ]
     },
     {
-      "player_uid": 2078291711,
-      "nick_name": "DaoistMyth",
-      "player_icon": 31047202,
-      "camp": 1,
-      "cur_hero_id": 1046,
-      "cur_hero_icon": "/heroes/transformations/adam-warlock-headbig-0.webp",
-      "is_win": 1,
-      "kills": 18,
-      "deaths": 13,
-      "assists": 10,
-      "total_hero_damage": 18184.1131,
-      "total_hero_heal": 23562.5837,
-      "total_damage_taken": 15052.5608,
+      "player_id": 2078291711,
+      "nickname": "DaoistMyth",
+      "team": 1,
+      "is_win": true,
+      "damage_dealt": 18184.1131,
+      "healing": 23562.5837,
+      "damage_taken": 15052.5608,
       "badges": {},
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1046,
           "play_time": 991.6193,
           "kills": 18,
           "deaths": 13,
           "assists": 10,
-          "session_hit_rate": 0.5992,
-          "hero_icon": "/heroes/transformations/adam-warlock-headbig-0.webp"
+          "hit_rate": 0.5992
         },
         {
           "hero_id": 1050,
@@ -203,25 +161,18 @@
           "kills": 0,
           "deaths": 0,
           "assists": 0,
-          "session_hit_rate": 0,
-          "hero_icon": "/heroes/transformations/invisible-woman-headbig-0.webp"
+          "hit_rate": 0
         }
       ]
     },
     {
-      "player_uid": 2027952738,
-      "nick_name": "THANOS2007",
-      "player_icon": 30000001,
-      "camp": 1,
-      "cur_hero_id": 1049,
-      "cur_hero_icon": "/heroes/transformations/wolverine-headbig-0.webp",
-      "is_win": 1,
-      "kills": 19,
-      "deaths": 12,
-      "assists": 2,
-      "total_hero_damage": 36382.6426,
-      "total_hero_heal": 66.5,
-      "total_damage_taken": 34305.5628,
+      "player_id": 2027952738,
+      "nickname": "THANOS2007",
+      "team": 1,
+      "is_win": true,
+      "damage_dealt": 36382.6426,
+      "healing": 66.5,
+      "damage_taken": 34305.5628,
       "badges": [
         {
           "name": "Relentless Offense",
@@ -229,15 +180,14 @@
           "count": 1
         }
       ],
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1043,
           "play_time": 406.8427,
           "kills": 8,
           "deaths": 7,
           "assists": 0,
-          "session_hit_rate": 0.4578,
-          "hero_icon": "/heroes/transformations/star-lord-headbig-0.webp"
+          "hit_rate": 0.4578
         },
         {
           "hero_id": 1049,
@@ -245,8 +195,7 @@
           "kills": 7,
           "deaths": 4,
           "assists": 2,
-          "session_hit_rate": 0.3661,
-          "hero_icon": "/heroes/transformations/wolverine-headbig-0.webp"
+          "hit_rate": 0.3661
         },
         {
           "hero_id": 1018,
@@ -254,25 +203,18 @@
           "kills": 4,
           "deaths": 1,
           "assists": 0,
-          "session_hit_rate": 0.492,
-          "hero_icon": "/heroes/transformations/doctor-strange-headbig-0.webp"
+          "hit_rate": 0.492
         }
       ]
     },
     {
-      "player_uid": 1209453028,
-      "nick_name": "tekixd",
-      "player_icon": 30000001,
-      "camp": 0,
-      "cur_hero_id": 1037,
-      "cur_hero_icon": "/heroes/transformations/magneto-headbig-0.webp",
-      "is_win": 0,
-      "kills": 40,
-      "deaths": 7,
-      "assists": 4,
-      "total_hero_damage": 31042.7572,
-      "total_hero_heal": 0,
-      "total_damage_taken": 55558.6285,
+      "player_id": 1209453028,
+      "nickname": "tekixd",
+      "team": 0,
+      "is_win": false,
+      "damage_dealt": 31042.7572,
+      "healing": 0,
+      "damage_taken": 55558.6285,
       "badges": [
         {
           "name": "Mighty Vanquisher",
@@ -285,32 +227,25 @@
           "count": 1
         }
       ],
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1037,
           "play_time": 994.2244,
           "kills": 40,
           "deaths": 7,
           "assists": 4,
-          "session_hit_rate": 0.6588,
-          "hero_icon": "/heroes/transformations/magneto-headbig-0.webp"
+          "hit_rate": 0.6588
         }
       ]
     },
     {
-      "player_uid": 1401332741,
-      "nick_name": "Shockerr",
-      "player_icon": 31046203,
-      "camp": 0,
-      "cur_hero_id": 1051,
-      "cur_hero_icon": "/heroes/transformations/the-thing-headbig-0.webp",
-      "is_win": 0,
-      "kills": 25,
-      "deaths": 6,
-      "assists": 5,
-      "total_hero_damage": 32189.6017,
-      "total_hero_heal": 0,
-      "total_damage_taken": 58500.1705,
+      "player_id": 1401332741,
+      "nickname": "Shockerr",
+      "team": 0,
+      "is_win": false,
+      "damage_dealt": 32189.6017,
+      "healing": 0,
+      "damage_taken": 58500.1705,
       "badges": [
         {
           "name": "Impentrable Defence",
@@ -318,15 +253,14 @@
           "count": 1
         }
       ],
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1051,
           "play_time": 848.7878,
           "kills": 23,
           "deaths": 4,
           "assists": 5,
-          "session_hit_rate": 0.2082,
-          "hero_icon": "/heroes/transformations/the-thing-headbig-0.webp"
+          "hit_rate": 0.2082
         },
         {
           "hero_id": 1045,
@@ -334,35 +268,27 @@
           "kills": 2,
           "deaths": 2,
           "assists": 0,
-          "session_hit_rate": 0.4028,
-          "hero_icon": "/heroes/transformations/namor-headbig-0.webp"
+          "hit_rate": 0.4028
         }
       ]
     },
     {
-      "player_uid": 1120499307,
-      "nick_name": "Rickу",
-      "player_icon": 31031201,
-      "camp": 0,
-      "cur_hero_id": 1050,
-      "cur_hero_icon": "/heroes/transformations/invisible-woman-headbig-0.webp",
-      "is_win": 0,
-      "kills": 23,
-      "deaths": 6,
-      "assists": 32,
-      "total_hero_damage": 11820.0808,
-      "total_hero_heal": 40220.3685,
-      "total_damage_taken": 17353.4442,
+      "player_id": 1120499307,
+      "nickname": "Rick\u0443",
+      "team": 0,
+      "is_win": false,
+      "damage_dealt": 11820.0808,
+      "healing": 40220.3685,
+      "damage_taken": 17353.4442,
       "badges": {},
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1025,
           "play_time": 536.6185,
           "kills": 18,
           "deaths": 2,
           "assists": 18,
-          "session_hit_rate": 0.8762,
-          "hero_icon": "/heroes/transformations/cloak-dagger-headbig-0.webp"
+          "hit_rate": 0.8762
         },
         {
           "hero_id": 1050,
@@ -370,25 +296,18 @@
           "kills": 5,
           "deaths": 4,
           "assists": 14,
-          "session_hit_rate": 0.5446,
-          "hero_icon": "/heroes/transformations/invisible-woman-headbig-0.webp"
+          "hit_rate": 0.5446
         }
       ]
     },
     {
-      "player_uid": 1755561749,
-      "nick_name": "delenaa",
-      "player_icon": 30000017,
-      "camp": 0,
-      "cur_hero_id": 1024,
-      "cur_hero_icon": "/heroes/transformations/hela-headbig-0.webp",
-      "is_win": 0,
-      "kills": 33,
-      "deaths": 15,
-      "assists": 1,
-      "total_hero_damage": 29473.8647,
-      "total_hero_heal": 0,
-      "total_damage_taken": 14699.3586,
+      "player_id": 1755561749,
+      "nickname": "delenaa",
+      "team": 0,
+      "is_win": false,
+      "damage_dealt": 29473.8647,
+      "healing": 0,
+      "damage_taken": 14699.3586,
       "badges": [
         {
           "name": "Quad!",
@@ -396,42 +315,34 @@
           "count": 1
         }
       ],
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1024,
           "play_time": 994.2244,
           "kills": 33,
           "deaths": 15,
           "assists": 1,
-          "session_hit_rate": 0.5047,
-          "hero_icon": "/heroes/transformations/hela-headbig-0.webp"
+          "hit_rate": 0.5047
         }
       ]
     },
     {
-      "player_uid": 583570316,
-      "nick_name": "hxrvey",
-      "player_icon": 30000017,
-      "camp": 0,
-      "cur_hero_id": 1045,
-      "cur_hero_icon": "/heroes/transformations/namor-headbig-0.webp",
-      "is_win": 0,
-      "kills": 22,
-      "deaths": 11,
-      "assists": 26,
-      "total_hero_damage": 16056.9816,
-      "total_hero_heal": 19070.5413,
-      "total_damage_taken": 16231.7028,
+      "player_id": 583570316,
+      "nickname": "hxrvey",
+      "team": 0,
+      "is_win": false,
+      "damage_dealt": 16056.9816,
+      "healing": 19070.5413,
+      "damage_taken": 16231.7028,
       "badges": {},
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1050,
           "play_time": 536.6185,
           "kills": 14,
           "deaths": 5,
           "assists": 24,
-          "session_hit_rate": 0.5353,
-          "hero_icon": "/heroes/transformations/invisible-woman-headbig-0.webp"
+          "hit_rate": 0.5353
         },
         {
           "hero_id": 1047,
@@ -439,8 +350,7 @@
           "kills": 1,
           "deaths": 2,
           "assists": 2,
-          "session_hit_rate": 0.6279,
-          "hero_icon": "/heroes/transformations/jeff-the-land-shark-headbig-0.webp"
+          "hit_rate": 0.6279
         },
         {
           "hero_id": 1023,
@@ -448,8 +358,7 @@
           "kills": 0,
           "deaths": 0,
           "assists": 0,
-          "session_hit_rate": 0,
-          "hero_icon": "/heroes/transformations/rocket-raccoon-headbig-0.webp"
+          "hit_rate": 0
         },
         {
           "hero_id": 1045,
@@ -457,25 +366,18 @@
           "kills": 7,
           "deaths": 4,
           "assists": 0,
-          "session_hit_rate": 0.478,
-          "hero_icon": "/heroes/transformations/namor-headbig-0.webp"
+          "hit_rate": 0.478
         }
       ]
     },
     {
-      "player_uid": 491567957,
-      "nick_name": "coopertastic",
-      "player_icon": 31047202,
-      "camp": 0,
-      "cur_hero_id": 1031,
-      "cur_hero_icon": "/heroes/transformations/luna-snow-headbig-0.webp",
-      "is_win": 0,
-      "kills": 18,
-      "deaths": 6,
-      "assists": 37,
-      "total_hero_damage": 11102.0604,
-      "total_hero_heal": 51081.3511,
-      "total_damage_taken": 10010.8737,
+      "player_id": 491567957,
+      "nickname": "coopertastic",
+      "team": 0,
+      "is_win": false,
+      "damage_dealt": 11102.0604,
+      "healing": 51081.3511,
+      "damage_taken": 10010.8737,
       "badges": [
         {
           "name": "Trusty Sidekick",
@@ -483,21 +385,16 @@
           "count": 1
         }
       ],
-      "player_heroes": [
+      "heroes": [
         {
           "hero_id": 1031,
           "play_time": 994.2244,
           "kills": 18,
           "deaths": 6,
           "assists": 37,
-          "session_hit_rate": 0.6169,
-          "hero_icon": "/heroes/transformations/luna-snow-headbig-0.webp"
+          "hit_rate": 0.6169
         }
       ]
     }
-  ],
-  "season": 3,
-  "match_timestamp": 1741990869,
-  "map": "Shin-Shibuya",
-  "duration": 995
+  ]
 }
