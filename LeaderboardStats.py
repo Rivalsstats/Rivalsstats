@@ -39,6 +39,10 @@ request_count = 0
 start_time = time.time()
 lock = Lock()
 private_profile_count = 0
+backup_throttle_lock = Lock()
+last_backup_call = 0
+backup_throttle_time = 0.5  # seconds
+update_executor = ThreadPoolExecutor(max_workers=1)
 
 #thread savety
 encountered_lock = Lock() 
@@ -89,7 +93,14 @@ match_players_data = []
 total_scanned_matches = 0
 total_scanned_players = 0
 
-
+def throttle_backup_api():
+    global last_backup_call
+    with backup_throttle_lock:
+        now = time.time()
+        elapsed = now - last_backup_call
+        if elapsed < backup_throttle_time:  # 
+            time.sleep(backup_throttle_time - elapsed)
+        last_backup_call = time.time()
 
 def fetch_data(url, retries=10, delay=DEFAULT_DELAY, headers_override=None):
     """
@@ -100,6 +111,8 @@ def fetch_data(url, retries=10, delay=DEFAULT_DELAY, headers_override=None):
 
     for attempt in range(retries):
         try:
+            if headers_override == headers_rivals:
+                throttle_backup_api()  # Throttle backup API calls on every attempt
             response = requests.get(url, headers=headers_override if headers_override else headers)
 
             # Detect Rate Limiting (429 Error)
@@ -142,7 +155,9 @@ def fetch_with_backup(primary_url, backup_url = "", retries=10, delay=DEFAULT_DE
     Try fetching data using the primary_url. If it fails (i.e. returns None),
     then try the backup_url using the backup header.
     """
-    data = fetch_data(primary_url, 3, delay)
+    data = None
+    if primary_url:
+        data = fetch_data(primary_url, 3, delay)
     if data is None and backup_url != "":
         data = fetch_data(backup_url, retries, delay, headers_override=headers_rivals)
     return data
@@ -172,7 +187,7 @@ def fetch_leaderboard():
         print("Failed to fetch leaderboard.")
         return
 
-    timestamp = datetime.datetime.utcnow().isoformat()
+    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
     print(f"Processing {len(leaderboard)} players from leaderboard...")
 
@@ -239,7 +254,8 @@ def fetch_match_data(match_id):
     match_uid = csv_data.get("match_uid", match_id)
     os.makedirs("data/matches", exist_ok=True)
     with open(os.path.join("data/matches", f"{match_uid}.json"), "w", encoding="utf-8") as f:
-        json.dump(match_data, f)
+        standardized_match = standardize_match(match_data)
+        json.dump(standardized_match, f)
 
     # Append match details to CSV using safe access for each field.
     append_csv(
@@ -308,7 +324,7 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
     
     player_data = fetch_with_backup(PLAYER_API_URL.format(player_id),
                                     PLAYER_API_URL_RIVALS.format(player_id))
-    if not player_data:
+    if not player_data or player_data == {}:  # Skip empty responses
         print(f"⚠️ Warning: No data returned for player {player_id}. Skipping...")
         return
     if not isinstance(player_data, dict):
@@ -317,7 +333,8 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
     
     os.makedirs("data/players", exist_ok=True)
     with open(os.path.join("data/players", f"{player_id}.json"), "w", encoding="utf-8") as f:
-        json.dump(player_data, f)
+        standardized_player = standardize_player(player_data)
+        json.dump(standardized_player, f)
     try:    
         # Determine if response is from primary or backup endpoint
         if "stats" in player_data:
@@ -326,6 +343,24 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
             player_name = player_data.get("player_name", "")
             rank_name = leaderboard_entry.get("rank_name", "")
         else:
+            if "updates" in player_data:
+                fields = ["last_history_update", "last_inserted_match", "last_update_request"]
+                max_dt = None
+                updates = player_data.get("updates", {})
+                for field in fields:
+                    ts_str = updates.get(field, "")
+                    if ts_str:
+                        try:
+                            dt = datetime.datetime.strptime(ts_str, "%m/%d/%Y, %I:%M:%S %p").replace(tzinfo=datetime.timezone.utc)
+                            if max_dt is None or dt > max_dt:
+                                max_dt = dt
+                        except Exception as e:
+                            print(f"Error parsing {field} for player {player_id}: {e}")
+                if max_dt is not None:
+                    now = datetime.datetime.now(datetime.timezone.utc)
+                    if (now - max_dt).total_seconds() > 12 * 3600:
+                        print(f"Player {player_id} has not been updated in over 12 hours. requesting update...")
+                        update_executor.submit(fetch_with_backup, "",PLAYER_UPDATE_URL_RIVALS.format(player_id))
             # Backup response structure adjustments
             is_private = player_data.get("isPrivate", True)
             # Try to extract a rank score from one of the season entries (if available)
@@ -563,6 +598,173 @@ def fetch_matches_parallel(matches_to_fetch):
                 future.result()
             except Exception as e:
                 print(f"Error processing match {match_id}: {e}")
+
+
+def standardize_player(raw_player):
+    if "updates" in raw_player:
+        return standardize_player_backup(raw_player)
+    else:
+        return standardize_player_primary(raw_player)
+
+def standardize_player_backup(raw_player):
+    player_info = raw_player.get("player", {})
+    return {
+        "player_id": raw_player.get("uid", ""),
+        "name": player_info.get("name", ""),
+        "icon": player_info.get("icon", {}).get("player_icon", ""),
+        "rank": player_info.get("rank", {}).get("rank", ""),
+        "stats": raw_player.get("overall_stats", {}),
+        "updates": raw_player.get("updates", {}),
+        "match_history": [
+            {
+                "match_id": match.get("match_uid", ""),
+                "map_id": match.get("map_id", ""),
+                "season": str(int(str(match.get("season", 0)).strip()) + 1) if str(match.get("season", 0)).strip().isdigit() else "",
+                "mvp_uid": match.get("mvp_uid", ""),
+                "svp_uid": match.get("svp_uid", ""),
+                "timestamp": match.get("match_time_stamp", ""),
+                "duration": match.get("duration", 0),
+                "result": "win" if match.get("winner_side", 0) == 1 else "loss",
+                "disconnected": bool(match.get("player_performance", {}).get("disconnected", 0)),
+                "score_change": match.get("player_performance", {}).get("score_change", 0),
+                "new_score": match.get("player_performance", {}).get("new_score", 0),
+                "is_win": bool(match.get("player_performance", {}).get("is_win",{}).get("is_win", 0)),
+            }
+            for match in raw_player.get("match_history", [])
+        ],
+        "team_mates": [
+            {
+                "player_id": tm.get("player_info", {}).get("player_uid", ""),
+                "matches": tm.get("matches", 0),
+                "wins": tm.get("wins", 0),
+            }
+            for tm in raw_player.get("team_mates", [])
+        ],
+        "hero_matchups": [
+            {
+                "hero_id": hm.get("hero_id", ""),
+                "matches": hm.get("matches", 0),
+                "wins": hm.get("wins", 0),
+            }
+            for hm in raw_player.get("hero_matchups", [])
+        ],
+        "heroes_ranked":[
+            {
+                "hero_id": hero.get("hero_id", ""),
+                "matches": hero.get("matches", 0),
+                "wins": hero.get("wins", 0),
+                "mvp": hero.get("mvp", 0),
+                "svp": hero.get("svp", 0),
+                "kills": hero.get("kills", 0),
+                "deaths": hero.get("deaths", 0),
+                "assists": hero.get("assists", 0),
+                "play_time": hero.get("play_time", 0),
+                "damage": hero.get("damage", 0),
+                "heal": hero.get("heal", 0),
+                "damage_taken": hero.get("damage_taken", 0),
+                "main_attack": hero.get("main_attack", 0),
+            }
+            for hero in raw_player.get("heroes_ranked", [])
+        ],
+        "heroes_unranked":[
+            {
+                "hero_id": hero.get("hero_id", ""),
+                "matches": hero.get("matches", 0),
+                "wins": hero.get("wins", 0),
+                "mvp": hero.get("mvp", 0),
+                "svp": hero.get("svp", 0),
+                "kills": hero.get("kills", 0),
+                "deaths": hero.get("deaths", 0),
+                "assists": hero.get("assists", 0),
+                "play_time": hero.get("play_time", 0),
+                "damage": hero.get("damage", 0),
+                "heal": hero.get("heal", 0),
+                "damage_taken": hero.get("damage_taken", 0),
+                "main_attack": hero.get("main_attack", 0),
+            }
+            for hero in raw_player.get("heroes_unranked", [])
+        ],
+        "maps":[
+            {
+               "map_id": map.get("map_id", ""),
+               "matches": map.get("matches", 0),
+               "wins": map.get("wins", 0),
+               "kills": map.get("kills", 0),
+               "deaths": map.get("deaths", 0),
+               "assists": map.get("assists", 0),
+               "play_time": map.get("play_time", 0),
+            }
+            for map in raw_player.get("maps", [])
+        ],
+    }
+
+def standardize_player_primary(raw_player):
+    # TODO IMPLEMENT THIS
+    raise Exception("Primary endpoint match data has not been implemented yet.")
+    return {
+        "todo": "Implement this function"
+    }
+
+def standardize_match(raw_match):
+    # Determine API type by checking for key(s) unique to each format
+    if "dynamic_fields" in raw_match:  # Backup API format
+        return standardize_match_backup(raw_match)
+    else:  # Primary API format
+        return standardize_match_primary(raw_match)
+
+def standardize_match_backup(raw_match):
+    # Convert backup format to standard schema
+    return {
+        "match_id": raw_match.get("match_uid", ""),
+        "replay_id": raw_match.get("replay_id", ""),
+        "game_mode": raw_match.get("game_mode", {}).get("game_mode_name", ""),
+        "mvp": {"player_id": raw_match.get("mvp_uid", ""), "hero_id": raw_match.get("mvp_hero_id", None)},
+        "svp": {"player_id": raw_match.get("svp_uid", ""), "hero_id": raw_match.get("svp_hero_id", None)},
+        "bans": [
+            {
+                "team": ban.get("battle_side", 0),
+                "hero_id": ban.get("hero_id", ""),
+            }
+            for ban in raw_match.get("dynamic_fields", {}).get("ban_pick_info", [])
+        ],
+        "players": [standardize_match_player(p) for p in raw_match.get("match_players", [])]
+    }
+
+def standardize_match_primary(raw_match):
+    # Convert primary format to standard schema
+    # Adjust field names and nesting as needed
+    raise Exception("Primary endpoint match data has not been implemented yet.")
+    return {
+        "todo": "Implement this function"
+    }
+
+def standardize_match_player(raw_player):
+    return {
+        "player_id": raw_player.get("player_uid", ""),
+        "nickname": raw_player.get("nick_name", ""),
+        "team": raw_player.get("camp", ""),
+        "is_win": bool(raw_player.get("is_win", 0)),
+        "damage_dealt": raw_player.get("total_hero_damage", 0),
+        "healing": raw_player.get("total_hero_heal", 0),
+        "damage_taken": raw_player.get("total_damage_taken", 0),
+        "badges": raw_player.get("badges", []),
+        "heroes": [
+            {
+                "hero_id": player_hero.get("hero_id", ""),
+                "play_time": player_hero.get("play_time", 0),
+                "kills": player_hero.get("kills", 0),
+                "deaths": player_hero.get("deaths", 0),
+                "assists": player_hero.get("assists", 0),
+                "hit_rate": player_hero.get("session_hit_rate", 0),
+            }
+            for player_hero in  raw_player.get("player_heroes", [])
+        ],
+        
+        
+        
+    }
+
+
 
 def save_to_disk():
     """Writes all collected data to files in one batch."""
