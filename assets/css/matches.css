@@ -1,0 +1,76 @@
+.match-summary {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .summary-top>div {
+    margin: 2px 0;
+  }
+
+  .multi-select-container {
+    position: relative;
+  }
+  
+  .selected-heroes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 5px;
+  }
+  
+  .selected-hero {
+    display: inline-flex;
+    align-items: center;
+    background-color:  #c23136; 
+    color: #fff;
+    padding: 0.3rem 0.7rem;
+    margin-top: 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .selected-hero .remove-hero {
+    margin-left: 0.5rem;
+    cursor: pointer;
+    font-weight: bold;
+    color: #fff;
+  }
+  .selected-hero .remove-hero:hover {
+    color: #ffcdd2;
+  }
+  
+  .autocomplete-dropdown {
+    position: absolute;
+    width: 100%;
+    background-color: #2e2e2e; 
+    border: 1px solid #444;
+    border-radius: 0.25rem;
+    z-index: 9999;
+    bottom: 100%; 
+    margin-bottom: 0.25rem; 
+    display: none; 
+    max-height: 10rem; 
+    overflow-y: auto;
+  }
+  
+  .autocomplete-item {
+    padding: 5px;
+    cursor: pointer;
+    color: #fff;
+  }
+  
+  .autocomplete-item:hover {
+    background: #444;
+  }
+
+
+  .remove-hero {
+  margin-left: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  color: #fff;
+}
+.remove-hero:hover {
+  color: #ccc; /* slight hover effect */
+}
