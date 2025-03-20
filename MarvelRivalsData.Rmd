@@ -236,11 +236,6 @@ custom_matches <- matches[matches$gamemode == "custom", ]
 
 matches <- competitive_matches
 
-# Clean match_players by keeping only relevant match_uids
-match_players <- match_players %>%
-  semi_join(matches, by = "match_uid") %>%
-  left_join(matches %>% select(match_uid, season), by = "match_uid")
-
 
 match_players$is_win <- as.logical(match_players$is_win)
 
@@ -274,6 +269,11 @@ healer_ids <- all_heroes %>%
 current_season <- max(matches$season)
 matches <- matches %>%
   filter(season == current_season)
+
+# Clean match_players by keeping only relevant match_uids
+match_players <- match_players %>%
+  semi_join(matches, by = "match_uid") %>%
+  left_join(matches %>% select(match_uid, season), by = "match_uid")
 
 match_players <- match_players %>%
   mutate(match_date = as.Date(as.POSIXct(match_timestamp, origin = "1970-01-01", tz = "UTC")))
