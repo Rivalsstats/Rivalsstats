@@ -3426,11 +3426,6 @@ asssure_match_data <- function(match_uid,match_info){
       match_duration <- NA
     }
     
-    if(as.character(match_uid)==as.character("6711329_1742141444_249_11001_50")) {
-      print(match_uid)
-      print(match_duration)
-      print(match_info)
-    }
     # Flag to track if we updated any field
     updated <- FALSE
     
@@ -3465,12 +3460,12 @@ asssure_match_data <- function(match_uid,match_info){
     }
   }
 }
- 
+map_index <- list()  # Initialize map index 
 # Loop over each match to build the minimal index
-for(match_uid in unique(matches$match_uid)){
+for(i in seq_len(nrow(matches))){
   # Get match metadata row (assuming one row per match)
-  match_info <- matches[matches$match_uid == match_uid, ]
-  
+  match_info <- matches[i, ]
+  match_uid <- match_info$match_uid
   # Filter player data for this match
   current_match_players <- players %>% filter(match_uid == !!match_uid)
   
@@ -3523,6 +3518,13 @@ for(match_uid in unique(matches$match_uid)){
     duration = match_duration,
     teams = teams
   )
+  #built map index
+  map_id <- as.character(match_info$match_map_id)
+  if (is.null(map_index[[map_id]])) {
+    map_index[[map_id]] <- c(match_uid)
+  } else {
+    map_index[[map_id]] <- c(map_index[[map_id]], match_uid)
+  }
   asssure_match_data(match_uid,match_info)
 }
 
@@ -3606,6 +3608,18 @@ write(json_index, file = output_file)
 cat("Index exported to:", output_file)
 ```
 
+```{r exportMapIndex, echo=TRUE}
+# Define the output file path for your JSON index
+output_file <- "data/map_index.json"
+
+# Convert the index to JSON
+json_index <- toJSON(map_index, pretty = TRUE, auto_unbox = TRUE)
+
+# Write the JSON file to disk
+write(json_index, file = output_file)
+
+cat("Index exported to:", output_file)
+```
 
 ```{r saveData, echo=FALSE}
 hotlist_data <- list(hero_hotlist)
