@@ -3253,7 +3253,7 @@ filtered_matches <- matched_teams %>%
 rocket_win_rate <- mean(filtered_matches$is_win_rr)
 
 # ----- STEP 1: Build Teams Directly from match_players -----
-teams_no_punisher <- match_players %>%
+conditional_teams <- match_players %>%
   group_by(match_uid, is_win) %>%
   summarise(team = list(data.frame(name = name.y, play = playtime_percentage)), .groups = "drop") %>%
   mutate(
@@ -3271,19 +3271,19 @@ teams_no_punisher <- match_players %>%
       if (length(rp) == 0) 0 else max(rp)
     }),
     # Check if any excluded heroes played at least as much as Rocket.
-    has_excluded_hero = map2_lgl(team, rocket_play, ~ any(.x$play[.x$name %in% exclude_heroes] >= .y, na.rm = TRUE))
+    has_excluded_hero = map_lgl(team, ~ any(.x$play[.x$name %in% exclude_heroes] >= play_threshold, na.rm = TRUE))
   )
 
 # ----- STEP 2: Separate Teams with and without Rocket -----
-rocket_teams_punisher <- teams_no_punisher %>% filter(rocket_present)
-opp_teams_punisher <- teams_no_punisher %>% filter(!rocket_present)
+rocket_teams <- conditional_teams %>% filter(rocket_present)
+opp_teams <- conditional_teams %>% filter(!rocket_present)
 
 # ----- STEP 3: Pair Opposing Teams by Match ID -----
-matched_teams_punisher <- inner_join(rocket_teams_punisher, opp_teams_punisher, by = "match_uid", 
+conditional_matched_teams <- inner_join(rocket_teams, opp_teams, by = "match_uid", 
                             suffix = c("_rr", "_opp"))
 
 # ----- STEP 4: Apply Filtering Criteria -----
-filtered_matches_punisher <- matched_teams_punisher %>%
+filtered_matches_no_punisher <- conditional_matched_teams %>%
   filter(
     # On Rocket's team: Rocket must have played at least 50%
     rocket_play_rr >= play_threshold,
@@ -3292,9 +3292,10 @@ filtered_matches_punisher <- matched_teams_punisher %>%
   )
 
 # ----- STEP 5: Compute Rocket Raccoon's Win Rate -----
-rocket_win_rate_punisher <- mean(filtered_matches_punisher$is_win_rr)
+rocket_win_rate_punisher <- mean(filtered_matches_no_punisher$is_win_rr)
+rocket_games_no_punisher <- sum(filtered_matches_no_punisher$rocket_play_rr)
 
-filtered_matches_with_punisher <- matched_teams_punisher %>%
+filtered_matches_with_punisher <- conditional_matched_teams %>%
   filter(
     # On Rocket's team: Rocket must have played at least 50%
     rocket_play_rr >= play_threshold,
@@ -3304,6 +3305,7 @@ filtered_matches_with_punisher <- matched_teams_punisher %>%
 
 # ----- STEP 5: Compute Rocket Raccoon's Win Rate -----
 rocket_win_rate_with_punisher <- mean(filtered_matches_with_punisher$is_win_rr)
+rocket_games_punisher <- sum(filtered_matches_with_punisher$rocket_play_rr)
 
 
 ```
