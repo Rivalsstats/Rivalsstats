@@ -39,6 +39,7 @@ jobs:
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
       FILE_PATH: 'MarvelRivalsData.html Heroes.html index.html'
       RENDERED_PATH: 'rendered'
+      DATA_PATH: 'data'
 
     # "steps" holds a list of all the steps needed to package and release our AddOn
     steps:
@@ -131,7 +132,7 @@ jobs:
         #if: github.ref != 'refs/heads/main'
         run: | 
             TARGET_BRANCH=${GITHUB_HEAD_REF}
-            git add ${{ env.FILE_PATH }} ${{ env.RENDERED_PATH }}
+            git add ${{ env.FILE_PATH }} ${{ env.RENDERED_PATH }} ${{env.DATA_PATH}}
             git commit -m 'Re-build Rmarkdown files' || echo "No changes to commit"
             git push origin || echo "No changes to push"  
     
