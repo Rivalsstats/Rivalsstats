@@ -10,7 +10,7 @@ let selectedHeroes = {
 // Load hero definitions.
 fetch('/data/latest/heroes/all_heroes.json')
   .then(response => response.json())
-  .then(data => { heroData = data; })
+  .then(data => { heroData = data; populateHeroDropdown(data); })
   .catch(error => console.error('Error loading hero data:', error));
 
 // Load the minimal index containing filtering facets for all matches.
@@ -61,43 +61,29 @@ function populateMapDropdown(maps) {
         option.textContent = mapName;
         mapFilter.appendChild(option);
       });
-    $('.selectpicker').selectpicker('refresh');
-  }
-document.getElementById("mapFilter").addEventListener("change", filterHeroes);
-
-function showSuggestions(inputField) {
-  const inputValue = inputField.value.trim().toLowerCase();
-  const dropdown = inputField.nextElementSibling; // the .autocomplete-dropdown
-  dropdown.innerHTML = "";
-  dropdown.style.display = "none";
-  if (!inputValue) return;
-  if (!heroData) {
-    console.error("heroData not loaded yet.");
-    return;
+      $('#mapFilter').selectpicker('refresh');
   }
 
-  const fieldId = inputField.id;
-  const selectedHeroIds = getSelectedHeroIds(fieldId);
-
-  const suggestions = heroData
-    .filter(hero => hero.name.toLowerCase().includes(inputValue) &&!selectedHeroIds.includes(hero.id))
-    .slice(0, 8);
-  if (suggestions.length === 0) return;
-  suggestions.forEach(hero => {
-    const item = document.createElement("div");
-    item.classList.add("autocomplete-item");
-    item.textContent = hero.name;
-    item.dataset.heroId = hero.id;
-    item.addEventListener("click", () => {
-      selectHero(inputField, hero.name, hero.id);
-      dropdown.innerHTML = "";
-      dropdown.style.display = "none";
-    });
-    dropdown.appendChild(item);
+function populateHeroDropdown(heroData){
+  // Populate the select with hero options
+  const teamHeroes = document.getElementById("teamHeroes");
+  const opponentHeroes = document.getElementById("opposingHeroes");
+  heroData.forEach(hero => {
+    const option = document.createElement("option");
+    option.value = hero.id;
+    option.text = hero.name;
+    teamHeroes.appendChild(option);
+    const optionOpponent = option.cloneNode(true); // Clone the option
+    opponentHeroes.appendChild(optionOpponent);
   });
-  dropdown.style.display = "block";
-}
-
+  $('#teamHeroes').selectpicker('refresh');
+  $('#opposingHeroes').selectpicker('refresh');
+}  
+document.getElementById("mapFilter").addEventListener("change", filterHeroes);
+document.getElementById("sortMatches").addEventListener("change", filterHeroes);
+document.querySelectorAll('input[name="sortOrder"]').forEach((radio) => {
+  radio.addEventListener("change", () => {filterHeroes()});
+});
 function selectHero(inputField, heroName, heroId) {
     const fieldId = inputField.id;
     // Prevent duplicate selection.
@@ -136,51 +122,29 @@ function getSelectedHeroIds(fieldId) {
   return selectedHeroes[fieldId].map(hero => hero.id);
 }
 
-document.querySelectorAll(".hero-input").forEach(inputField => {
-inputField.addEventListener("input", () => {
-showSuggestions(inputField);
+$('#teamHeroes').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+  // Get all selected hero IDs from the bootstrap-select
+  const selectedOptions = $(this).val() || [];
+  selectedHeroes.teamHeroes = selectedOptions.map(heroId => {
+    // Find the hero object from heroData
+    const hero = heroData.find(h => h.id === heroId);
+    return { id: heroId, name: hero ? hero.name : '' };
+  });
+  filterHeroes();
 });
 
-inputField.addEventListener("keydown", (event) => {
-const dropdown = inputField.nextElementSibling;
-const items = dropdown.querySelectorAll(".autocomplete-item");
-if (event.key === "ArrowDown") {
-  event.preventDefault();
-  let index = Array.from(items).findIndex(item => item.classList.contains("active"));
-  if (index < items.length - 1) {
-    if (index >= 0) items[index].classList.remove("active");
-    items[index + 1].classList.add("active");
-  }
-} else if (event.key === "ArrowUp") {
-  event.preventDefault();
-  let index = Array.from(items).findIndex(item => item.classList.contains("active"));
-  if (index > 0) {
-    items[index].classList.remove("active");
-    items[index - 1].classList.add("active");
-  }
-} else if (event.key === "Enter") {
-  event.preventDefault();
-  const activeItem = dropdown.querySelector(".autocomplete-item.active");
-  if (activeItem) {
-    selectHero(inputField, activeItem.textContent, activeItem.dataset.heroId);
-  }
-  dropdown.innerHTML = "";
-  dropdown.style.display = "none";
-} else if (event.key === "Backspace" && inputField.value === "") {
-  const container = inputField.parentElement;
-  const selectedSpans = container.querySelectorAll(".selected-hero");
-  if (selectedSpans.length > 0) {
-    selectedSpans[selectedSpans.length - 1].querySelector(".remove-hero").click();
-  }
-}
+$('#opposingHeroes').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+  // Get all selected hero IDs from the bootstrap-select
+  const selectedOptions = $(this).val() || [];
+  selectedHeroes.opposingHero = selectedOptions.map(heroId => {
+    // Find the hero object from heroData
+    const hero = heroData.find(h => h.id === heroId);
+    return { id: heroId, name: hero ? hero.name : '' };
+  });
+  filterHeroes();
 });
 
-inputField.addEventListener("blur", () => {
-setTimeout(() => {
-  inputField.nextElementSibling.style.display = "none";
-}, 200);
-});
-});
+
 
 // Format duration (in seconds) into hh:mm:ss or mm:ss.
 function formatDuration(seconds) {
@@ -206,6 +170,23 @@ function renderMatches(matches) {
   if (matches.length === 0) {
     accordion.innerHTML = "<p>No matches found with the specified criteria.</p>";
     return;
+  }
+
+  const sortBy = document.getElementById("sortMatches").value;
+  const sortOrder = document.querySelector('input[name="sortOrder"]:checked').value;
+  if (sortBy === "timestamp") {
+    matches.sort((a, b) => sortOrder === 'asc'
+      ? a.match_timestamp - b.match_timestamp
+      : b.match_timestamp - a.match_timestamp);
+  } else if (sortBy === "duration") {
+    matches.sort((a, b) => sortOrder === 'asc'
+      ? a.duration - b.duration
+      : b.duration - a.duration);
+  } else if (sortBy === "map") {
+    matches.sort((a, b) => {
+      const cmp = a.map.toUpperCase().localeCompare(b.map.toUpperCase());
+      return sortOrder === 'asc' ? cmp : -cmp;
+    });
   }
 
   matches.forEach(match => {
@@ -334,8 +315,6 @@ const roleOrder = {
   "duelist": 2,
   "strategist": 3
 };
-// New helper: Generate rows for each player's hero entry.
-// Each row is wrapped in its own <tbody>. For alt rows, the tbody has class "alt-row".
 function generatePlayerHeroRows(players, matchDetails) {
   // Build groups: one per player.
   const groups = players.map(player => {
@@ -616,7 +595,6 @@ function filterMatches(teamHeroCandidates, opposingHeroCandidates) {
       filteredMatches = new Set(Object.keys(indexData));
     }
 
-    // --- NEW MULTISELECT MAP FILTER LOGIC ---
     const mapFilterEl = document.getElementById("mapFilter");
     const selectedMaps = Array.from(mapFilterEl.selectedOptions)
                             .map(option => option.value)
@@ -632,8 +610,6 @@ function filterMatches(teamHeroCandidates, opposingHeroCandidates) {
               }
             });
           });
-          console.log(selectedMaps)
-          console.log(unionMapMatches);
         
         // Intersect the map matches with the previously filtered matches unless it's index data then just overwrite
         if (filteredMatches.size === Object.keys(indexData).length) {
@@ -650,46 +626,46 @@ function filterMatches(teamHeroCandidates, opposingHeroCandidates) {
 
 
 
-  async function filterHeroes(){
-    if (!heroesIndex) {
-        try {
-          const response = await fetch('/data/heroes_index.json');
-          heroesIndex = await response.json();
-        } catch (error) {
-          console.error('Error lazy-loading heroesIndex:', error);
-          alert('Error filtering data. Please try again later.');
-          return;
-        }
+async function filterHeroes(){
+  if (!heroesIndex) {
+      try {
+        const response = await fetch('/data/heroes_index.json');
+        heroesIndex = await response.json();
+      } catch (error) {
+        console.error('Error lazy-loading heroesIndex:', error);
+        alert('Error filtering data. Please try again later.');
+        return;
       }
-    
-      const teamSelected  = getSelectedHeroIds("teamHeroes");
-      const opposingSelected  = getSelectedHeroIds("opposingHero");
-    
-        const teamHeroCandidates = teamSelected.length ? [teamSelected] : [];
-        const opposingHeroCandidates = opposingSelected.length ? [opposingSelected] : [];  
-    
-      const filteredMatches = filterMatches(teamHeroCandidates, opposingHeroCandidates);
-      // Fetch full match details for each match ID.
-      const fullMatches = await Promise.all(filteredMatches.map(async matchUid => {
-        try {
-          const res = await fetch(`/data/matches/${matchUid}.json`);
-          if (!res.ok) {
-            if (res.status === 404) {
-              console.warn(`Match file not found: /data/matches/${matchUid}.json`);
-              return null; // Ignore missing files
-            }
-            throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+  
+    const teamSelected  = getSelectedHeroIds("teamHeroes");
+    const opposingSelected  = getSelectedHeroIds("opposingHero");
+  
+      const teamHeroCandidates = teamSelected.length ? [teamSelected] : [];
+      const opposingHeroCandidates = opposingSelected.length ? [opposingSelected] : [];  
+  
+    const filteredMatches = filterMatches(teamHeroCandidates, opposingHeroCandidates);
+    // Fetch full match details for each match ID.
+    const fullMatches = await Promise.all(filteredMatches.map(async matchUid => {
+      try {
+        const res = await fetch(`/data/matches/${matchUid}.json`);
+        if (!res.ok) {
+          if (res.status === 404) {
+            console.warn(`Match file not found: /data/matches/${matchUid}.json`);
+            return null; // Ignore missing files
           }
-          const matchDetails = await res.json();
-          matchDetails.match_uid = matchUid; // Ensure match_uid is available
-          return matchDetails;
-        } catch (err) {
-          console.error(`Error loading match details for ${matchUid}:`, err);
-          return null;
+          throw new Error(`HTTP error! Status: ${res.status}`);
         }
-      }));
-      const validFullMatches = fullMatches.filter(m => m !== null);
-      renderMatches(validFullMatches);
+        const matchDetails = await res.json();
+        matchDetails.match_uid = matchUid; // Ensure match_uid is available
+        return matchDetails;
+      } catch (err) {
+        console.error(`Error loading match details for ${matchUid}:`, err);
+        return null;
+      }
+    }));
+    const validFullMatches = fullMatches.filter(m => m !== null);
+    renderMatches(validFullMatches);
 }  
 
 // Reset: Clear inputs and show all matches.
@@ -700,7 +676,11 @@ document.getElementById("resetBtn").addEventListener("click", function () {
     opposingInput.value = "";
     selectedHeroes.teamHeroes = [];
     selectedHeroes.opposingHero = [];
-    teamInput.parentElement.querySelector(".selected-heroes").innerHTML = "";
-    opposingInput.parentElement.querySelector(".selected-heroes").innerHTML = "";
+    teamInput.selectpicker('deselectAll');
+    opposingInput.selectpicker('deselectAll');
     renderMatches(Object.values(indexData));
+});
+
+$(document).ready(function() {
+  $('.selectpicker').selectpicker();
 });

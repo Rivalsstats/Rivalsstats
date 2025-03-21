@@ -44,7 +44,7 @@
 			posthog.init('phc_zJrM9WqVMhk8wS3cYyr6poc69tDli6yYoQvMed3ncdv', {api_host: 'https://eu.i.posthog.com'})
 		</script>
 	</head>
-	<body class="is-preload">
+	<body class="is-preload" data-bs-theme="dark">
 
 		<!-- Wrapper -->
 			<div id="wrapper" class="fade-in">
@@ -92,14 +92,14 @@
                   <!-- Search/Filter Form -->
                   <form id="searchForm" class="mb-4">
                     <div class="row g-2">
-                      <div class="col-md-3">
+                      <div class="col-md-2-5">
                         <label for="teamHeroes" class="form-label">Winning Heroes</label>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-2-5">
                         <label for="opposingHero" class="form-label">Loosing Heroes</label>
                       </div>
                       
-                      <div class="col-md-2">
+                      <div class="col-md-2-5">
                         <label for="mapFilter" class="form-label">Map</label>
                       </div>
                       <div class="col-md-2">
@@ -110,34 +110,59 @@
                       </div>
                     </div>
                     <div class="row g-2">
-                      <div class="col-md-3">
+                      <div class="col-md-2-5" data-bs-theme="dark">
                         <div class="multi-select-container">
-                          <input type="text" data-bs-theme="dark" class="form-control hero-input" list="heroList" id="teamHeroes" placeholder="Type hero name...">
-                          <div class="autocomplete-dropdown"></div>
-                          <div class="selected-heroes"></div>
+							<select id="teamHeroes" data-style="btn-dark" class="selectpicker" data-live-search="true" multiple title="Select hero(s)..."></select>
                         </div>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-2-5" data-bs-theme="dark">
                         <div class="multi-select-container">
-                          <input type="text" data-bs-theme="dark" class="form-control hero-input" list="heroList" id="opposingHero" placeholder="Type hero name...">
-                          <div class="autocomplete-dropdown"></div>
-                          <div class="selected-heroes"></div>
+                          <select id="opposingHeroes" data-style="btn-dark" class="selectpicker" data-live-search="true" multiple title="Select hero(s)..."></select>
                         </div>
                       </div>
-                      <div class="col-md-2">
+                      <div class="col-md-2-5" data-bs-theme="dark">
                         
-                        <select id="mapFilter" data-bs-theme="dark" class="form-select selectpicker" data-live-search="true" title="Select Maps" multiple>
+                        <select id="mapFilter" data-style="btn-dark" class="selectpicker" data-live-search="true" title="Select map(s)..." multiple>
                         </select>
                       </div>
-                      <div class="col-md-2">
-                        
-                        <select id="sortMatches" data-bs-theme="dark" class="form-control ">
-                          <option value="timestamp">Date (newest first)</option>
+                      <div class="col-md-2" id="sortButton" data-bs-theme="dark">
+                        <select id="sortMatches" data-style="btn-dark" class="selectpicker" data-live-search="true" title="Sort by...">
+                          <option value="timestamp" selected>Date</option>
                           <option value="duration">Duration</option>
-                          <option value="season">Season</option>
+                          <option value="map">Map</option>
                         </select>
                       </div>
-                      <div class="col-md-2">
+					  <div class="col-md-1 d-grid" data-bs-theme="dark">
+						<div class="btn-group" role="group" aria-label="Sort Order" data-bs-theme="dark">
+							<input
+							  type="radio"
+							  class="btn-check"
+							  name="sortOrder"
+							  id="ascOrder"
+							  value="asc"
+							  autocomplete="off"
+							/>
+							<label class="btn btn-dark" for="ascOrder">
+							  <i class="bi bi-arrow-up-short"></i>
+							</label>
+						  
+							<input
+							  type="radio"
+							  class="btn-check"
+							  name="sortOrder"
+							  id="descOrder"
+							  value="desc"
+							  autocomplete="off"
+							  checked
+							/>
+							<label class="btn btn-dark" for="descOrder">
+							  <i class="bi bi-arrow-down-short"></i>
+							</label>
+						  </div>
+					  </div>
+					  
+					  
+                      <div class="col-md-1 d-grid">
                         <button type="button" id="resetBtn" class="btn btn-outline-dark">Reset</button>
                       </div>
                     </div>
@@ -175,6 +200,7 @@
 			<script src="assets/js/jquery.scrollex.min.js"></script>
 			<script src="assets/js/jquery.scrolly.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+	  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
 			<script src="assets/js/browser.min.js"></script>
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>

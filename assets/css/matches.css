@@ -12,38 +12,11 @@
     position: relative;
   }
   
-  .selected-heroes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-bottom: 5px;
-  }
-  
-  .selected-hero {
-    display: inline-flex;
-    align-items: center;
-    background-color:  #c23136; 
-    color: #fff;
-    padding: 0.3rem 0.7rem;
-    margin-top: 0.25rem;
-    border-radius: 0.25rem;
-    font-size: 0.9rem;
-  }
-  
-  .selected-hero .remove-hero {
-    margin-left: 0.5rem;
-    cursor: pointer;
-    font-weight: bold;
-    color: #fff;
-  }
-  .selected-hero .remove-hero:hover {
-    color: #ffcdd2;
-  }
-  
   .autocomplete-dropdown {
     position: absolute;
     width: 100%;
-    background-color: #2e2e2e; 
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
     border: 1px solid #444;
     border-radius: 0.25rem;
     z-index: 9999;
@@ -73,4 +46,52 @@
 }
 .remove-hero:hover {
   color: #ccc; /* slight hover effect */
+}
+.col-md-2-5 {
+  flex: 0 0 calc(100% * 2.5 / 12);  
+  max-width: calc(100% * 2.5 / 12);
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.col-md-1-5 {
+  flex: 0 0 calc(100% * 1.5 / 12);  
+  max-width: calc(100% * 1.5 / 12);
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+#sortButton .bootstrap-select {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+
+.btn-group label {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 0rem !important;
+  height: 100%;
+}
+
+.btn-check + label::before,
+.btn-check + label::after {
+  display: none !important;
+  content: none !important;
+}
+
+:root[data-bs-theme="dark"] .bootstrap-select .dropdown-menu {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+:root[data-bs-theme="dark"] .bootstrap-select .dropdown-menu li a:hover {
+  background-color: var(--bs-tertiary-bg); /* or whichever variable you like */
+  color: var(--bs-body-color);
+}
+
+.bootstrap-select .filter-option-inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
