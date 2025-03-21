@@ -3513,7 +3513,8 @@ for(i in seq_len(nrow(matches))){
     match_uid = match_uid,
     season = match_info$season,
     match_timestamp = match_info$match_timestamp,
-    gamemode = match_info$gamemode,
+    gamemode = paste0(toupper(substr(match_info$gamemode, 1, 1)),
+                    substr(match_info$gamemode, 2, nchar(match_info$gamemode))),
     map = all_maps$name[all_maps$id == match_info$match_map_id],
     duration = match_duration,
     teams = teams
