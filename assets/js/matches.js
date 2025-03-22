@@ -229,7 +229,7 @@ function renderMatches(matches) {
       const body = collapseElement.querySelector('.accordion-body');
       if (body.getAttribute('data-loaded') !== 'true') {
         fetchFullMatchDetails(match, body);
-        bodyElement.closest(".accordion-item").scrollIntoView({
+        body.closest(".accordion-item").scrollIntoView({
             behavior: "smooth",
             block: "start"
           });

@@ -91,82 +91,64 @@
               
                   <!-- Search/Filter Form -->
                   <form id="searchForm" class="mb-4">
-                    <div class="row g-2">
-                      <div class="col-md-2-5">
-                        <label for="teamHeroes" class="form-label">Winning Heroes</label>
-                      </div>
-                      <div class="col-md-2-5">
-                        <label for="opposingHero" class="form-label">Loosing Heroes</label>
-                      </div>
-                      
-                      <div class="col-md-2-5">
-                        <label for="mapFilter" class="form-label">Map</label>
-                      </div>
-                      <div class="col-md-2">
-                        <label for="sortMatches" class="form-label">Sort By</label>
-                      </div>
-                      <div class="col-md-2">
-                        <!-- Empty column so the buttons in the next row are aligned with the inputs -->
-                      </div>
-                    </div>
-                    <div class="row g-2">
-                      <div class="col-md-2-5" data-bs-theme="dark">
-                        <div class="multi-select-container">
+					<div class="row g-2">
+					  <div class="col-md-2-5">
+						<div class="form-group">
+						  <label for="teamHeroes" class="form-label">Winning Heroes</label>
+						  <div class="multi-select-container" data-bs-theme="dark">
 							<select id="teamHeroes" data-style="btn-dark" class="selectpicker" data-live-search="true" multiple title="Select hero(s)..."></select>
-                        </div>
-                      </div>
-                      <div class="col-md-2-5" data-bs-theme="dark">
-                        <div class="multi-select-container">
-                          <select id="opposingHeroes" data-style="btn-dark" class="selectpicker" data-live-search="true" multiple title="Select hero(s)..."></select>
-                        </div>
-                      </div>
-                      <div class="col-md-2-5" data-bs-theme="dark">
-                        
-                        <select id="mapFilter" data-style="btn-dark" class="selectpicker" data-live-search="true" title="Select map(s)..." multiple>
-                        </select>
-                      </div>
-                      <div class="col-md-2" id="sortButton" data-bs-theme="dark">
-                        <select id="sortMatches" data-style="btn-dark" class="selectpicker" data-live-search="true" title="Sort by...">
-                          <option value="timestamp" selected>Date</option>
-                          <option value="duration">Duration</option>
-                          <option value="map">Map</option>
-                        </select>
-                      </div>
-					  <div class="col-md-1 d-grid" data-bs-theme="dark">
-						<div class="btn-group" role="group" aria-label="Sort Order" data-bs-theme="dark">
-							<input
-							  type="radio"
-							  class="btn-check"
-							  name="sortOrder"
-							  id="ascOrder"
-							  value="asc"
-							  autocomplete="off"
-							/>
-							<label class="btn btn-dark" for="ascOrder">
-							  <i class="bi bi-arrow-up-short"></i>
-							</label>
-						  
-							<input
-							  type="radio"
-							  class="btn-check"
-							  name="sortOrder"
-							  id="descOrder"
-							  value="desc"
-							  autocomplete="off"
-							  checked
-							/>
-							<label class="btn btn-dark" for="descOrder">
-							  <i class="bi bi-arrow-down-short"></i>
-							</label>
 						  </div>
+						</div>
 					  </div>
-					  
-					  
-                      <div class="col-md-1 d-grid">
-                        <button type="button" id="resetBtn" class="btn btn-outline-dark">Reset</button>
-                      </div>
-                    </div>
-                  </form>
+					  <div class="col-md-2-5">
+						<div class="form-group">
+						  <label for="opposingHeroes" class="form-label">Loosing Heroes</label>
+						  <div class="multi-select-container" data-bs-theme="dark">
+							<select id="opposingHeroes" data-style="btn-dark" class="selectpicker" data-live-search="true" multiple title="Select hero(s)..."></select>
+						  </div>
+						</div>
+					  </div>
+					  <div class="col-md-2-5">
+						<div class="form-group">
+						  <label for="mapFilter" class="form-label">Map</label>
+						  <div class="multi-select-container" data-bs-theme="dark">
+							<select id="mapFilter" data-style="btn-dark" class="selectpicker" data-live-search="true" multiple title="Select map(s)..."></select>
+						  </div>
+						</div>
+					  </div>
+					  <div class="col-md-2">
+						<div class="form-group">
+						  <label for="sortMatches" class="form-label">Sort By</label>
+						  <div id="sortButton" data-bs-theme="dark">
+							<select id="sortMatches" data-style="btn-dark" class="selectpicker" data-live-search="true" title="Sort by...">
+							  <option value="timestamp" selected>Date</option>
+							  <option value="duration">Duration</option>
+							  <option value="map">Map</option>
+							</select>
+						  </div>
+						</div>
+					  </div>
+					  <div class="col-md-1">
+						<div class="form-group" data-bs-theme="dark">
+						  <label class="form-label">Order</label>
+						  <div class="btn-group" role="group" aria-label="Sort Order" data-bs-theme="dark">
+							<input type="radio" class="btn-check" name="sortOrder" id="ascOrder" value="asc" autocomplete="off" />
+							<label id="btn-label" class="btn btn-dark" for="ascOrder"><i class="bi bi-arrow-up-short"></i></label>
+							<input type="radio" class="btn-check" name="sortOrder" id="descOrder" value="desc" autocomplete="off" checked />
+							<label id="btn-label" class="btn btn-dark" for="descOrder"><i class="bi bi-arrow-down-short"></i></label>
+						  </div>
+						</div>
+					  </div>
+					  <div class="col-md-1">
+						<div class="form-group">
+						  <!-- Use a placeholder label (hidden or transparent) so the reset button lines up -->
+						  <label class="form-label" style="visibility: hidden;">Reset</label>
+						  <button type="button" id="resetBtn" class="btn btn-outline-dark">Reset</button>
+						</div>
+					  </div>
+					</div>
+				  </form>
+				  
                   <h5 class="mb-4">Filtering only works for heroes that were played atleast 80% of the match in order to only include relevant data</h5>
               
                   <!-- Accordion Container for Matches -->

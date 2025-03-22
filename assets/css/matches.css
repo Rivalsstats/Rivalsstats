@@ -60,7 +60,7 @@
   padding-left: 0.75rem;
   padding-right: 0.75rem;
 }
-#sortButton .bootstrap-select {
+.bootstrap-select {
   width: 100% !important;
   max-width: 100% !important;
 }
@@ -70,8 +70,13 @@
   display: flex !important;
   justify-content: center;
   align-items: center;
-  padding: 0rem !important;
-  height: 100%;
+}
+#btn-label {
+  height: 100% !important;
+  padding-left: 0.3rem;
+  padding-right: 0.3rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 }
 
 .btn-check + label::before,
@@ -95,3 +100,114 @@
   display: flex;
   align-items: center;
 }
+
+
+/* MOBILE CHECKS */
+
+@media (max-width: 768px) {
+  #resetBtn{
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .col-md-2-5, .col-md-1-5 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .accordion-button {
+    padding: 1rem;       /* Increase padding so text isn’t cramped */
+    white-space: normal; /* Allow text to wrap */
+    height: auto;        /* Let the header expand based on content */
+    line-height: 1.3;
+  }
+  .col-md-1, .col-md-2 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-top: 5px; /* Add some spacing */
+  }
+  .scoreboard-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-size: 0.85rem; /* Reduce font size */
+    padding: 0.5rem;
+  }
+
+  .player-cell {
+    flex-direction: column; /* Stack icons and names */
+    align-items: center;
+  }
+
+  .hero-icon {
+    width: 50px; /* Reduce hero icon size */
+    height: 50px;
+  }
+  .match-summary,
+  .details,
+  .accordion-body {
+    font-size: 0.9rem; /* Make text smaller */
+  }
+
+  .player-cell {
+    flex-direction: column; /* Stack content */
+    align-items: center;
+  }
+  .accordion-body {
+    overflow-x: auto; /* Enables horizontal scrolling */
+    max-width: 100%;
+  }
+
+  .scoreboard-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap; /* Ensures the table doesn't shrink weirdly */
+  }
+}
+
+@media (max-width: 576px) {
+  .accordion {
+    font-size: 0.9rem; /* Reduce text size */
+  }
+
+  .accordion-body {
+    overflow-x: auto; /* Enable horizontal scrolling if needed */
+  }
+  .btn-group {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .btn-check + label {
+    width: 48%;
+  }
+  .match-summary {
+    flex-direction: column;
+    text-align: center;
+  }
+  .match-summary {
+    flex-direction: column; /* Stack text properly */
+    align-items: center;
+  }
+
+  .summary-top {
+    flex-wrap: wrap; /* Prevents overflowing */
+    flex-direction: column;
+    align-items: center;
+  }
+  .summary-top > div {
+    width: 100%;
+    text-align: center;
+  }
+  
+}
+
+.accordion-body,
+.match-summary,
+.details {
+  word-wrap: break-word; /* Ensures words break properly */
+  overflow-wrap: break-word; /* For legacy browser support */
+  white-space: normal; /* Prevents single-line overflow */
+}
+
+
+
