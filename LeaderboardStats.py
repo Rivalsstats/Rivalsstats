@@ -41,7 +41,7 @@ lock = Lock()
 private_profile_count = 0
 backup_throttle_lock = Lock()
 last_backup_call = 0
-backup_throttle_time = 0.75  # seconds
+backup_throttle_time = 2  # seconds
 update_executor = ThreadPoolExecutor(max_workers=1)
 
 #thread savety
