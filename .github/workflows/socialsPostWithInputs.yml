@@ -1,0 +1,72 @@
+name: Rank Report
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+     inputs:
+      PostTitle:
+        description: 'Title of the Post (only used by reddit)'
+        required: true
+        default: 'Placeholder'
+      PostText:
+        description: 'Text of the Post (long version for reddit)'
+        required: true
+        default: 'Placeholder'
+      PostTextShort:
+        description: 'Text of the Post (short version for twitter/bluesky)'
+        required: true
+        default: 'Placeholder'
+      ImagePath:
+        description: 'Should an image be included? enter the path here'
+        required: false
+        default: 'Placeholder'
+
+jobs:
+  twitter:
+    runs-on: ubuntu-latest
+    steps:  
+      - name: Clone project
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # gets git history for changelogs
+          token: ${{ secrets.WORKFLOW_TOKEN }} 
+      - uses: nearform-actions/github-action-notify-twitter@v1.2.3
+        with:
+          message: ${{ inputs.PostTextShort }}
+          twitter-app-key: ${{ secrets.TWITTER_APP_KEY }}
+          twitter-app-secret: ${{ secrets.TWITTER_APP_SECRET }}
+          twitter-access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          twitter-access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          media: ${{ inputs.ImagePath}}
+          media-alt-text: "Image"
+  reddit:
+      runs-on: ubuntu-latest
+      steps:
+        - name: reddit
+          uses: meysam81/reddit-scheduled-submit@v1.1.1
+          with:
+            username: ${{ secrets.REDDIT_USERNAME }}
+            password: ${{ secrets.REDDIT_PASSWORD }}
+            client-id: ${{ secrets.REDDIT_APP_ID }}
+            client-secret: ${{ secrets.REDDIT_APP_SECRET }}
+            subreddit: ${{ secrets.REDDIT_SUBREDDIT }}
+            title: ${{ inputs.PostTitle}}
+            message: ${{ inputs.PostText}}
+  bsky-post:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Clone project
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 0  # gets git history for changelogs
+            token: ${{ secrets.WORKFLOW_TOKEN }} 
+
+        - uses: myConsciousness/bluesky-post@v5
+          with:
+            text: ${{ inputs.PostTextShort }}
+            media: "./${{ inputs.ImagePath}}"
+            media-alt: "Images"
+            identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
+            password: ${{ secrets.BLUESKY_PASSWORD }}
+            link-preview-url: "https://rivalsstats.com"
+            tags: "marvel,rivals,ranked,data-science"
