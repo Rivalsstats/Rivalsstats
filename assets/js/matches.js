@@ -462,8 +462,8 @@ function fetchFullMatchDetails(match, bodyElement) {
           <div class="details">
             <span><strong>Duration:</strong> ${durationText}</span>
             <span><strong>Map:</strong> ${mapText}</span>
-            <span><strong>Replay ID:</strong> <span id="replay-id">${replayID}</span></span>
-            <button id="copy-btn-${match.match_uid}" class="btn btn-sm btn-outline-light ms-2">Copy Replay ID</button>
+            <span><strong>Replay ID:</strong> <span id="replay-id-${match.match_uid}">${replayID}</span></span>
+            <button id="copy-btn-${match.match_uid}" data-matchid="${match.match_uid}" class="btn btn-sm btn-outline-light ms-2">Copy Replay ID</button>
           </div>
         </div>
         <!-- Victory Section -->
@@ -510,6 +510,17 @@ function fetchFullMatchDetails(match, bodyElement) {
     `;
       bodyElement.innerHTML = htmlContent;
       bodyElement.setAttribute('data-loaded', 'true');
+      document.getElementById(`copy-btn-${match.match_uid}`).addEventListener("click", function() {
+        // Get the text content of the replay ID.
+        const replayText = document.getElementById(`replay-id-${match.match_uid}`).textContent;
+        // Use the Clipboard API to copy the text.
+        navigator.clipboard.writeText(replayText).then(() => {
+          // Optionally notify the user that the text has been copied.
+          alert("Replay ID copied to clipboard!");
+        }).catch(err => {
+          console.error("Failed to copy text: ", err);
+        });
+      });
     })
     .catch(error => {
       bodyElement.innerHTML = `<p>Error loading match details.</p>`;
