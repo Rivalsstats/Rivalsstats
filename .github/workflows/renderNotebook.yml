@@ -6,14 +6,12 @@ name: RenderNotebook
 # this part can be heavily customized to your liking, like targeting only tags that match a certain word,
 # other branches or even pullrequests.
 on:
-  schedule:
-    - cron: "30 */12 * * *"  # Runs every 12 hours
-  #push:
-  #  branches: [ main ]
-  #  paths:
-  #    - 'data/**'              # Any file inside the /data/ folder
-  #    - 'templates/**'              # Any file inside the /templates/ folder
-  #    - 'MarvelRivalsData.Rmd' # The specific file
+  push:
+    branches: [ main ]
+    paths:
+      - 'data/**'              # Any file inside the /data/ folder
+      - 'templates/**'              # Any file inside the /templates/ folder
+      - 'MarvelRivalsData.Rmd' # The specific file
   #pull_request:
   #  branches: [ main ]
   #  paths:
