@@ -18,10 +18,10 @@ on:
   #    - 'data/**'              # Any file inside the /data/ folder
   #    - 'MarvelRivalsData.Rmd' # The specific file 
   workflow_dispatch:
-  #workflow_run:
-  #  workflows: ["Update Marvel Rivals Hero Stats & Leaderboards", "request Leaderboard", "Update Marvel Rivals Rank Population"]
-  #  types:
-  #    - completed
+  workflow_run:
+    workflows: ["Update Marvel Rivals Hero Stats & Leaderboards", "request Leaderboard", "Update Marvel Rivals Rank Population"]
+    types:
+      - completed
 
 # a workflow is built up as jobs, and within these jobs are steps
 jobs:
