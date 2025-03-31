@@ -30,8 +30,8 @@ MATCHES_FILE = "data/historical/matches.csv"
 MATCH_PLAYERS_FILE = "data/historical/match_players/"
 
 # Constants
-MAX_PARALLEL_REQUESTS = 1  # Keep this low to avoid hitting API limits
-DEFAULT_DELAY = 1  # Default delay between requests (in seconds)
+MAX_PARALLEL_REQUESTS = 5  # Keep this low to avoid hitting API limits
+DEFAULT_DELAY = 2  # Default delay between requests (in seconds)
 headers = {"x-api-key": os.getenv("API_KEY_MRAPI")}
 headers_rivals = {"x-api-key": os.getenv("API_KEY_RIVALS")}
 # Rate Limiting
