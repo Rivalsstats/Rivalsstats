@@ -15,7 +15,6 @@ LEADERBOARD_URL = "https://rivalsmeta.com/api/leaderboard/data"
 
 # Primary endpoints (using mrapi.org)
 PLAYER_API_URL = "https://mrapi.org/api/player/{}"
-PLAYER_UPDATE_URL = "https://mrapi.org/api/player-update/{}"
 MATCH_API_URL = "https://mrapi.org/api/match/{}"
 
 # Backup endpoints (using marvelrivalsapi.com)
@@ -30,7 +29,7 @@ MATCHES_FILE = "data/historical/matches.csv"
 MATCH_PLAYERS_FILE = "data/historical/match_players/"
 
 # Constants
-MAX_PARALLEL_REQUESTS = 2  # Keep this low to avoid hitting API limits
+MAX_PARALLEL_REQUESTS = 10  # Keep this low to avoid hitting API limits
 DEFAULT_DELAY = 2  # Default delay between requests (in seconds)
 headers = {"x-api-key": os.getenv("API_KEY_MRAPI")}
 headers_rivals = {"x-api-key": os.getenv("API_KEY_RIVALS")}
@@ -113,7 +112,26 @@ def fetch_data(url, retries=10, delay=DEFAULT_DELAY, headers_override=None):
         try:
             if headers_override == headers_rivals:
                 throttle_backup_api()  # Throttle backup API calls on every attempt
+
             response = requests.get(url, headers=headers_override if headers_override else headers)
+
+            # --- NEW: Print and process backup API rate limit headers ---
+            if response.headers.get("X-RateLimit-Limit") is not None:
+                rate_limit = response.headers.get("X-RateLimit-Limit")
+                remaining = response.headers.get("X-RateLimit-Remaining")
+                reset = response.headers.get("X-RateLimit-Reset")
+                print(f"Backup API Rate Limit Info: Limit={rate_limit}, Remaining={remaining}, Reset={reset}")
+                try:
+                    remaining_int = int(remaining) if remaining is not None else 1
+                    reset_int = int(reset) if reset is not None else 0
+                    if remaining_int <= 0:
+                        sleep_time = reset_int - int(time.time())
+                        if sleep_time > 0:
+                            print(f"Rate limit reached. Sleeping for {sleep_time} seconds until reset.")
+                            time.sleep(sleep_time)
+                except Exception as e:
+                    print(f"Error processing rate limit headers: {e}")
+            # --- End New Block ---
 
             # Detect Rate Limiting (429 Error)
             if response.status_code == 429:
@@ -121,6 +139,7 @@ def fetch_data(url, retries=10, delay=DEFAULT_DELAY, headers_override=None):
                 print(f"⚠️ Rate limit hit! Sleeping for {retry_after} seconds... (Attempt {attempt+1}/{retries})")
                 time.sleep(retry_after)
                 continue
+
             elif response.status_code == 500:
                 if "player" in url:  # Only count private profiles for player endpoints
                     print(f"Private profile detected: {url}")
@@ -130,6 +149,7 @@ def fetch_data(url, retries=10, delay=DEFAULT_DELAY, headers_override=None):
                     print(f"⚠️ Server error (500) on {url} Retrying... (Attempt {attempt+1}/{retries})")
                     time.sleep(delay)
                     continue
+
             # For any other API error (like 403)
             if response.status_code >= 400:
                 print(f"⚠️ API Error {response.status_code}: Skipping {url}")
@@ -156,7 +176,7 @@ def fetch_with_backup(primary_url, backup_url = "", retries=10, delay=DEFAULT_DE
     then try the backup_url using the backup header.
     """
     data = None
-    if primary_url:
+    if primary_url is not None:
         data = fetch_data(primary_url, 3, delay)
     if data is None and backup_url != "":
         data = fetch_data(backup_url, retries, delay, headers_override=headers_rivals)
@@ -210,7 +230,7 @@ def fetch_leaderboard():
 # Fetch match details and save data
 def fetch_match_data(match_id):
     """Fetch match details and save match/player data."""
-    match_data = fetch_with_backup(MATCH_API_URL.format(match_id),
+    match_data = fetch_with_backup(None,
                                    MATCH_API_URL_RIVALS.format(match_id))
     if not match_data:
         return
@@ -320,9 +340,8 @@ def fetch_player_details_parallel(players_to_fetch):
 # Fetch and process a single player's data
 def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
      # Trigger player update
-    fetch_with_backup(PLAYER_UPDATE_URL.format(player_id))
     
-    player_data = fetch_with_backup(PLAYER_API_URL.format(player_id),
+    player_data = fetch_with_backup(None,
                                     PLAYER_API_URL_RIVALS.format(player_id))
     if not player_data or player_data == {}:  # Skip empty responses
         print(f"⚠️ Warning: No data returned for player {player_id}. Skipping...")
@@ -360,7 +379,7 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
                     now = datetime.datetime.now(datetime.timezone.utc)
                     if (now - max_dt).total_seconds() > 12 * 3600:
                         print(f"Player {player_id} has not been updated in over 12 hours. requesting update...")
-                        update_executor.submit(fetch_with_backup, "",PLAYER_UPDATE_URL_RIVALS.format(player_id))
+                        update_executor.submit(fetch_with_backup, None,PLAYER_UPDATE_URL_RIVALS.format(player_id))
             # Backup response structure adjustments
             is_private = player_data.get("isPrivate", True)
             # Try to extract a rank score from one of the season entries (if available)
@@ -492,7 +511,7 @@ def process_encountered_players(player_data, timestamp):
     total_scanned_players = total_scanned_players + len(players_to_fetch)
     print(f"Fetching {len(players_to_fetch)} encountered players for a total of {total_scanned_players} and {len(matches_to_fetch)} encountered matches for a total of {total_scanned_matches}")
     
-    fetch_teammates_parallel(players_to_fetch)
+    # fetch_teammates_parallel(players_to_fetch) remove for now to increase performance
     fetch_matches_parallel(matches_to_fetch)
 
 
@@ -533,7 +552,7 @@ def save_encountered_players():
 # Fetch and process a single teammate's data
 def fetch_and_process_teammate(player_id):
     global encountered_players
-    player_data = fetch_with_backup(PLAYER_API_URL.format(player_id),
+    player_data = fetch_with_backup(None,
                                     PLAYER_API_URL_RIVALS.format(player_id))
     
     # Return early if no data was fetched
@@ -700,7 +719,7 @@ def standardize_player_backup(raw_player):
 
 def standardize_player_primary(raw_player):
     # TODO IMPLEMENT THIS
-    raise Exception("Primary endpoint match data has not been implemented yet.")
+    raise Exception(f"Primary endpoint player data has not been implemented yet. Player: {raw_player}")
     return {
         "todo": "Implement this function"
     }
@@ -733,7 +752,7 @@ def standardize_match_backup(raw_match):
 def standardize_match_primary(raw_match):
     # Convert primary format to standard schema
     # Adjust field names and nesting as needed
-    raise Exception("Primary endpoint match data has not been implemented yet.")
+    raise Exception(f"Primary endpoint match data has not been implemented yet. Match {raw_match}")
     return {
         "todo": "Implement this function"
     }
