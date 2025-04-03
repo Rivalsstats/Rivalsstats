@@ -26,7 +26,9 @@ with open(historical_file, "a", encoding="utf-8", newline="") as f:
         writer.writerow(["timestamp", "rank", "division", "population_count"])
 
     # Convert JSON structure to CSV rows
+    
     for rank, values in latest_data.items():
+        print(values)
         for key, value in values.items():
             if key == "image":
                 continue  # Skip images
