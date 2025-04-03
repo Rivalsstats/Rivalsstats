@@ -27,9 +27,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Fetch Marvel Rivals Hero Stats
+      - name: Fetch Marvel Rivals Codes
         run: |
-          curl -X GET "${BASE_URL}${CODES_URL}" \
+          curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${CODES_URL}" \
           -o data/latest/latest_codes.json
 
       - name: Check for new codes
