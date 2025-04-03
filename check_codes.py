@@ -20,7 +20,7 @@ with open(latest_file, "r", encoding="utf-8") as f:
 
 # Extract existing code IDs for comparison
 historical_code_ids = {entry["code"] for entry in historical_codes}
-new_codes = [code for code in latest_codes if code["code"] not in historical_code_ids]
+new_codes = [code for code in latest_codes["data"] if code["code"] not in historical_code_ids]
 
 # Send notification if new codes are found
 if new_codes:
