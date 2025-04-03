@@ -9,7 +9,7 @@ jobs:
   update_rank_population:
     runs-on: ubuntu-latest
     env:
-      RANKS_URL: "https://mrapi.org/api/ranks"
+      RANKS_URL: "https://API.Lunarify.app/api/v1/rank/distribution"
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
     steps:
@@ -17,7 +17,7 @@ jobs:
 
       - name: Fetch Rank Population Data
         run: |
-          curl -X GET "${RANKS_URL}" -o data/latest/latest_ranks.json
+          curl -H "x-api-key: ${API_TOKEN}" -X GET "${RANKS_URL}" -o data/latest/latest_ranks.json
 
       - name: Merge Rank Data
         run: python merge_rank_population.py
