@@ -116,10 +116,10 @@ def fetch_data(url, retries=10, delay=DEFAULT_DELAY, headers_override=None):
             response = requests.get(url, headers=headers_override if headers_override else headers)
 
             # --- NEW: Print and process backup API rate limit headers ---
-            if response.headers.get("X-RateLimit-Limit") is not None:
-                rate_limit = response.headers.get("X-RateLimit-Limit")
-                remaining = response.headers.get("X-RateLimit-Remaining")
-                reset = response.headers.get("X-RateLimit-Reset")
+            if response.headers.get("RateLimit-Limit") is not None:
+                rate_limit = response.headers.get("RateLimit-Limit")
+                remaining = response.headers.get("RateLimit-Remaining")
+                reset = response.headers.get("RateLimit-Reset")
                 print(f"Backup API Rate Limit Info: Limit={rate_limit}, Remaining={remaining}, Reset={reset}")
                 try:
                     remaining_int = int(remaining) if remaining is not None else 1
