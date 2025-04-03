@@ -457,7 +457,6 @@ def process_encountered_players(player_data, timestamp):
     if "match_history" in player_data:
         for match in player_data["match_history"]:
             match_id = match.get("match_uid")
-            print(f"found match_id: {match_id}")
             if match_id and match_id not in queried_matches:
                 queried_matches.add(match_id)
                 matches_to_fetch.append(match_id)
