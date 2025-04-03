@@ -11,6 +11,7 @@ jobs:
     env:
       RANKS_URL: "https://API.Lunarify.app/api/v1/rank/distribution"
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+      API_TOKEN: ${{ secrets.API_KEY_RIVALS }}
 
     steps:
       - uses: actions/checkout@v4
