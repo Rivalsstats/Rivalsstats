@@ -676,14 +676,14 @@ def fetchUrl(url,headers=None):
         response = requests.get(url, headers=headers, timeout=10)
         # Detect Rate Limiting (429 Error)
         if response.status_code == 429:
-            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Rate limit hit!")
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Rate limit hit! on {url}: {response.text}")
             return None, response.headers, response.status_code
         elif response.status_code == 500:
-            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Server error (500) on {url}")
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Server error (500) on {url}: {response.text}")
             return None, response.headers, response.status_code
         # For any other API error (like 403)
         if response.status_code >= 400:
-            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ API Error {response.status_code}")
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ API Error {response.status_code} on {url}: {response.text}")
             return None, response.headers, response.status_code
 
         # Check for Non-JSON Responses
