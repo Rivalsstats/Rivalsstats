@@ -114,7 +114,6 @@ def fetch_leaderboard():
         return
 
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processing {len(leaderboard)} players from leaderboard...")
 
     for idx, player in enumerate(leaderboard["players"]):
         # Add rank based on the position in the leaderboard
@@ -123,7 +122,7 @@ def fetch_leaderboard():
         if player_id not in queried_players:  # Only fetch if not already queried
             queried_players.add(player_id)
             player_queue.put((player_id, timestamp, player)) # enqueue players
-
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processing {player_queue.qsize()} players from leaderboard...")
 
 # process match details and save data
 def process_match_data(match_id, match_data):
