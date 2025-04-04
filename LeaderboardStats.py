@@ -4,11 +4,10 @@ import os
 import datetime
 import time
 import json
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from threading import Lock
+import threading
 import pandas as pd
 import pyarrow.parquet as pq
-import traceback
+from queue import Queue
 
 # API Endpoints
 LEADERBOARD_URL = "https://rivalsmeta.com/api/leaderboard/data"
@@ -29,22 +28,18 @@ MATCHES_FILE = "data/historical/matches.csv"
 MATCH_PLAYERS_FILE = "data/historical/match_players/"
 
 # Constants
-MAX_PARALLEL_REQUESTS = 10  # Keep this low to avoid hitting API limits
+MAX_PARALLEL_REQUESTS = 1  # Keep this low to avoid hitting API limits
 DEFAULT_DELAY = 2  # Default delay between requests (in seconds)
 headers = {"x-api-key": os.getenv("API_KEY_MRAPI")}
 headers_rivals = {"x-api-key": os.getenv("API_KEY_RIVALS")}
-# Rate Limiting
-request_count = 0
-start_time = time.time()
-lock = Lock()
-private_profile_count = 0
-backup_throttle_lock = Lock()
-last_backup_call = 0
-backup_throttle_time = 2  # seconds
-update_executor = ThreadPoolExecutor(max_workers=1)
 
-#thread savety
-encountered_lock = Lock() 
+# Queues
+player_queue = Queue()
+teammate_queue = Queue()
+match_queue = Queue()
+update_queue = Queue()
+
+# holds extra info for matches
 match_extra_info = {}
 
 def load_existing_matches():
@@ -59,7 +54,7 @@ def load_existing_matches():
             match_uid = line.strip().split(",")[0]  # Match UID is the first column
             existing_matches.add(match_uid)
     
-    print(f"Loaded {len(existing_matches)} existing matches from matches.csv.")
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Loaded {len(existing_matches)} existing matches from matches.csv.")
     return existing_matches
 
 def load_existing_players():
@@ -78,7 +73,7 @@ def load_existing_players():
                 "matches": int(row["matches"]) if row["matches"].isdigit() else 0,
                 "wins": int(row["wins"]) if row["wins"].isdigit() else 0,
             }
-    print(f"Loaded {len(players)} existing encountered players.")
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Loaded {len(players)} existing encountered players.")
     return players
 
 
@@ -92,95 +87,6 @@ match_players_data = []
 total_scanned_matches = 0
 total_scanned_players = 0
 
-def throttle_backup_api():
-    global last_backup_call
-    with backup_throttle_lock:
-        now = time.time()
-        elapsed = now - last_backup_call
-        if elapsed < backup_throttle_time:  # 
-            time.sleep(backup_throttle_time - elapsed)
-        last_backup_call = time.time()
-
-def fetch_data(url, retries=10, delay=DEFAULT_DELAY, headers_override=None):
-    """
-    Fetch JSON data safely, handling rate limits and corrupt responses.
-    An optional headers_override can be provided.
-    """
-    global private_profile_count
-
-    for attempt in range(retries):
-        try:
-            if headers_override == headers_rivals:
-                throttle_backup_api()  # Throttle backup API calls on every attempt
-
-            response = requests.get(url, headers=headers_override if headers_override else headers)
-
-            # --- NEW: Print and process backup API rate limit headers ---
-            if response.headers.get("RateLimit-Limit") is not None:
-                rate_limit = response.headers.get("RateLimit-Limit")
-                remaining = response.headers.get("RateLimit-Remaining")
-                reset = response.headers.get("RateLimit-Reset")
-                print(f"Backup API Rate Limit Info: Limit={rate_limit}, Remaining={remaining}, Reset={reset}")
-                try:
-                    remaining_int = int(remaining) if remaining is not None else 1
-                    reset_int = int(reset) if reset is not None else 0
-                    if remaining_int <= 0:
-                        sleep_time = reset_int - int(time.time())
-                        if sleep_time > 0:
-                            print(f"Rate limit reached. Sleeping for {sleep_time} seconds until reset.")
-                            time.sleep(sleep_time)
-                except Exception as e:
-                    print(f"Error processing rate limit headers: {e}")
-            # --- End New Block ---
-
-            # Detect Rate Limiting (429 Error)
-            if response.status_code == 429:
-                retry_after = int(response.headers.get("Retry-After", 5))  # Default 5s if not provided
-                print(f"⚠️ Rate limit hit! Sleeping for {retry_after} seconds... (Attempt {attempt+1}/{retries})")
-                time.sleep(retry_after)
-                continue
-
-            elif response.status_code == 500:
-                if "player" in url:  # Only count private profiles for player endpoints
-                    print(f"Private profile detected: {url}")
-                    private_profile_count += 1
-                    return None  # Don't retry on 500 for players
-                else:
-                    print(f"⚠️ Server error (500) on {url} Retrying... (Attempt {attempt+1}/{retries})")
-                    time.sleep(delay)
-                    continue
-
-            # For any other API error (like 403)
-            if response.status_code >= 400:
-                print(f"⚠️ API Error {response.status_code}: Skipping {url}")
-                return None
-
-            # Check for Non-JSON Responses
-            if "application/json" not in response.headers.get("Content-Type", ""):
-                print(f"⚠️ Warning: Non-JSON response from {url}. Skipping...")
-                return None
-
-            return response.json()
-
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Network error fetching {url}: {e}")
-        except ValueError:
-            print(f"⚠️ Invalid JSON response from {url}, skipping...")
-        time.sleep(delay)
-
-    return None  # If all retries fail
-
-def fetch_with_backup(primary_url, backup_url = "", retries=10, delay=DEFAULT_DELAY):
-    """
-    Try fetching data using the primary_url. If it fails (i.e. returns None),
-    then try the backup_url using the backup header.
-    """
-    data = None
-    if primary_url is not None:
-        data = fetch_data(primary_url, 3, delay)
-    if data is None and backup_url != "":
-        data = fetch_data(backup_url, retries, delay, headers_override=headers_rivals)
-    return data
 
 # Function to append new rows to a CSV file
 def append_csv(filename, fieldnames, data, seen_entries=None):
@@ -201,17 +107,14 @@ def append_csv(filename, fieldnames, data, seen_entries=None):
 # Fetch leaderboard
 def fetch_leaderboard():
     global total_scanned_matches, total_scanned_players
-    print("Fetching leaderboard data...")
-    leaderboard = fetch_data(LEADERBOARD_URL)
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching leaderboard data...")
+    leaderboard, response_headers, status_code = fetchUrl(LEADERBOARD_URL)
     if not leaderboard:
-        print("Failed to fetch leaderboard.")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Failed to fetch leaderboard.")
         return
 
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
-
-    print(f"Processing {len(leaderboard)} players from leaderboard...")
-
-    players_to_fetch = []
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processing {len(leaderboard)} players from leaderboard...")
 
     for idx, player in enumerate(leaderboard["players"]):
         # Add rank based on the position in the leaderboard
@@ -219,22 +122,15 @@ def fetch_leaderboard():
         player_id = player["uid"]
         if player_id not in queried_players:  # Only fetch if not already queried
             queried_players.add(player_id)
-            players_to_fetch.append((player_id, timestamp, player))
+            player_queue.put((player_id, timestamp, player)) # enqueue players
 
-    # Fetch all player details in parallel
-    total_scanned_players = total_scanned_players + len(players_to_fetch)
-    print(f"Fetching {len(players_to_fetch)} players")
 
-    fetch_player_details_parallel(players_to_fetch)
-
-# Fetch match details and save data
-def fetch_match_data(match_id):
+# process match details and save data
+def process_match_data(match_id, match_data):
     """Fetch match details and save match/player data."""
-    match_data = fetch_with_backup(None,
-                                   MATCH_API_URL_RIVALS.format(match_id))
     if not match_data:
         return
-    print(f"Processing match {match_id}...")
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processing match {match_id}...")
     # Determine the structure used by the API:
     # If the response contains a "match_details" key, use that (backup format)
     if "match_details" in match_data:
@@ -315,39 +211,16 @@ def fetch_match_data(match_id):
                 "match_timestamp": csv_data.get("match_timestamp", "")
             }
         )
-
-
-# Parallel fetching of player details
-def fetch_player_details_parallel(players_to_fetch):
-    print(f"Starting parallel fetch for {len(players_to_fetch)} players...")  # Debug line
-    with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
-        future_to_player = {
-            executor.submit(fetch_and_process_player, player_id, timestamp, player_data): player_id
-            for player_id, timestamp, player_data in players_to_fetch
-        }
-
-        for future in as_completed(future_to_player):
-            player_id = future_to_player[future]
-            print(f"✅ Successfully processed player {player_id}")  # Debug success
-            try:
-                future.result()
-            except Exception as e:
-                print(f"Error processing player {player_id}: {e}")
-                traceback.print_exc()
-
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Match {match_id} succesfully processed") 
 
 
 # Fetch and process a single player's data
-def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
-     # Trigger player update
-    
-    player_data = fetch_with_backup(None,
-                                    PLAYER_API_URL_RIVALS.format(player_id))
+def process_player(player_id, timestamp, leaderboard_entry,player_data):
     if not player_data or player_data == {}:  # Skip empty responses
-        print(f"⚠️ Warning: No data returned for player {player_id}. Skipping...")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Warning: No data returned for player {player_id}. Skipping...")
         return
     if not isinstance(player_data, dict):
-        print(f"🚨 ERROR: Unexpected data type for player {player_id}. Got: {type(player_data)}")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]🚨 ERROR: Unexpected data type for player {player_id}. Got: {type(player_data)}")
         return
     
     os.makedirs("data/players", exist_ok=True)
@@ -374,12 +247,12 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
                             if max_dt is None or dt > max_dt:
                                 max_dt = dt
                         except Exception as e:
-                            print(f"Error parsing {field} for player {player_id}: {e}")
+                            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error parsing {field} for player {player_id}: {e}")
                 if max_dt is not None:
                     now = datetime.datetime.now(datetime.timezone.utc)
-                    if (now - max_dt).total_seconds() > 12 * 3600:
-                        print(f"Player {player_id} has not been updated in over 12 hours. requesting update...")
-                        update_executor.submit(fetch_with_backup, None,PLAYER_UPDATE_URL_RIVALS.format(player_id))
+                    if (now - max_dt).total_seconds() > 24 * 3600:
+                        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Player {player_id} has not been updated in over 24 hours. requesting update...")
+                        update_queue.put(player_id) # enqueue players
             # Backup response structure adjustments
             is_private = player_data.get("isPrivate", True)
             # Try to extract a rank score from one of the season entries (if available)
@@ -393,8 +266,8 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
             player_name = player_data.get("player", {}).get("name", "")
             rank_name = player_data.get("player", {}).get("rank", {}).get("rank", "")
     except Exception as e:
-        print(f"🚨 ERROR: Exception while processing player {player_id}: {e}")
-        print(f"Full player data: {json.dumps(player_data, indent=2)}")
+        print(f"🚨[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] ERROR: Exception while processing player {player_id}: {e}")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Full player data: {json.dumps(player_data, indent=2)}")
         return  # Skip processing this player to avoid crashing the script        
 
 
@@ -416,7 +289,7 @@ def fetch_and_process_player(player_id, timestamp, leaderboard_entry):
             },
         )
     except Exception as e:
-        print(f"Error saving leaderboard data for player {player_id}: {e}")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error saving leaderboard data for player {player_id}: {e}")
         print(timestamp)
         print(leaderboard_entry.get("rank_in_leaderboard",""))
         print(leaderboard_entry.get("name", player_name))
@@ -436,22 +309,19 @@ def process_encountered_players(player_data, timestamp):
     if player_data.get("is_profile_private", player_data.get("isPrivate", True)):
         return
 
-    players_to_fetch = []
-    matches_to_fetch = []
-
     # Process teammates
     if "teammates" in player_data:
         for teammate in player_data["teammates"]:
             pid = teammate.get("player_uid")
             if pid and pid not in queried_players:
                 queried_players.add(pid)
-                players_to_fetch.append((pid, timestamp))
+                teammate_queue.put((pid, timestamp)) # this is currently never processed, but could be in the future once ratelimits allow for it
     elif "team_mates" in player_data:
         for teammate in player_data["team_mates"]:
             pid = teammate.get("player_info", {}).get("player_uid")
             if pid and pid not in queried_players:
                 queried_players.add(pid)
-                players_to_fetch.append((pid, timestamp))
+                teammate_queue.put((pid, timestamp)) # this is currently never processed, but could be in the future once ratelimits allow for it
 
     # Process match history (only fetch unique matches)
     if "match_history" in player_data:
@@ -459,7 +329,6 @@ def process_encountered_players(player_data, timestamp):
             match_id = match.get("match_uid")
             if match_id and match_id not in queried_matches:
                 queried_matches.add(match_id)
-                matches_to_fetch.append(match_id)
             
             if match_id not in match_extra_info:
                 # Check if we're in the backup structure
@@ -502,35 +371,10 @@ def process_encountered_players(player_data, timestamp):
                     "winning_team_score": winning_score,
                     "losing_team_score": losing_score,
                 }
+                match_queue.put(match_id)
     else:
-        print(f"Match history not found for player {player_data.get('player_uid', 'UNKNOWN')}")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Match history not found for player {player_data.get('player_uid', 'UNKNOWN')}")
 
-    # Fetch teammates and matches in parallel
-    total_scanned_matches = total_scanned_matches + len(matches_to_fetch)
-    total_scanned_players = total_scanned_players + len(players_to_fetch)
-    print(f"Fetching {len(players_to_fetch)} encountered players for a total of {total_scanned_players} and {len(matches_to_fetch)} encountered matches for a total of {total_scanned_matches}")
-    
-    # fetch_teammates_parallel(players_to_fetch) remove for now to increase performance
-    fetch_matches_parallel(matches_to_fetch)
-
-
-# Fetch teammates' details in parallel
-def fetch_teammates_parallel(players_to_fetch):
-    if not players_to_fetch:
-        return
-
-    with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
-        future_to_teammate = {
-            executor.submit(fetch_and_process_teammate, player_id): player_id
-            for player_id, timestamp in players_to_fetch
-        }
-
-        for future in as_completed(future_to_teammate):
-            player_id = future_to_teammate[future]
-            try:
-                future.result()
-            except Exception as e:
-                print(f"Error processing encountered player {player_id}: {e}")
 
 def save_encountered_players():
     """Saves all encountered players to CSV (no duplicates)."""
@@ -581,7 +425,7 @@ def fetch_and_process_teammate(player_id):
         wins = overall_stats.get("total_wins", 0)
         player_name = player_data.get("player", {}).get("name", "")
     
-    print(f"Processing encountered player {player_id} - {'PRIVATE' if is_private else 'PUBLIC'} profile...")
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processing encountered player {player_id} - {'PRIVATE' if is_private else 'PUBLIC'} profile...")
     with encountered_lock:
         if player_id in encountered_players:
             encountered_players[player_id]["latest_score"] = latest_score
@@ -597,25 +441,6 @@ def fetch_and_process_teammate(player_id):
                 "matches": matches,
                 "wins": wins
             }
-
-
-# Fetch matches in parallel (avoiding duplicates)
-def fetch_matches_parallel(matches_to_fetch):
-    if not matches_to_fetch:
-        return
-
-    with ThreadPoolExecutor(max_workers=MAX_PARALLEL_REQUESTS) as executor:
-        future_to_match = {
-            executor.submit(fetch_match_data, match_id): match_id
-            for match_id in matches_to_fetch
-        }
-
-        for future in as_completed(future_to_match):
-            match_id = future_to_match[future]
-            try:
-                future.result()
-            except Exception as e:
-                print(f"Error processing match {match_id}: {e}")
 
 
 def standardize_player(raw_player):
@@ -788,7 +613,7 @@ def save_to_disk():
     """Writes all collected data to files in one batch."""
     df = pd.DataFrame(match_players_data)
     if "match_timestamp" not in df.columns or df.empty:
-        print("No match_timestamp data found in match_players_data!")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] No match_timestamp data found in match_players_data!")
         return
     # Convert the match_timestamp column to datetime
     df['match_timestamp'] = pd.to_datetime(df['match_timestamp'], errors='coerce', unit='s')
@@ -806,7 +631,7 @@ def save_to_disk():
         # Group the DataFrame by year and week, then save each group separately
         for (year, week), group in df.groupby(['year', 'week']):
             filename = os.path.join(MATCH_PLAYERS_FILE, f"match_players_week_{week}_{year}.parquet")
-            print(f"Saving group for week {week} of {year} to {filename}...")
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Saving group for week {week} of {year} to {filename}...")
             if os.path.exists(filename):
                 old_data = pd.read_parquet(filename, engine="pyarrow")
                 combined_group = pd.concat([old_data, group])
@@ -816,7 +641,7 @@ def save_to_disk():
                 group.to_parquet(filename, index=False, engine="pyarrow")
     if not default_df.empty:
         default_filename = os.path.join(MATCH_PLAYERS_FILE, "match_players_default.parquet")
-        print(f"Saving rows with missing timestamps to {default_filename}...")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Saving rows with missing timestamps to {default_filename}...")
         if os.path.exists(default_filename):
             old_data = pd.read_parquet(default_filename, engine="pyarrow")
             combined_default = pd.concat([old_data, default_df])
@@ -825,13 +650,144 @@ def save_to_disk():
         else:
             default_df.to_parquet(default_filename, index=False, engine="pyarrow")
 
+def process_rate_limit(headers):
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processing rate limit headers...")
+    if headers.get("X-RateLimit-Limit") is not None:
+            rate_limit = headers.get("X-RateLimit-Limit")
+            remaining = headers.get("X-RateLimit-Remaining")
+            reset = headers.get("X-RateLimit-Reset")
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Backup API Rate Limit Info: Limit={rate_limit}, Remaining={remaining}, Reset={reset}")
+            try:
+                remaining_int = int(remaining) if remaining is not None else 1
+                reset_int = int(reset) if reset is not None else 0
+                if remaining_int <= 0:
+                    sleep_time = reset_int - int(time.time())
+                    if sleep_time > 0:
+                        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Rate limit reached. Sleeping for {sleep_time} seconds until reset.")
+                        time.sleep(sleep_time)
+            except Exception as e:
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing rate limit headers: {e}")
+    else:
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Warning: Rate limit headers not found in response. {headers}")
+
+def fetchUrl(url,headers=None):
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        # Detect Rate Limiting (429 Error)
+        if response.status_code == 429:
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Rate limit hit!")
+            return None, response.headers, response.status_code
+        elif response.status_code == 500:
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Server error (500) on {url}")
+            return None, response.headers, response.status_code
+        # For any other API error (like 403)
+        if response.status_code >= 400:
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ API Error {response.status_code}")
+            return None, response.headers, response.status_code
+
+        # Check for Non-JSON Responses
+        if "application/json" not in response.headers.get("Content-Type", ""):
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Warning: Non-JSON response from {url}. Skipping...")
+            return None, None, response.status_code
+
+        return response.json(), response.headers, response.status_code
+
+    except requests.exceptions.RequestException as e:
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]❌ Network error fetching {url}: {e}")
+    except ValueError:
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Invalid JSON response from {url}, skipping...")
+
+def player_worker():
+    while True:
+        try:
+            # Try to get a task; timeout after 5 seconds if the queue is empty.
+            player_id, timestamp, leaderboard_entry = player_queue.get(timeout=10)
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching player {player_id}...")
+            response, resulting_headers, status_code = fetchUrl(PLAYER_API_URL_RIVALS.format(player_id),headers_rivals)
+            process_rate_limit(resulting_headers)
+            if status_code == 429:
+                player_queue.put((player_id, timestamp, leaderboard_entry))
+        except Exception:
+            print("[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] No more players to process. Exiting...")
+            break  # Exit loop if no task is received within the timeout.
+        try:
+            process_player(player_id, timestamp, leaderboard_entry, response)
+        except Exception as e:
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing player {player_id}: {e}")
+        finally:
+            player_queue.task_done()
+
+
+def teammate_worker():
+    while True:
+        task = teammate_queue.get()
+        if task is None:
+            teammate_queue.task_done()
+            break
+        player_id, timestamp = task
+        try:
+            fetch_and_process_teammate(player_id)
+        except Exception as e:
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing teammate {player_id}: {e}")
+        finally:
+            teammate_queue.task_done()
+
+def match_worker():
+    while True:
+        # Block indefinitely until a task is available.
+        match_id = match_queue.get()
+        # If we get a sentinel (None), then break out of the loop.
+        if match_id is None:
+            match_queue.task_done()
+            break
+        try:
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching match {match_id}...")
+            response, resulting_headers, status_code = fetchUrl(MATCH_API_URL_RIVALS.format(match_id),headers_rivals)
+
+            if status_code == 429:
+                process_rate_limit(resulting_headers)
+                match_queue.put(match_id)
+            process_match_data(match_id, response)
+        except Exception as e:
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing match {match_id}: {e}")
+        finally:
+            match_queue.task_done()
+
 
 if __name__ == "__main__":
     fetch_leaderboard()
-    print(f"Saving {len(encountered_players)} encountered players to CSV...")
+    # Start consumer worker threads for each queue.
+    player_thread = threading.Thread(target=player_worker)
+    match_thread = threading.Thread(target=match_worker)
+    #teammate_thread = threading.Thread(target=teammate_worker)
+
+    player_thread.start()
+    #teammate_thread.start()
+    match_thread.start()
+
+    # Producer: Enqueue tasks by fetching the leaderboard.
+    fetch_leaderboard()
+
+    # Wait for all player tasks to finish.
+    print("[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Waiting for Player queue to finish...")
+    player_queue.join()
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Player thread finished. Still waiting for {match_queue.qsize()} matches to finish...")
+    # Now that all players are processed, no new match/teammate tasks will be added.
+    # Signal the match and teammate workers to exit by enqueuing a sentinel.
+    match_queue.put(None)
+    #teammate_queue.put(None)
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Waiting for match queue to finish...")
+    # Wait for match and teammate queues to be processed.
+    match_queue.join()
+    #teammate_queue.join()
+
+    # wait for worker threads to finish
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Waiting for threads to finish...")
+    player_thread.join()
+    match_thread.join()
+    #teammate_thread.join()
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Data collection completed!")
     save_encountered_players()
     save_to_disk()
-    print("Data collection completed!")
-    print(f"Total Players Scanned: {total_scanned_players}")
-    print(f"Total Matches Scanned: {total_scanned_matches}")
-    print(f"Private Profiles Encountered: {private_profile_count}")
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Total Players Scanned: {total_scanned_players}")
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Total Matches Scanned: {total_scanned_matches}")
