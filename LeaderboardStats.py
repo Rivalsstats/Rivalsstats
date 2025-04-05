@@ -673,7 +673,7 @@ def process_rate_limit(headers, source):
 
 def fetchUrl(url,headers=None):
     try:
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=30)
         # Detect Rate Limiting (429 Error)
         if response.status_code == 429:
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Rate limit hit! on {url}: {response.text}")
@@ -703,15 +703,15 @@ def player_worker():
         try:
             # Try to get a task; timeout after 5 seconds if the queue is empty.
             player_id, timestamp, leaderboard_entry = player_queue.get(timeout=10)
+        except Exception:
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] No more players to process. Exiting...")
+            break  # Exit loop if no task is received within the timeout.
+        try:
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching player {player_id}...")
             response, resulting_headers, status_code = fetchUrl(PLAYER_API_URL_RIVALS.format(player_id),headers_rivals)
             process_rate_limit(resulting_headers, "player")
             if status_code == 429:
                 player_queue.put((player_id, timestamp, leaderboard_entry))
-        except Exception:
-            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] No more players to process. Exiting...")
-            break  # Exit loop if no task is received within the timeout.
-        try:
             process_player(player_id, timestamp, leaderboard_entry, response)
         except Exception as e:
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing player {player_id}: {e}")
@@ -774,6 +774,7 @@ def update_worker():
             update_queue.task_done()
 
 if __name__ == "__main__":
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Starting data collection...")
     fetch_leaderboard()
     # Start consumer worker threads for each queue.
     player_thread = threading.Thread(target=player_worker)
@@ -796,6 +797,7 @@ if __name__ == "__main__":
     # Now that all players are processed, no new match/teammate tasks will be added.
     # Signal the match and teammate workers to exit by enqueuing a sentinel.
     match_queue.put(None)
+    update_queue.put(None)
     #teammate_queue.put(None)
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Waiting for queues to finish...")
     # Wait for match and teammate queues to be processed.
