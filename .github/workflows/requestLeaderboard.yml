@@ -33,7 +33,7 @@ jobs:
 
 
       - name: requestData and write files
-        run: python LeaderboardStats.py
+        run: python -u LeaderboardStats.py
 
       - name: Commit and push changes
         run: |
