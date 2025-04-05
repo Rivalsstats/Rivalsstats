@@ -707,7 +707,7 @@ def player_worker():
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] No more players to process. Exiting...")
             break  # Exit loop if no task is received within the timeout.
         try:
-            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching player {player_id}...")
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching player {player_id}...({player_queue.qsize()} left)")
             response, resulting_headers, status_code = fetchUrl(PLAYER_API_URL_RIVALS.format(player_id),headers_rivals)
             process_rate_limit(resulting_headers, "player")
             if status_code == 429:
@@ -742,7 +742,7 @@ def match_worker():
             match_queue.task_done()
             break
         try:
-            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching match {match_id}...")
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching match {match_id}... ({match_queue.qsize()} left)")
             response, resulting_headers, status_code = fetchUrl(MATCH_API_URL_RIVALS.format(match_id),headers_rivals)
             process_rate_limit(resulting_headers , "match")
             if status_code == 429:
@@ -763,7 +763,7 @@ def update_worker():
             update_queue.task_done()
             break
         try:
-            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching player {player_id}...")
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching player update {player_id}... ({update_queue.qsize()} left)")
             response, resulting_headers, status_code = fetchUrl(PLAYER_API_URL_RIVALS.format(player_id),headers_rivals)
             process_rate_limit(resulting_headers, "update")
             if status_code == 429:
