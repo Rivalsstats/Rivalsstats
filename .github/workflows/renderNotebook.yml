@@ -21,7 +21,7 @@ on:
   workflow_run:
     workflows: ["Update Marvel Rivals Hero Stats & Leaderboards", "request Leaderboard", "Update Marvel Rivals Rank Population"]
     types:
-      - completed
+      - success
 
 # a workflow is built up as jobs, and within these jobs are steps
 jobs:
@@ -31,6 +31,7 @@ jobs:
 
     # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
     runs-on: windows-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     # specify the environment variables used by the packager, matching the secrets from the project on GitHub
     env:
