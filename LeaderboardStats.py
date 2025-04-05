@@ -33,6 +33,10 @@ DEFAULT_DELAY = 2  # Default delay between requests (in seconds)
 headers = {"x-api-key": os.getenv("API_KEY_MRAPI")}
 headers_rivals = {"x-api-key": os.getenv("API_KEY_RIVALS")}
 
+# Define the timeout (5 hours)
+TIMEOUT_SECONDS = 5 * 3600  # 5 hours
+cancel_event = threading.Event()
+
 # Queues
 player_queue = Queue()
 teammate_queue = Queue()
@@ -121,13 +125,14 @@ def fetch_leaderboard():
         player_id = player["uid"]
         if player_id not in queried_players:  # Only fetch if not already queried
             queried_players.add(player_id)
-            player_queue.put((player_id, timestamp, player)) # enqueue players
+            if not cancel_event.is_set():
+                player_queue.put((player_id, timestamp, player)) # enqueue players
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processing {player_queue.qsize()} players from leaderboard...")
 
 # process match details and save data
 def process_match_data(match_id, match_data):
     """Fetch match details and save match/player data."""
-    if not match_data:
+    if not match_data or cancel_event.is_set():
         return
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processing match {match_id}...")
     # Determine the structure used by the API:
@@ -215,6 +220,8 @@ def process_match_data(match_id, match_data):
 
 # Fetch and process a single player's data
 def process_player(player_id, timestamp, leaderboard_entry,player_data):
+    if cancel_event.is_set():
+        return
     if not player_data or player_data == {}:  # Skip empty responses
         print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Warning: No data returned for player {player_id}. Skipping...")
         return
@@ -251,7 +258,8 @@ def process_player(player_id, timestamp, leaderboard_entry,player_data):
                     now = datetime.datetime.now(datetime.timezone.utc)
                     if (now - max_dt).total_seconds() > 24 * 3600:
                         print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Player {player_id} has not been updated in over 24 hours. requesting update...")
-                        update_queue.put(player_id) # enqueue players
+                        if not cancel_event.is_set():
+                            update_queue.put(player_id) # enqueue players
             # Backup response structure adjustments
             is_private = player_data.get("isPrivate", True)
             # Try to extract a rank score from one of the season entries (if available)
@@ -304,6 +312,8 @@ def process_player(player_id, timestamp, leaderboard_entry,player_data):
 
 # Process teammates and match history
 def process_encountered_players(player_data, timestamp):
+    if cancel_event.is_set():
+        return
     global total_scanned_matches, total_scanned_players
     if player_data.get("is_profile_private", player_data.get("isPrivate", True)):
         return
@@ -314,13 +324,15 @@ def process_encountered_players(player_data, timestamp):
             pid = teammate.get("player_uid")
             if pid and pid not in queried_players:
                 queried_players.add(pid)
-                teammate_queue.put((pid, timestamp)) # this is currently never processed, but could be in the future once ratelimits allow for it
+                if not cancel_event.is_set():
+                    teammate_queue.put((pid, timestamp)) # this is currently never processed, but could be in the future once ratelimits allow for it
     elif "team_mates" in player_data:
         for teammate in player_data["team_mates"]:
             pid = teammate.get("player_info", {}).get("player_uid")
             if pid and pid not in queried_players:
                 queried_players.add(pid)
-                teammate_queue.put((pid, timestamp)) # this is currently never processed, but could be in the future once ratelimits allow for it
+                if not cancel_event.is_set():
+                    teammate_queue.put((pid, timestamp)) # this is currently never processed, but could be in the future once ratelimits allow for it
 
     # Process match history (only fetch unique matches)
     if "match_history" in player_data:
@@ -370,7 +382,8 @@ def process_encountered_players(player_data, timestamp):
                     "winning_team_score": winning_score,
                     "losing_team_score": losing_score,
                 }
-                match_queue.put(match_id)
+                if not cancel_event.is_set():
+                    match_queue.put(match_id)
     else:
         print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Match history not found for player {player_data.get('player_uid', 'UNKNOWN')}")
 
@@ -393,6 +406,8 @@ def save_encountered_players():
 
 # Fetch and process a single teammate's data
 def fetch_and_process_teammate(player_id):
+    if cancel_event.is_set():
+        return
     global encountered_players
     player_data = fetch_with_backup(None,
                                     PLAYER_API_URL_RIVALS.format(player_id))
@@ -652,20 +667,20 @@ def save_to_disk():
 def process_rate_limit(headers, source):
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processing rate limit headers from {source}...")
     if headers.get("X-RateLimit-Remaining") is not None and headers.get("X-RateLimit-Remaining") != "Cache" and headers.get("X-RateLimit-Remaining") != "cache":
-            rate_limit = headers.get("X-RateLimit-Limit")
-            remaining = headers.get("X-RateLimit-Remaining")
-            reset = headers.get("X-RateLimit-Reset")
-            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Backup API Rate Limit Info: Limit={rate_limit}, Remaining={remaining}, Reset={reset}")
-            try:
-                remaining_int = int(remaining) if remaining is not None else 1
-                reset_int = int(reset) if reset is not None else 0
-                if remaining_int <= 0:
-                    sleep_time = reset_int - int(time.time())
-                    if sleep_time > 0:
-                        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Rate limit reached. Sleeping for {sleep_time} seconds until reset.")
-                        time.sleep(sleep_time)
-            except Exception as e:
-                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing rate limit headers: {e}")
+        rate_limit = headers.get("X-RateLimit-Limit")
+        remaining = headers.get("X-RateLimit-Remaining")
+        reset = headers.get("X-RateLimit-Reset")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Backup API Rate Limit Info: Limit={rate_limit}, Remaining={remaining}, Reset={reset}")
+        try:
+            remaining_int = int(remaining) if remaining is not None else 1
+            reset_int = int(reset) if reset is not None else 0
+            if remaining_int <= 0:
+                sleep_time = reset_int - int(time.time())
+                if sleep_time > 0:
+                    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Rate limit reached. Sleeping for {sleep_time} seconds until reset.")
+                    time.sleep(sleep_time)
+        except Exception as e:
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing rate limit headers: {e}")
     elif headers.get("X-RateLimit-Remaining") is not None and (headers.get("X-RateLimit-Remaining") == "Cache" or headers.get("X-RateLimit-Remaining") == "cache"):
         print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Cache rate limit headers detected. No need to rate limit")
     else:
@@ -698,20 +713,48 @@ def fetchUrl(url,headers=None):
     except ValueError:
         print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Invalid JSON response from {url}, skipping...")
 
+def cancel_all_pending_tasks():
+    print("5 hours elapsed. Cancelling all pending tasks...")
+    cancel_and_flush_queue(player_queue, "player_queue")
+    cancel_event.set()  # Signal cancellation
+    time.sleep(60)  # Wait for 1 minute before cancelling other queues
+    cancel_and_flush_queue(teammate_queue, "teammate_queue")
+    cancel_and_flush_queue(match_queue, "match_queue")
+    cancel_and_flush_queue(update_queue, "update_queue")
+
+def cancel_and_flush_queue(q, queue_name="queue"):
+    """Empty the given queue and add a sentinel so that the worker exits."""
+    print(f"Cancelling pending tasks in {queue_name}.")
+    while not q.empty():
+        try:
+            q.get_nowait()
+            q.task_done()
+        except Exception as e:
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Nerror canceling queue {queue_name}: {e}")
+            break
+    # Enqueue a sentinel to unblock the consumer.
+    q.put(None)
+
 def player_worker():
     while True:
         try:
             # Try to get a task; timeout after 5 seconds if the queue is empty.
-            player_id, timestamp, leaderboard_entry = player_queue.get(timeout=10)
+            task = player_queue.get(timeout=10)
         except Exception:
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] No more players to process. Exiting...")
+            player_queue.task_done()
             break  # Exit loop if no task is received within the timeout.
+        if task is None or cancel_event.is_set():
+            player_queue.task_done()
+            break
         try:
+            player_id, timestamp, leaderboard_entry = task
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching player {player_id}...({player_queue.qsize()} left)")
             response, resulting_headers, status_code = fetchUrl(PLAYER_API_URL_RIVALS.format(player_id),headers_rivals)
             process_rate_limit(resulting_headers, "player")
             if status_code == 429:
-                player_queue.put((player_id, timestamp, leaderboard_entry))
+                if not cancel_event.is_set():
+                    player_queue.put((player_id, timestamp, leaderboard_entry))
             process_player(player_id, timestamp, leaderboard_entry, response)
         except Exception as e:
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing player {player_id}: {e}")
@@ -722,7 +765,7 @@ def player_worker():
 def teammate_worker():
     while True:
         task = teammate_queue.get()
-        if task is None:
+        if task is None or cancel_event.is_set():
             teammate_queue.task_done()
             break
         player_id, timestamp = task
@@ -738,7 +781,7 @@ def match_worker():
         # Block indefinitely until a task is available.
         match_id = match_queue.get()
         # If we get a sentinel (None), then break out of the loop.
-        if match_id is None:
+        if match_id is None or cancel_event.is_set():
             match_queue.task_done()
             break
         try:
@@ -746,7 +789,8 @@ def match_worker():
             response, resulting_headers, status_code = fetchUrl(MATCH_API_URL_RIVALS.format(match_id),headers_rivals)
             process_rate_limit(resulting_headers , "match")
             if status_code == 429:
-                match_queue.put(match_id)
+                if not cancel_event.is_set():
+                    match_queue.put(match_id)
             process_match_data(match_id, response)
         except Exception as e:
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing match {match_id}: {e}")
@@ -759,15 +803,19 @@ def update_worker():
         # Block indefinitely until a task is available.
         player_id = update_queue.get()
         # If we get a sentinel (None), then break out of the loop.
-        if player_id is None:
+        if player_id is None or cancel_event.is_set():
             update_queue.task_done()
+
             break
         try:
+            if cancel_event.is_set():
+                break
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching player update {player_id}... ({update_queue.qsize()} left)")
             response, resulting_headers, status_code = fetchUrl(PLAYER_API_URL_RIVALS.format(player_id),headers_rivals)
             process_rate_limit(resulting_headers, "update")
             if status_code == 429:
-                update_queue.put(player_id)
+                if not cancel_event.is_set():
+                    update_queue.put(player_id)
         except Exception as e:
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing player {player_id}: {e}")
         finally:
@@ -775,6 +823,9 @@ def update_worker():
 
 if __name__ == "__main__":
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Starting data collection...")
+    cancel_timer = threading.Timer(TIMEOUT_SECONDS, cancel_all_pending_tasks)
+    cancel_timer.start()
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Started cancel timer for {TIMEOUT_SECONDS} seconds.")
     fetch_leaderboard()
     # Start consumer worker threads for each queue.
     player_thread = threading.Thread(target=player_worker)
@@ -787,23 +838,25 @@ if __name__ == "__main__":
     match_thread.start()
     update_thread.start()
 
-    # Producer: Enqueue tasks by fetching the leaderboard.
-    fetch_leaderboard()
-
     # Wait for all player tasks to finish.
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Waiting for Player queue to finish...")
     player_queue.join()
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Player thread finished. Still waiting for {match_queue.qsize()} matches to finish...")
     # Now that all players are processed, no new match/teammate tasks will be added.
     # Signal the match and teammate workers to exit by enqueuing a sentinel.
-    match_queue.put(None)
-    update_queue.put(None)
+    if not cancel_event.is_set():
+        match_queue.put(None)
+        update_queue.put(None)
     #teammate_queue.put(None)
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Waiting for queues to finish...")
     # Wait for match and teammate queues to be processed.
     match_queue.join()
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Match queue finished")
     update_queue.join()
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Update queue finished")
     #teammate_queue.join()
+    cancel_timer.cancel()
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Cancel timer cancelled.")
 
     # wait for worker threads to finish
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Waiting for threads to finish...")
