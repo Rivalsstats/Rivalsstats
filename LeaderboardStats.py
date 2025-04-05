@@ -848,21 +848,16 @@ if __name__ == "__main__":
         match_queue.put(None)
         update_queue.put(None)
     #teammate_queue.put(None)
-    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Waiting for queues to finish...")
-    # Wait for match and teammate queues to be processed.
-    match_queue.join()
-    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Match queue finished")
-    update_queue.join()
-    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Update queue finished")
     #teammate_queue.join()
-    cancel_timer.cancel()
-    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Cancel timer cancelled.")
 
     # wait for worker threads to finish
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Waiting for threads to finish...")
     player_thread.join()
     match_thread.join()
     update_thread.join()
+
+    cancel_timer.cancel()
+    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Cancel timer cancelled.")
     #teammate_thread.join()
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Data collection completed!")
     save_encountered_players()
