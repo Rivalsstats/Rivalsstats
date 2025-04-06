@@ -31,7 +31,7 @@ jobs:
 
     # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
     runs-on: windows-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
 
     # specify the environment variables used by the packager, matching the secrets from the project on GitHub
     env:
