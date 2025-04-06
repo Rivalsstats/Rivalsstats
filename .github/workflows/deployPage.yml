@@ -42,11 +42,11 @@ jobs:
           echo "Checking for active RenderNotebook runs..."
           # Query in-progress runs
           response_in_progress=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/RenderNotebook.yml/runs?status=in_progress")
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/renderNotebook.yml/runs?status=in_progress")
           in_progress=$(echo "$response_in_progress" | jq '.total_count')
           # Query queued runs
           response_queued=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/RenderNotebook.yml/runs?status=queued")
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/renderNotebook.yml/runs?status=queued")
           queued=$(echo "$response_queued" | jq '.total_count')
           total=$((in_progress + queued))
           echo "Found $total active/queued RenderNotebook run(s)."
