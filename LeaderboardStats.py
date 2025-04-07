@@ -338,8 +338,6 @@ def process_encountered_players(player_data, timestamp):
     if "match_history" in player_data:
         for match in player_data["match_history"]:
             match_id = match.get("match_uid")
-            if match_id and match_id not in queried_matches:
-                queried_matches.add(match_id)
             
             if match_id not in match_extra_info:
                 # Check if we're in the backup structure
@@ -382,7 +380,7 @@ def process_encountered_players(player_data, timestamp):
                     "winning_team_score": winning_score,
                     "losing_team_score": losing_score,
                 }
-                if not cancel_event.is_set():
+                if not cancel_event.is_set() and match_id not in queried_matches:
                     match_queue.put(match_id)
     else:
         print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Match history not found for player {player_data.get('player_uid', 'UNKNOWN')}")
