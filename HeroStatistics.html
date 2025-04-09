@@ -5,109 +5,132 @@
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 -->
 <html>
-	<head>
-		<title>Hero Statistics</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<meta name="description" content="Rivalsstats displays comprehensive Marvel rivals stats including hero tierlists, win rates, and synergies. Compare your favorite heroes and see how they stack up in the latest meta!" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-		<script src="https://app.enzuzo.com/scripts/cookiebar/8ce2b6b4-f147-11ef-bb23-67ce764ade3c"></script>
-		<link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
-		<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
-		<link rel="shortcut icon" href="/favicon/favicon.ico" />
-		<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
-		<meta name="apple-mobile-web-app-title" content="Rivalstats" />
-		<link rel="manifest" href="/favicon/site.webmanifest" />
-		<script ez-cb-cat="analytics">
-			!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-			posthog.init('phc_zJrM9WqVMhk8wS3cYyr6poc69tDli6yYoQvMed3ncdv', {api_host: 'https://eu.i.posthog.com'})
-		</script>
-	</head>
-	<body class="is-preload">
 
-		<!-- Wrapper -->
-			<div id="wrapper">
+<head>
+	<title>Hero Statistics</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="description"
+		content="Rivalsstats displays comprehensive Marvel rivals stats including hero tierlists, win rates, and synergies. Compare your favorite heroes and see how they stack up in the latest meta!" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<noscript>
+		<link rel="stylesheet" href="assets/css/noscript.css" />
+	</noscript>
+	<script src="https://app.enzuzo.com/scripts/cookiebar/8ce2b6b4-f147-11ef-bb23-67ce764ade3c"></script>
+	<link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+	<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+	<link rel="shortcut icon" href="/favicon/favicon.ico" />
+	<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+	<meta name="apple-mobile-web-app-title" content="Rivalstats" />
+	<link rel="manifest" href="/favicon/site.webmanifest" />
+	<script ez-cb-cat="analytics">
+		!function (t, e) { var o, n, p, r; e.__SV || (window.posthog = e, e._i = [], e.init = function (i, s, a) { function g(t, e) { var o = e.split("."); 2 == o.length && (t = t[o[0]], e = o[1]), t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } } (p = t.createElement("script")).type = "text/javascript", p.crossOrigin = "anonymous", p.async = !0, p.src = s.api_host.replace(".i.posthog.com", "-assets.i.posthog.com") + "/static/array.js", (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(p, r); var u = e; for (void 0 !== a ? u = e[a] = [] : a = "posthog", u.people = u.people || [], u.toString = function (t) { var e = "posthog"; return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e }, u.people.toString = function () { return u.toString(1) + ".people (stub)" }, o = "init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "), n = 0; n < o.length; n++)g(u, o[n]); e._i.push([i, s, a]) }, e.__SV = 1) }(document, window.posthog || []);
+		posthog.init('phc_zJrM9WqVMhk8wS3cYyr6poc69tDli6yYoQvMed3ncdv', { api_host: 'https://eu.i.posthog.com' })
+	</script>
+</head>
 
-				<!-- Header -->
-				<header id="header">
-					<a href="" class="logo"><div id="last-rendered">Calculating...</div></a>
-				</header>
+<body class="is-preload">
 
-			<!-- Nav -->
-				<nav id="nav">
-					<ul class="links">
-						<li><a href="index"> Tierlist</a></li>
-						<li><a href="RankStatistics">RankStats</li>
-						<li><a href="HeroStatistics">HeroStats</li>
-						<li><a href="HeroCounters">Counters</li>
-						<li><a href="HeroSynergies">Synergies</li>
-						<li><a href="TeamComps">Teamcomps</li>
-						<li><a href="RocketSucks">Rocket</li>
-					</ul>
-					<ul class="icons">
-						<li><a href="https://discord.com/invite/v3gYmYamGJ" target="_blank" class="icon brands fa-discord"><span class="label">Discord</span></a></li>
-						<li><a href="https://www.reddit.com/r/Rivalsstats/" target="_blank" class="icon brands fa-reddit"><span class="label">Reddit</span></a></li>
-						<li><a href="https://x.com/rivalsstats" target="_blank" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-						<li><a href="https://bsky.app/profile/rivalsstats.com" target="_blank" class="icon brands fa-bluesky"><span class="label">Bluesky</span></a></li>
-						<li><a href="https://github.com/Jodsderechte" target="_blank" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
-						<li><a href="https://ko-fi.com/jodsderechte" target="_blank" class="icon brands fa-patreon"><span class="label">Ko-fi</span></a></li>
-					</ul>
-				</nav>
+	<!-- Wrapper -->
+	<div id="wrapper">
 
-				<!-- Main -->
-					<div id="main">
+		<!-- Header -->
+		<header id="header">
+			<a href="" class="logo">
+				<div id="last-rendered">Calculating...</div>
+			</a>
+		</header>
 
-						<!-- Post -->
-						 <!--
+		<!-- Nav -->
+		<nav id="nav">
+			<ul class="links">
+				<li><a href="index"> Tierlist</a></li>
+				<li><a href="RankStatistics">RankStats</li>
+				<li><a href="HeroStatistics">HeroStats</li>
+				<li><a href="HeroCounters">Counters</li>
+				<li><a href="HeroSynergies">Synergies</li>
+				<li><a href="TeamComps">Teamcomps</li>
+				<li><a href="RocketSucks">Rocket</li>
+			</ul>
+			<ul class="icons">
+				<li><a href="https://discord.com/invite/v3gYmYamGJ" target="_blank" class="icon brands fa-discord"><span
+							class="label">Discord</span></a></li>
+				<li><a href="https://www.reddit.com/r/Rivalsstats/" target="_blank" class="icon brands fa-reddit"><span
+							class="label">Reddit</span></a></li>
+				<li><a href="https://x.com/rivalsstats" target="_blank" class="icon brands fa-twitter"><span
+							class="label">Twitter</span></a></li>
+				<li><a href="https://bsky.app/profile/rivalsstats.com" target="_blank" class="icon brands"><svg
+							class="brandicon" xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+							<path
+								d="M111.8 62.2C170.2 105.9 233 194.7 256 242.4c23-47.6 85.8-136.4 144.2-180.2c42.1-31.6 110.3-56 110.3 21.8c0 15.5-8.9 130.5-14.1 149.2C478.2 298 412 314.6 353.1 304.5c102.9 17.5 129.1 75.5 72.5 133.5c-107.4 110.2-154.3-27.6-166.3-62.9l0 0c-1.7-4.9-2.6-7.8-3.3-7.8s-1.6 3-3.3 7.8l0 0c-12 35.3-59 173.1-166.3 62.9c-56.5-58-30.4-116 72.5-133.5C100 314.6 33.8 298 15.7 233.1C10.4 214.4 1.5 99.4 1.5 83.9c0-77.8 68.2-53.4 110.3-21.8z" />
+						</svg><span class="label">Bluesky</span></a></li>
+				<li><a href="https://github.com/Jodsderechte" target="_blank" class="icon brands fa-github"><span
+							class="label">GitHub</span></a></li>
+				<li><a href="https://ko-fi.com/jodsderechte" target="_blank" class="icon brands fa-patreon"><span
+							class="label">Ko-fi</span></a></li>
+			</ul>
+		</nav>
+
+		<!-- Main -->
+		<div id="main">
+
+			<!-- Post -->
+			<!--
 							<section class="post">
 							</section>
 						-->
-							<header id="DetailedHeroStats"class="major">
-								<h1>Detailed Hero Stats</h1>
-							</header>
-							<iframe class="resizableIframe" src='rendered/HeroStatsTable.html' scrolling="no" frameborder='0'></iframe>
-							<header class="major">
-								<p>This analysis is based on <span id="unique_matches"></span> unique competitive matches, collected by tracking the last 20 matches of Top 500 players every 6 hours. In total, <span id="unique_players"></span> unique players were recorded, either as Top 500 themselves or as opponents/teammates in these matches.</p>
-							</header>
+			<header id="DetailedHeroStats" class="major">
+				<h1>Detailed Hero Stats</h1>
+			</header>
+			<iframe class="resizableIframe" src='rendered/HeroStatsTable.html' scrolling="no" frameborder='0'></iframe>
+			<header class="major">
+				<p>This analysis is based on <span id="unique_matches"></span> unique competitive matches, collected by
+					tracking the last 20 matches of Top 500 players every 6 hours. In total, <span
+						id="unique_players"></span> unique players were recorded, either as Top 500 themselves or as
+					opponents/teammates in these matches.</p>
+			</header>
 
-					</div>
+		</div>
 
-				<!-- Copyright -->
-				<div id="copyright">
-					<ul>
-						<li>&copy; Jodsderechte</li>
-						<li><a href="Privacy.html" target="_blank">Privacy</a></li>
-						<li>Design: <a href="https://html5up.net" target="_blank">HTML5 UP</a></li>
-					</ul>
-					<br>
-					<span style="color: azure;">Marvel Rivals is a registered trademark of NetEase Games. Trademarks are the property of their respective owners. 
-						Game materials copyright NetEase Games. NetEase Games has not endorsed and is not responsible for this site or its content.
-					</span>
-				</div>
+		<!-- Copyright -->
+		<div id="copyright">
+			<ul>
+				<li>&copy; Jodsderechte</li>
+				<li><a href="Privacy.html" target="_blank">Privacy</a></li>
+				<li>Design: <a href="https://html5up.net" target="_blank">HTML5 UP</a></li>
+			</ul>
+			<br>
+			<span style="color: azure;">Marvel Rivals is a registered trademark of NetEase Games. Trademarks are the
+				property of their respective owners.
+				Game materials copyright NetEase Games. NetEase Games has not endorsed and is not responsible for this
+				site or its content.
+			</span>
+		</div>
 
-			</div>
+	</div>
 
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-			<script src="assets/js/fetchData.js"></script>
-			<script src="assets/js/iframe-resizer.parent.js"></script>
-			<script>
-				iframeResize({
-				  license: 'GPLv3',
-				  bodyMargin: '0',
-				  bodyPadding: '0',
-				  waitForLoad: true,
-				}, '.resizableIframe' );
-			</script>
-			<script src="assets/js/top500Data.js" type="module"></script>
-			<script src="assets/js/lastRender.js"></script>
+	<!-- Scripts -->
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/jquery.scrollex.min.js"></script>
+	<script src="assets/js/jquery.scrolly.min.js"></script>
+	<script src="assets/js/browser.min.js"></script>
+	<script src="assets/js/breakpoints.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<script src="assets/js/main.js"></script>
+	<script src="assets/js/fetchData.js"></script>
+	<script src="assets/js/iframe-resizer.parent.js"></script>
+	<script>
+		iframeResize({
+			license: 'GPLv3',
+			bodyMargin: '0',
+			bodyPadding: '0',
+			waitForLoad: true,
+		}, '.resizableIframe');
+	</script>
+	<script src="assets/js/top500Data.js" type="module"></script>
+	<script src="assets/js/lastRender.js"></script>
 
-	</body>
+</body>
+
 </html>
