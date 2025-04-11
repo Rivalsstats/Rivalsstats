@@ -1,4 +1,4 @@
-mapData// Global variables to hold our minimal index and hero definitions.
+// Global variables to hold our minimal index and hero definitions.
 let indexData = null;  // Expected structure: { matches: { match_uid: { … } }, heroes: { hero_id: [match_uid, ...] } }
 let heroData = null;   // Array of hero definitions from all_heroes.json
 let heroesIndex = null; // Expected structure: { hero_id: { synergies: [ [hero_id, hero_id], … ], counters: [ [hero_id, hero_id], … ] } }
