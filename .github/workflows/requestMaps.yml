@@ -18,9 +18,9 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     env:
-      BASE_URL: "https://API.Lunarify.app/api/v1/"
-      API_TOKEN: ${{ secrets.API_KEY_RIVALS }}
-      MAPS_URL: "maps"
+      BASE_URL: "https://marvelrivalsapi.com/api/v1/"
+      API_TOKEN: ${{ secrets.MARVEL_RIVALS_KEY }}
+      MAPS_URL: "maps?limit=9999"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:

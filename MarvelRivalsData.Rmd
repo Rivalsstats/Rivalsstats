@@ -204,7 +204,11 @@ ranks_total$rank <- factor(ranks_total$rank, levels = custom_rank_order)
 matches_file <- "data/historical/matches.csv"
 players_file <- "data/historical/match_players.parquet"
 all_heroes <- fromJSON("data/latest/heroes/all_heroes.json")
-all_maps <- fromJSON("data/latest/latest_maps.json")
+# Read the JSON file and flatten nested elements
+maps_data <- fromJSON("data/latest/latest_maps.json", flatten = TRUE)
+
+# Extract the 'maps' list which contains each map as an element
+all_maps <- maps_data$maps
 
 
 matches <- read_csv(matches_file, show_col_types = FALSE)
