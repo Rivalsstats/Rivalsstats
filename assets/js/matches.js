@@ -1,4 +1,4 @@
-// Global variables to hold our minimal index and hero definitions.
+mapData// Global variables to hold our minimal index and hero definitions.
 let indexData = null;  // Expected structure: { matches: { match_uid: { … } }, heroes: { hero_id: [match_uid, ...] } }
 let heroData = null;   // Array of hero definitions from all_heroes.json
 let heroesIndex = null; // Expected structure: { hero_id: { synergies: [ [hero_id, hero_id], … ], counters: [ [hero_id, hero_id], … ] } }
@@ -31,8 +31,8 @@ fetch('/data/index.json')
   fetch('/data/latest/latest_maps.json')
   .then(response => response.json())
   .then(data => {
-    mapData = data;
-    populateMapDropdown(data);
+    mapData = data.maps;
+    populateMapDropdown(data.maps);
   })
   .catch(error => console.error('Error loading map data:', error));
 
@@ -47,11 +47,25 @@ function populateMapDropdown(maps) {
     mapFilter.innerHTML = ''; // Clear existing options
 
     const uniqueMaps = {};
+    let tempMaps = {}
     maps.forEach(map => {
         if (uniqueMaps[map.name]) {
           uniqueMaps[map.name].push(map.id);
-        } else {
+        } else if(map.is_competitve) {
           uniqueMaps[map.name] = [map.id];
+          
+          if (tempMaps[map.name]) {
+            tempMaps[map.name].forEach(id => {
+              uniqueMaps[map.name].push(id);
+            });
+            delete tempMaps[map.name]; // Remove duplicates
+          }
+        }
+        else if(tempMaps[map.name]){
+          tempMaps[map.name].push(map.id);
+        }
+        else{
+          tempMaps[map.name] = [map.id];
         }
     });
 
