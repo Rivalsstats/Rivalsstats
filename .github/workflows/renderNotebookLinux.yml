@@ -39,6 +39,8 @@ jobs:
       FILE_PATH: 'MarvelRivalsData.html Heroes.html index.html'
       RENDERED_PATH: 'rendered'
       DATA_PATH: 'data'
+      RENV_INSTALL_TYPE: 'binary'
+
 
     # "steps" holds a list of all the steps needed to package and release our AddOn
     steps:
@@ -58,7 +60,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcurl4-openssl-dev libssl-dev pkg-config libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev pkg-config libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev ibmagick++-dev
 
         
       - name: Install R systemfonts package
