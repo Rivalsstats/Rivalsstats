@@ -20,7 +20,7 @@
      env:
        BASE_URL: "https://marvelrivalsapi.com/api/v1/"
        API_TOKEN: ${{ secrets.MARVEL_RIVALS_KEY }}
-       MAPS_URL: "heroes"
+       HEROES_URL: "heroes"
  
      # Steps represent a sequence of tasks that will be executed as part of the job
      steps:
@@ -29,7 +29,7 @@
  
        - name: Fetch Marvel Rivals Hero Stats
          run: |
-           curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${MAPS_URL}" -o data/latest/latest_heroes.json
+           curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${HEROES_URL}" -o data/latest/latest_heroes.json
  
        - name: Download Hero Icons
          run: |
