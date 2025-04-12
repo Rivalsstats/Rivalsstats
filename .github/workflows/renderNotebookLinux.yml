@@ -1,0 +1,143 @@
+# description of this workflow, can be anything you want
+name: RenderNotebook
+
+# we need to let GitHub know _when_ we want to run this workflow, typically only when we create a new tag.
+# this will target pushes to the master branch and pull request.
+# this part can be heavily customized to your liking, like targeting only tags that match a certain word,
+# other branches or even pullrequests.
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'data/**'              # Any file inside the /data/ folder
+      - 'templates/**'              # Any file inside the /templates/ folder
+      - 'MarvelRivalsData.Rmd' # The specific file
+  #pull_request:
+  #  branches: [ main ]
+  #  paths:
+  #    - 'data/**'              # Any file inside the /data/ folder
+  #    - 'MarvelRivalsData.Rmd' # The specific file 
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Update Marvel Rivals Hero Stats & Leaderboards", "request Leaderboard", "Update Marvel Rivals Rank Population"]
+    types:
+      - completed
+
+# a workflow is built up as jobs, and within these jobs are steps
+jobs:
+
+  # "buildNotebook" is a job, you can name it anything you want
+  buildNotebook:
+
+    # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+
+    # specify the environment variables used by the packager, matching the secrets from the project on GitHub
+    env:
+      GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+      FILE_PATH: 'MarvelRivalsData.html Heroes.html index.html'
+      RENDERED_PATH: 'rendered'
+      DATA_PATH: 'data'
+      RENV_INSTALL_TYPE: 'binary'
+
+
+    # "steps" holds a list of all the steps needed to package and release our AddOn
+    steps:
+
+      # we first have to clone the project, this is a required step
+      - name: Clone project
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # gets git history for changelogs
+
+      - name: Set up pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+      # to run any r related things we need to first install it
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+      #plotly needs curl and curl needs libcurl so we install that  
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev pkg-config libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libmagick++-dev
+
+      - name: Set PKG_CONFIG_PATH for ImageMagick
+        run: |
+          export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
+          echo "PKG_CONFIG_PATH set to: $PKG_CONFIG_PATH"   
+      - name: Install R systemfonts package
+        run: |
+            Rscript -e 'if (!requireNamespace("systemfonts", quietly = TRUE)) install.packages("systemfonts")'
+      #setup renv    
+      - uses: r-lib/actions/setup-renv@v2
+      - name: prepare git
+        shell: bash  # Force Bash instead of PowerShell
+        run: | 
+            git config --local user.name "github-actions"
+            git config --local user.email "github-actions@github.com"
+            git config --global --add --bool push.autoSetupRemote true
+            TARGET_BRANCH=${GITHUB_HEAD_REF}
+            if ! git show-ref --quiet refs/heads/$TARGET_BRANCH; then
+                echo "Branch $TARGET_BRANCH does not exist locally, checking out from remote"
+                git checkout $TARGET_BRANCH
+            else
+                echo "Branch $TARGET_BRANCH exists locally"
+                git checkout $TARGET_BRANCH || git checkout -b $TARGET_BRANCH
+            fi
+            git pull 
+      # this renders the markdown file as html and github_document and has some error handling to give more info if it fails
+      - name: Safe Render Loop
+        shell: bash
+        run: |
+          ERROR_LOG=".github/error_log.txt"
+          touch $ERROR_LOG
+      
+          RMD_PATH=($(find . -type f -name '*.Rmd' -not -path './renv/*'))
+          
+          if [ ${#RMD_PATH[@]} -eq 0 ]; then
+              echo "No .Rmd files detected."
+              exit 0
+          fi
+      
+          echo "Rendering the following .Rmd files: ${RMD_PATH[*]}"
+      
+          for file in "${RMD_PATH[@]}"; do
+              echo "Rendering: $file"
+              Rscript -e 'rmarkdown::render("'"$file"'", output_format = "html_document")' || {
+                  echo "Failed to render: $file" >> $ERROR_LOG
+              }
+          done
+      
+          if [ -s "$ERROR_LOG" ]; then
+              echo "Errors occurred during rendering. Check $ERROR_LOG for details."
+              cat "$ERROR_LOG"
+              exit 1
+          fi
+      # after rendering we want to commit
+      # if we are on main create branch
+      #- name: Create new branch for PR
+      #  if: github.ref == 'refs/heads/main'
+      #  run: |
+      #      BRANCH_NAME="rmarkdown-update"
+      #      git add ${{ env.FILE_PATH }}
+      #      git commit -m 'Re-build Rmarkdown files' || echo "No changes to commit"
+      #      git checkout -B $BRANCH_NAME  # Create or switch to branch
+            # Check if the branch already exists on the remote and push
+      #      git push origin $BRANCH_NAME --force
+      # if we are on main create pr
+      #- name: create pull request
+      #  if: github.ref == 'refs/heads/main'
+      #  run: |
+      #      gh pr create -B refs/heads/main --title 'Re-build Rmarkdown files' --body 'Created by Github action'
+        #if we are not on main commit
+      - name: commit results  
+        shell: bash  # Force Bash instead of PowerShell
+        #if: github.ref != 'refs/heads/main'
+        run: | 
+            TARGET_BRANCH=${GITHUB_HEAD_REF}
+            git add ${{ env.FILE_PATH }} ${{ env.RENDERED_PATH }} ${{env.DATA_PATH}}
+            git commit -m 'Re-build Rmarkdown files' || echo "No changes to commit"
+            git push origin || echo "No changes to push"  
+    
+      
