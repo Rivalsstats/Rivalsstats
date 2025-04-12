@@ -64,6 +64,10 @@ jobs:
       - name: Install R systemfonts package
         run: |
             Rscript -e 'if (!requireNamespace("systemfonts", quietly = TRUE)) install.packages("systemfonts")'
+      - name: Install jsonlite binary
+        run: |
+          Rscript -e "install.packages('jsonlite', type='binary', repos='https://cran.rstudio.com')"
+      
       #setup renv    
       - uses: r-lib/actions/setup-renv@v2
       - name: prepare git
