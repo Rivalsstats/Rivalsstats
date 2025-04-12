@@ -31,19 +31,24 @@
          run: |
            curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${HEROES_URL}" -o data/latest/latest_heroes.json
  
-       - name: Download Hero Icons
+       - name: Download Hero Transformation Icons (id 0)
          run: |
            # Ensure the destination directory exists
            mkdir -p icons/hero_icons
-           # Loop through each hero from the JSON response
+           # Loop through each hero in the JSON response
            cat data/latest/latest_heroes.json | jq -c '.[]' | while read -r hero; do
-             # Extract the name and replace spaces with underscores
-             name=$(echo "$hero" | jq -r '.name' | tr ' ' '_')
-             # Extract the imageUrl field (assumed relative URL) and build the full URL
-             imageUrl=$(echo "$hero" | jq -r '.imageUrl')
-             fullUrl="${BASE_URL}${imageUrl}"
-             echo "Downloading icon for $name from $fullUrl..."
-             curl -sSL "$fullUrl" -o "icons/hero_icons/${name}.png"
+             # Extract the hero name and replace spaces with underscores
+             hero_name=$(echo "$hero" | jq -r '.name' | tr ' ' '_')
+             # Extract the icon URL from the transformation with id "0"
+             transformation_icon=$(echo "$hero" | jq -r '.transformations[] | select(.id=="0") | .icon')
+             if [ -z "$transformation_icon" ]; then
+               echo "No transformation with id 0 found for hero $hero_name, skipping..."
+               continue
+             fi
+             # Build the full URL (assumes the transformation icon is a relative path)
+             icon_url="${BASE_URL}${transformation_icon}"
+             echo "Downloading transformation icon for $hero_name from $icon_url..."
+             curl -sSL "$icon_url" -o "icons/hero_icons/${hero_name}.png"
            done
  
        - name: Commit and push changes
