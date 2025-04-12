@@ -591,12 +591,22 @@ match_players <- match_players %>%
   unnest_longer(hero_data) %>%  # Expand hero list
   unnest_wider(hero_data, names_sep = "_",)  # Split hero_data into columns
 
-#merge and remove data created by using different api endpoints
+# If the column doesn't exist, add it as NA.
+if (!"hero_data_playtime" %in% names(match_players)) {
+  match_players$hero_data_playtime <- NA
+}
+if (!"hero_data_hit_rate" %in% names(match_players)) {
+  match_players$hero_data_hit_rate <- NA
+}
+
 match_players <- match_players %>%
-  mutate(hero_data_playtime = coalesce(hero_data_playtime, hero_data_play_time)) %>%
-  mutate(hero_data_hit_rate = coalesce(hero_data_hit_rate, hero_data_session_hit_rate)) %>%
-  mutate(hero_data_playtime = round(hero_data_playtime,0)) %>%
-  select(-hero_data_play_time, -hero_data_hero_icon, -hero_data_session_hit_rate)
+  mutate(
+    hero_data_playtime = coalesce(hero_data_playtime, hero_data_play_time),
+    hero_data_hit_rate = coalesce(hero_data_hit_rate, hero_data_session_hit_rate),
+    hero_data_playtime = round(hero_data_playtime, 0)
+  ) %>%
+  select(-any_of(c("hero_data_play_time", "hero_data_hero_icon", "hero_data_session_hit_rate")))
+
 
 # Fix winrate and loss calculation
 match_players <- match_players %>%
