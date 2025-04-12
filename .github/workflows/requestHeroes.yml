@@ -20,7 +20,7 @@
      env:
        BASE_URL: "https://marvelrivalsapi.com/api/v1/"
        API_TOKEN: ${{ secrets.MARVEL_RIVALS_KEY }}
-       IMAGE_URL: "rivals"
+       IMAGE_URL: "https://marvelrivalsapi.com/rivals"
        HEROES_URL: "heroes"
  
      # Steps represent a sequence of tasks that will be executed as part of the job
@@ -49,7 +49,7 @@
                continue
              fi
              # Build the full URL (assumes the transformation icon is a relative path)
-             icon_url="${BASE_URL}${IMAGE_URL}${transformation_icon}"
+             icon_url="${IMAGE_URL}${transformation_icon}"
              echo "Downloading transformation icon for $hero_name from $icon_url..."
              # Download the WebP image temporarily
              curl -sSL "$icon_url" -o tmp_icon.webp
