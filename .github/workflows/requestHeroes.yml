@@ -32,8 +32,10 @@
          run: |
            curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${HEROES_URL}" -o data/latest/latest_heroes.json
  
-       - name: Download Hero Transformation Icons (id 0)
+       - name: Download and Convert Hero Transformation Icons (id 0)
          run: |
+           # Install ImageMagick for converting WebP to PNG
+           sudo apt-get update && sudo apt-get install -y imagemagick
            # Ensure the destination directory exists
            mkdir -p icons/hero_icons
            # Loop through each hero in the JSON response
@@ -47,9 +49,14 @@
                continue
              fi
              # Build the full URL (assumes the transformation icon is a relative path)
-             icon_url="${BASE_URL}${IMAGE_URL}${transformation_icon}"
+             icon_url="${BASE_URL}${transformation_icon}"
              echo "Downloading transformation icon for $hero_name from $icon_url..."
-             curl -sSL "$icon_url" -o "icons/hero_icons/${hero_name}.webp"
+             # Download the WebP image temporarily
+             curl -sSL "$icon_url" -o tmp_icon.webp
+             # Convert the WebP image to PNG format and save with hero name
+             convert tmp_icon.webp "icons/hero_icons/${hero_name}.png"
+             # Remove the temporary WebP file
+             rm tmp_icon.webp
            done
  
        - name: Commit and push changes
