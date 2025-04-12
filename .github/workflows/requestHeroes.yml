@@ -49,7 +49,7 @@
              # Build the full URL (assumes the transformation icon is a relative path)
              icon_url="${BASE_URL}${IMAGE_URL}${transformation_icon}"
              echo "Downloading transformation icon for $hero_name from $icon_url..."
-             curl -sSL "$icon_url" -o "icons/hero_icons/${hero_name}.png"
+             curl -sSL "$icon_url" -o "icons/hero_icons/${hero_name}.webp"
            done
  
        - name: Commit and push changes
