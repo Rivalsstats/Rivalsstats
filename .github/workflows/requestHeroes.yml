@@ -41,7 +41,7 @@
            # Loop through each hero in the JSON response
            cat data/latest/latest_heroes.json | jq -c '.[]' | while read -r hero; do
              # Extract the hero name and replace spaces with underscores
-             hero_name=$(echo "$hero" | jq -r '.real_name' | tr ' ' '_')
+             hero_name=$(echo "$hero" | jq -r '.name' | tr ' ' '_')
              # Extract the icon URL from the transformation with id "0"
              transformation_icon=$(echo "$hero" | jq -r '.transformations[] | select(.id=="0") | .icon')
              if [ -z "$transformation_icon" ]; then
