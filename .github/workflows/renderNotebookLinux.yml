@@ -60,9 +60,12 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcurl4-openssl-dev libssl-dev pkg-config libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev ibmagick++-dev
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev pkg-config libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libmagick++-dev
 
-        
+      - name: Set PKG_CONFIG_PATH for ImageMagick
+        run: |
+          export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
+          echo "PKG_CONFIG_PATH set to: $PKG_CONFIG_PATH"   
       - name: Install R systemfonts package
         run: |
             Rscript -e 'if (!requireNamespace("systemfonts", quietly = TRUE)) install.packages("systemfonts")'
