@@ -203,7 +203,7 @@ ranks_total$rank <- factor(ranks_total$rank, levels = custom_rank_order)
 ```{r matchSetup, echo = FALSE}
 matches_file <- "data/historical/matches.csv"
 players_file <- "data/historical/match_players.parquet"
-all_heroes <- fromJSON("data/latest/heroes/all_heroes.json")
+all_heroes <- fromJSON("data/latest/latest_heroes.json")
 # Read the JSON file and flatten nested elements
 maps_data <- fromJSON("data/latest/latest_maps.json", flatten = TRUE)
 
@@ -413,27 +413,14 @@ dir.create("icons/hero_icons", showWarnings = FALSE)
 
 # Example: Download icons using their URL
 for (i in 1:nrow(all_heroes)) {
-  hero_name <- gsub(" ", "_", all_heroes$name[i])  # Replace spaces with underscores
+  hero_name <- gsub(" ", "_", str_to_lower(all_heroes$name[i]))  # Replace spaces with underscores
   file_path <- paste0("icons/hero_icons/", hero_name, ".png")
 
   if (!file.exists(file_path)) {  # Only download if it doesn't exist
-    try(download.file(all_heroes$icon[i], file_path, mode = "wb"), silent = TRUE)
+    file_path <- "favicon/web-app-manifest-512x512.png"
   }
-  all_heroes$icon[i] <- paste0("../",file_path)
+  all_heroes$icon[i] <- paste0(file_path)
   all_heroes$attack_type[i] <- gsub(" Heroes","", all_heroes$attack_type[i])
-}
-
-dir.create("icons/rank_icons", showWarnings = FALSE)
-
-for (rank in names(latest_rank_data)) {
-  rank_info <- latest_rank_data[[rank]]       # Extract the list for the current rank
-  rank_name <- gsub(" ", "_", rank)            # Replace spaces with underscores, if any
-  file_path <- paste0("icons/rank_icons/", rank_name, ".png")
-  
-  if (!file.exists(file_path)) {               # Only download if it doesn't exist
-    try(download.file(rank_info$image, file_path, mode = "wb"), silent = TRUE)
-  }
-  # If you need to update another data structure (e.g., all_heroes), do it accordingly.
 }
 
 
@@ -652,8 +639,29 @@ hero_stats <- hero_stats %>%
 # Merge hero stats with hero icons (Ensure proper data type matching)
 hero_stats <- hero_stats %>%
   mutate(hero_data_hero_id = as.character(hero_data_hero_id)) %>%  # Convert numeric ID to character
-  left_join(select(all_heroes, id, name, icon, role, attack_type, difficulty, description), by = c("hero_data_hero_id" = "id"))
+  left_join(select(all_heroes, id, name, icon, role, attack_type, difficulty, bio), by = c("hero_data_hero_id" = "id"))
 
+#fix non existing icons
+hero_stats <- hero_stats %>%
+  mutate(
+    # Create a flag for rows where the icon is missing
+    icon_is_na = icon == "icons/hero_icons/NA.png",
+    
+    # Replace the icon for those rows
+    icon = if_else(icon_is_na, 
+                   "favicon/web-app-manifest-512x512.png", 
+                   icon),
+    
+    # Set the additional columns to "UNKNOWN" if icon was missing, otherwise keep current values
+    name = if_else(icon_is_na, "UNKNOWN", name),
+    role = if_else(icon_is_na, "UNKNOWN", role),
+    bio = if_else(icon_is_na, "UNKNOWN", bio),
+    attack_type = if_else(icon_is_na, "UNKNOWN", attack_type),
+    
+    # Set difficulty to 0 if the icon was missing, otherwise keep the current value
+    difficulty = if_else(icon_is_na, "0", difficulty)
+  ) %>%
+  select(-icon_is_na)  # Remove the temporary flag column if no longer needed
 
 # Add local file paths to dataset
 
@@ -666,7 +674,6 @@ hero_stats <- hero_stats %>%
       '</div>',
     '</div>'
   ))
-hero_stats$icon <- paste0("icons/hero_icons/", gsub(" ", "_", hero_stats$name), ".png")
 
 hero_stats_details_table <- hero_stats
 # Print summary statistics
@@ -770,6 +777,12 @@ tier_colors <- c(
   "F-Tier" = "#FF4500"   # Red
 )
 ```
+
+```{r debugPrints, echo=FALSE}
+library('here')
+file.exists(here("icons", "hero_icons", "captain_america.png"))
+```
+
 
 ```{r matchWinrateTierlist, echo = FALSE}
 # Create the dark mode tier list
@@ -1427,17 +1440,28 @@ hero_team_comps <- hero_team_comps %>%
 
 # Define a helper function to extract the count for a given role from a composition string.
 get_role_count <- function(comp_string, role_name) {
+  # Check if role_name is missing, NULL, NA, or an empty string.
+  if (missing(role_name) || is.null(role_name) || is.na(role_name) || role_name == "") {
+    return(0)
+  }
+  
+  # (Optional) Also check for comp_string issues.
+  if (missing(comp_string) || is.null(comp_string) || is.na(comp_string) || comp_string == "") {
+    return(0)
+  }
+  
   parts <- trimws(unlist(strsplit(comp_string, ",\\s*")))
   count <- 0
   for (p in parts) {
     tokens <- unlist(strsplit(p, "\\s+"))
-    if (length(tokens) >= 2 && tolower(tokens[2]) == tolower(role_name)) {
+    if (length(tokens) >= 2 && !is.na(tokens[2]) && tolower(tokens[2]) == tolower(role_name)) {
       count <- as.numeric(tokens[1])
       break
     }
   }
   return(count)
 }
+
 
 # Join with all_heroes to get the hero's role.
 hero_team_comps <- hero_team_comps %>%
@@ -1920,10 +1944,21 @@ hero_hotlist_html <- top_heroes %>%
 
 # Helper function to generate star rating HTML
 generate_stars <- function(difficulty) {
-  filled <- paste(rep('<i class="fas fa-star"></i>', difficulty), collapse = "")
-  empty  <- paste(rep('<i class="far fa-star"></i>', 5 - difficulty), collapse = "")
-  return(paste0(filled, empty))
+  # Coerce the difficulty to numeric
+  diff_val <- as.numeric(difficulty)
+  
+  # If the value is NA, then treat it as 0
+  if (is.na(diff_val)) diff_val <- 0
+  
+  # Clamp the value between 0 and 5 and round to an integer
+  diff_val <- round(pmax(0, pmin(diff_val, 5)))
+  
+  filled <- paste(rep('<i class="fas fa-star"></i>', diff_val), collapse = "")
+  empty  <- paste(rep('<i class="far fa-star"></i>', 5 - diff_val), collapse = "")
+  
+  paste0(filled, empty)
 }
+
 
 # Function to generate an individual hero card using glue for clarity
 generate_card <- function(row) {
@@ -2634,7 +2669,7 @@ generate_modal <- function(hero_data, hero_counters, hero_synergy) {
           </div>
           <div class="col-md-6 mb-3 d-flex flex-column justify-content-center">
             <div class="row">
-              <p>{hero_data$description}</p>
+              <p>{hero_data$bio}</p>
             </div>
             <div class="row">
               <div class="col-md-6">
@@ -3216,7 +3251,7 @@ team_comp_counters_vis
 target_hero <- "Rocket Raccoon"
 defensive_ult_set <- c("Luna Snow", "Invisible Woman", "Mantis", "Cloak & Dagger", "Loki")
 play_threshold <- 0.5  # 50% threshold for playtime
-exclude_heroes <- c("The Punisher", "Winter Soldier")  # Excluded heroes
+exclude_heroes <- c("The Punisher")  # Excluded heroes
 
 # ----- STEP 1: Build Teams Directly from match_players -----
 # Here, we assume match_players has columns: match_uid, is_win, name.y, playtime_percentage.
@@ -3338,16 +3373,29 @@ rocket_icon <- hero_stats %>%
   pull(icon) %>%
   first()
 
-# Create a data frame for visualization
+# Replace empty vectors with 0 for consistency
+rocket_win_rate <- if(length(rocket_win_rate) == 0) 0 else rocket_win_rate
+rocket_overall_winrate <- if(length(rocket_overall_winrate) == 0) 0 else rocket_overall_winrate
+rocket_win_rate_with_punisher <- if(length(rocket_win_rate_with_punisher) == 0) 0 else rocket_win_rate_with_punisher
+rocket_win_rate_punisher <- if(length(rocket_win_rate_punisher) == 0) 0 else rocket_win_rate_punisher
+
 winrate_df <- data.frame(
-  Category = c("With 1 vs 2+ Defensive Ults", "Overall", "With Ammo Overload", "Without Ammo Overload"),  # Full names for legend
+  Category = c(
+    "With 1 vs 2+ Defensive Ults", 
+    "Overall", 
+    "With Ammo Overload", 
+    "Without Ammo Overload"
+  ),
   WinRate = c(
-    round(rocket_win_rate * 100, 1), 
-    round(rocket_overall_winrate, 1),
-    round(rocket_win_rate_with_punisher * 100, 1), 
-    round(rocket_win_rate_punisher * 100, 1)
+    ifelse(is.finite(rocket_win_rate), round(rocket_win_rate * 100, 1), 0), 
+    ifelse(is.finite(rocket_overall_winrate), round(rocket_overall_winrate, 1), 0),
+    ifelse(is.finite(rocket_win_rate_with_punisher), round(rocket_win_rate_with_punisher * 100, 1), 0), 
+    ifelse(is.finite(rocket_win_rate_punisher), round(rocket_win_rate_punisher * 100, 1), 0)
   )
 ) %>% arrange(desc(WinRate))
+
+
+
 
 winrate_df$Category <- factor(winrate_df$Category, levels = c(
   "Overall", 
