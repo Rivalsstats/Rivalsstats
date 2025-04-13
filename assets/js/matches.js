@@ -310,7 +310,7 @@ function generateMedals(badges) {
 
 function getHeroIcon(heroID) {
   const hero = heroData.find((hero) => hero.id == heroID.toString());
-  return hero ? `icons/hero_icons/${hero.name.replace(/ /g, "_").toLowerCase}.png` : "";
+  return hero ? `icons/hero_icons/${hero.name.replace(/ /g, "_").toLowerCase()}.png` : "";
 }
 
 function getRole(heroID) {
