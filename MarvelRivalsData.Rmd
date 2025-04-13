@@ -414,7 +414,7 @@ dir.create("icons/hero_icons", showWarnings = FALSE)
 # Example: Download icons using their URL
 for (i in 1:nrow(all_heroes)) {
   hero_name <- gsub(" ", "_", str_to_lower(all_heroes$name[i]))  # Replace spaces with underscores
-  file_path <- paste0("icons/hero_icons/", hero_name, ".png")
+  file_path <- paste0("icons/hero_icons/", str_to_lower(hero_name), ".png")
 
   if (!file.exists(file_path)) {  # Only download if it doesn't exist
     file_path <- "favicon/web-app-manifest-512x512.png"
