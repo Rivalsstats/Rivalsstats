@@ -36,7 +36,7 @@ jobs:
     # specify the environment variables used by the packager, matching the secrets from the project on GitHub
     env:
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-      FILE_PATH: 'MarvelRivalsData.html Heroes.html index.html'
+      FILE_PATH: 'MarvelRivalsData.html Heroes.html Index.html'
       RENDERED_PATH: 'rendered'
       DATA_PATH: 'data'
       RENV_INSTALL_TYPE: 'binary'
@@ -136,7 +136,7 @@ jobs:
         #if: github.ref != 'refs/heads/main'
         run: | 
             TARGET_BRANCH=${GITHUB_HEAD_REF}
-            git add ${{ env.FILE_PATH }} ${{ env.RENDERED_PATH }} ${{env.DATA_PATH}}
+            git add .
             git commit -m 'Re-build Rmarkdown files' || echo "No changes to commit"
             git push origin || echo "No changes to push"  
     
