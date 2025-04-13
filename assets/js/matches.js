@@ -8,7 +8,7 @@ let selectedHeroes = {
   opposingHero: []
 };
 // Load hero definitions.
-fetch('/data/latest/heroes/all_heroes.json')
+fetch('/data/latest/latest_heroes.json')
   .then(response => response.json())
   .then(data => { heroData = data; populateHeroDropdown(data); })
   .catch(error => console.error('Error loading hero data:', error));
