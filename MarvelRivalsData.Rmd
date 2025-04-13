@@ -266,7 +266,7 @@ safe_parse_json <- function(json_str) {
 
 
 healer_ids <- all_heroes %>%
-  filter(role == "STRATEGIST") %>%
+  filter(role == "Strategist") %>%
   select(id)
 
 # Determine current season – here we assume the highest season value is the current one
