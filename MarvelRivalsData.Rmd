@@ -2425,7 +2425,7 @@ generate_modal <- function(hero_data, hero_counters, hero_synergy) {
   hero_name_clean <- gsub(" ", "", hero_data$name)
   
   # Define the roles to include.
-  roles <- c("VANGUARD", "STRATEGIST", "DUELIST")
+  roles <- c("Vanguard", "Strategist", "Duelist")
   
   # Prepare lists to store HTML for counters and synergies.
   best_counter_html_list <- list()
@@ -2480,7 +2480,7 @@ generate_modal <- function(hero_data, hero_counters, hero_synergy) {
   # Build counters HTML for all roles.
   counters_html <- paste(sapply(roles, function(role) {
     # For display, add an "s" to role names except for Duelist.
-    role_display <- ifelse(role == "DUELIST", "Duelist", paste0(role, "s"))
+    role_display <- ifelse(role == "Duelist", "Duelist", paste0(role, "s"))
     glue::glue('
 <div class="row mb-4 role-section">
   <div class="col-md-4">
@@ -2512,7 +2512,7 @@ generate_modal <- function(hero_data, hero_counters, hero_synergy) {
   
   # Build synergies HTML for all roles.
   synergies_html <- paste(sapply(roles, function(role) {
-    role_display <- ifelse(role == "DUELIST", "Duelist", paste0(role, "s"))
+    role_display <- ifelse(role == "Duelist", "Duelist", paste0(role, "s"))
     glue::glue('
 <div class="row mb-4 role-section">
   <div class="col-md-4">
