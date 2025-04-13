@@ -3243,31 +3243,31 @@ team_comp_counters_vis
 ```{r rockethate, echo=FALSE}
 
 # Define your target hero and the defensive ult set.
-target_hero <- "Rocket Raccoon"
-defensive_ult_set <- c("Luna Snow", "Invisible Woman", "Mantis", "Cloak & Dagger", "Loki")
+target_hero <- "1023"
+defensive_ult_set <- c("1031", "1050", "1020", "1025", "1016")
 play_threshold <- 0.5  # 50% threshold for playtime
-exclude_heroes <- c("The Punisher")  # Excluded heroes
+exclude_heroes <- c("1014")  # Excluded heroes
 
 # ----- STEP 1: Build Teams Directly from match_players -----
 # Here, we assume match_players has columns: match_uid, is_win, name.y, playtime_percentage.
 teams <- match_players %>%
   group_by(match_uid, is_win) %>%
-  summarise(team = list(data.frame(name = name.y, play = playtime_percentage)), .groups = "drop")
+  summarise(team = list(data.frame(name = name.y, play = playtime_percentage, hero_data_hero_id=hero_data_hero_id)), .groups = "drop")
 
 # Compute team-level metrics:
 teams <- teams %>%
   mutate(
     # Does the team have Rocket Raccoon?
-    rocket_present = map_lgl(team, ~ target_hero %in% .x$name),
+    rocket_present = map_lgl(team, ~ target_hero %in% .x$hero_data_hero_id),
     # Count how many other heroes (excluding Rocket) from the defensive set are played with sufficient playtime.
     support_count = map_int(team, ~ {
       df <- .x
-      sum(df$name %in% defensive_ult_set & df$name != target_hero & df$play >= play_threshold)
+      sum(df$hero_data_hero_id %in% defensive_ult_set & df$hero_data_hero_id != target_hero & df$play >= play_threshold)
     }),
     # For Rocket, take the maximum playtime if he appears multiple times.
     rocket_play = map_dbl(team, ~ {
       df <- .x
-      rp <- df$play[df$name == target_hero]
+      rp <- df$play[df$hero_data_hero_id == target_hero]
       if(length(rp)==0) 0 else max(rp)
     })
   )
@@ -3299,23 +3299,23 @@ rocket_win_rate <- mean(filtered_matches$is_win_rr)
 # ----- STEP 1: Build Teams Directly from match_players -----
 conditional_teams <- match_players %>%
   group_by(match_uid, is_win) %>%
-  summarise(team = list(data.frame(name = name.y, play = playtime_percentage)), .groups = "drop") %>%
+  summarise(team = list(data.frame(name = name.y, play = playtime_percentage,hero_data_hero_id=hero_data_hero_id)), .groups = "drop") %>%
   mutate(
     # Does the team have Rocket Raccoon?
-    rocket_present = map_lgl(team, ~ target_hero %in% .x$name),
+    rocket_present = map_lgl(team, ~ target_hero %in% .x$hero_data_hero_id),
     # Count how many other heroes (excluding Rocket) from the defensive set are played with sufficient playtime.
     support_count = map_int(team, ~ {
       df <- .x
-      sum(df$name %in% defensive_ult_set & df$name != target_hero & df$play >= play_threshold)
+      sum(df$hero_data_hero_id %in% defensive_ult_set & df$hero_data_hero_id != target_hero & df$play >= play_threshold)
     }),
     # Get Rocket's playtime (if present)
     rocket_play = map_dbl(team, ~ {
       df <- .x
-      rp <- df$play[df$name == target_hero]
+      rp <- df$play[df$hero_data_hero_id == target_hero]
       if (length(rp) == 0) 0 else max(rp)
     }),
     # Check if any excluded heroes played at least as much as Rocket.
-    has_excluded_hero = map_lgl(team, ~ any(.x$play[.x$name %in% exclude_heroes] >= play_threshold, na.rm = TRUE))
+    has_excluded_hero = map_lgl(team, ~ any(.x$play[.x$hero_data_hero_id %in% exclude_heroes] >= play_threshold, na.rm = TRUE))
   )
 
 # ----- STEP 2: Separate Teams with and without Rocket -----
@@ -3358,13 +3358,13 @@ rocket_games_punisher <- sum(filtered_matches_with_punisher$rocket_play_rr)
 
 # Extract Rocket's overall win rate from hero_data
 rocket_overall_winrate <- hero_stats %>%
-  filter(name == "Rocket Raccoon") %>%
+  filter(hero_data_hero_id == "1023") %>%
   pull(win_rate) %>%
   first()
 
 # Extract Rocket's icon (for potential use)
 rocket_icon <- hero_stats %>%
-  filter(name == "Rocket Raccoon") %>%
+  filter(hero_data_hero_id == "1023") %>%
   pull(icon) %>%
   first()
 
