@@ -2140,7 +2140,7 @@ if (is.list(defeat_rows)) {
   defeat_rows <- bind_rows(defeat_rows)
 }
 
-role_order <- c("VANGUARD", "DUELIST", "STRATEGIST")
+role_order <- c("Vanguard", "Duelist", "Strategist")
 
 # Ensure victory_rows is sorted in the correct order
 victory_rows <- victory_rows %>%
@@ -2191,14 +2191,6 @@ defeat_html <- if (nrow(defeat_rows) > 0) {
   )
 } else {
   ""
-}
-
-if(hero_name == "Hela") {
-  print(paste("printing game: ", match_id))  
-  print("victory")
-  print(victory_html)
-  print("defeat")
-  print(defeat_html)
 }
 
   #extract stats
