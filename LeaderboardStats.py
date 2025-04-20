@@ -110,7 +110,6 @@ def append_csv(filename, fieldnames, data, seen_entries=None):
 
 # Fetch leaderboard
 def fetch_leaderboard():
-    global total_scanned_matches, total_scanned_players
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Fetching leaderboard data...")
     leaderboard, response_headers, status_code = fetchUrl(LEADERBOARD_URL)
     if not leaderboard:
@@ -314,7 +313,6 @@ def process_player(player_id, timestamp, leaderboard_entry,player_data):
 def process_encountered_players(player_data, timestamp):
     if cancel_event.is_set():
         return
-    global total_scanned_matches, total_scanned_players
     if player_data.get("is_profile_private", player_data.get("isPrivate", True)):
         return
 
@@ -734,6 +732,7 @@ def cancel_and_flush_queue(q, queue_name="queue"):
     q.put(None)
 
 def player_worker():
+    global total_scanned_players
     while True:
         try:
             # Try to get a task; timeout after 5 seconds if the queue is empty.
@@ -753,6 +752,7 @@ def player_worker():
             if status_code == 429:
                 if not cancel_event.is_set():
                     player_queue.put((player_id, timestamp, leaderboard_entry))
+            total_scanned_players += 1        
             process_player(player_id, timestamp, leaderboard_entry, response)
         except Exception as e:
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing player {player_id}: {e}")
@@ -775,6 +775,7 @@ def teammate_worker():
             teammate_queue.task_done()
 
 def match_worker():
+    global total_scanned_matches
     while True:
         # Block indefinitely until a task is available.
         match_id = match_queue.get()
@@ -789,6 +790,7 @@ def match_worker():
             if status_code == 429:
                 if not cancel_event.is_set():
                     match_queue.put(match_id)
+            total_scanned_matches += 1        
             process_match_data(match_id, response)
         except Exception as e:
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Error processing match {match_id}: {e}")
