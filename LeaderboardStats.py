@@ -8,6 +8,7 @@ import threading
 import pandas as pd
 import pyarrow.parquet as pq
 from queue import Queue
+import random
 
 # API Endpoints
 LEADERBOARD_URL = "https://rivalsmeta.com/api/leaderboard/data"
@@ -117,10 +118,16 @@ def fetch_leaderboard():
         return
 
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
-
     for idx, player in enumerate(leaderboard["players"]):
-        # Add rank based on the position in the leaderboard
-        player["rank_in_leaderboard"] = idx + 1  
+        player["rank_in_leaderboard"] = idx + 1
+
+    new_players = [
+        p for p in leaderboard["players"]
+        if p["uid"] not in queried_players
+    ]
+    random.shuffle(new_players)
+
+    for player in new_players:
         player_id = player["uid"]
         if player_id not in queried_players:  # Only fetch if not already queried
             queried_players.add(player_id)
