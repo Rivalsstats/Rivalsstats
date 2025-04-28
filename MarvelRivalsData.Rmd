@@ -1779,13 +1779,34 @@ match_team_perf <- all_plays %>%
 
 # 3. Focus on winning games and join match details (including replay_id and total_playtime).
 winning_plays <- all_plays %>%
-  filter(is_win == TRUE) %>%  
-  inner_join(match_team_perf %>% select(match_uid, competitiveness), by = "match_uid") %>%
+  filter(is_win == TRUE) %>%
+  
+  # bring in both competitiveness and the team's total performance (win_TRUE)
+  inner_join(
+    match_team_perf %>% select(match_uid, win_TRUE, competitiveness),
+    by = "match_uid"
+  ) %>%
+  
+  # for each match, compute how many players are on the team
+  group_by(match_uid) %>%
   mutate(
-    performance_adjusted = performance * (total_playtime / median(total_playtime, na.rm = TRUE)) * competitiveness
+    team_size     = n(),
+    avg_team_perf = win_TRUE / team_size,           # average performance of that team
+    rel_perf      = performance / avg_team_perf,     # how you did versus your teammates
+    mvp_flag      = if_else(player_uid == mvp, 1, 0) # 1 if you were MVP, else 0
+  ) %>%
+  ungroup() %>%
+  
+  # now fold in playtime, competitiveness, AND the MVP-relative boost
+  mutate(
+    performance_adjusted = performance
+      * (total_playtime / median(total_playtime, na.rm = TRUE))
+      * competitiveness
+      * if_else(mvp_flag == 1, rel_perf, 1)
   )
 
-# 4. Identify "consistent players": for each player and hero, require at least 3 wins 
+
+# 4. Identify "consistent players": for each player and hero, require at least 10 wins 
 #    then compute average adjusted performance and record their best game.
 consistent_players <- winning_plays %>%
   group_by(player_uid, name.y, role) %>%   # group by player and hero
