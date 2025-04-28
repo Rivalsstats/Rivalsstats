@@ -206,7 +206,7 @@ function renderMatches(matches) {
   matches.forEach(match => {
     const headingId = "heading_" + match.match_uid;
     const collapseId = "collapse_" + match.match_uid;
-    const season = match.season || "N/A";
+    const season = Math.round(match.season*10/2)/10 || "N/A";
     const gamemode = match.game_mode ? match.game_mode : match.gamemode || "N/A";
     const map = match.map || "N/A";
     const duration = match.duration ? formatDuration(match.duration) : "N/A";
