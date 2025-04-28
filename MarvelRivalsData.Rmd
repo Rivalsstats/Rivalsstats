@@ -1752,15 +1752,15 @@ all_plays <- spectate_data %>%
     performance = case_when(
       # For DPS: More kills (and some assists) combined with a high hit rate,
       # but penalize heavy damage taken.
-      role == "DUELIST" ~ (hero_data_kills + 0.5 * hero_data_assists) * hero_data_hit_rate / (damage_taken + 1),
+      role == "Duelist" ~ (hero_data_kills + 0.5 * hero_data_assists) * hero_data_hit_rate / (damage_taken + 1),
       
       # For Support: Prioritize healing output and some damage contribution,
       # while penalizing deaths.
-      role == "STRATEGIST" ~ (hero_healed + 0.3 * hero_damage) / ifelse(hero_data_deaths == 0, 1, hero_data_deaths),
+      role == "Strategist" ~ (hero_healed + 0.3 * hero_damage) / ifelse(hero_data_deaths == 0, 1, hero_data_deaths),
       
       # For Tank: Reward high damage taken (as a proxy for tanking) and damage output,
       # but again penalize deaths.
-      role == "VANGUARD" ~ (damage_taken + hero_damage) / ifelse(hero_data_deaths == 0, 1, hero_data_deaths),
+      role == "Vanguard" ~ (damage_taken + hero_damage) / ifelse(hero_data_deaths == 0, 1, hero_data_deaths),
       
       # Default (if role isn’t defined or is different)
       TRUE ~ NA_real_
