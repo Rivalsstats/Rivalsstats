@@ -31,6 +31,23 @@
        - name: Fetch Marvel Rivals Hero Stats
          run: |
            curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${HEROES_URL}" -o data/latest/latest_heroes.json
+
+       - name: Fetch and validate Marvel Rivals Hero Stats
+         run: |
+            set -euo pipefail
+
+            # fetch, fail on HTTP >=400, write raw JSON to a temp file
+            curl --fail -sS \
+              -H "x-api-key: ${API_TOKEN}" \
+              "${BASE_URL}${HEROES_URL}" \
+              -o temp_heroes.json
+
+            # validate it's valid JSON
+            jq . temp_heroes.json > data/latest/latest_heroes.json
+
+            # clean up
+            rm temp_heroes.json
+
  
        - name: Download and Convert Hero Transformation Icons (id 0)
          run: |

@@ -27,9 +27,22 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Fetch Marvel Rivals Hero Stats
+      - name: Fetch and validate Marvel Rivals maps
         run: |
-          curl -H "x-api-key: ${API_TOKEN}" -X GET "${BASE_URL}${MAPS_URL}" -o data/latest/latest_maps.json
+          set -euo pipefail
+
+          # fetch, fail on HTTP >=400, write raw JSON to a temp file
+          curl --fail -sS \
+            -H "x-api-key: ${API_TOKEN}" \
+            "${BASE_URL}${MAPS_URL}" \
+            -o temp_maps.json
+
+          # validate it's valid JSON
+          jq . temp_maps.json > data/latest/latest_maps.json
+
+          # clean up
+          rm temp_maps.json
+
 
       - name: Commit and push changes
         run: |
