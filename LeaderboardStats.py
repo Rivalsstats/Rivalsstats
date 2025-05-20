@@ -691,7 +691,7 @@ def process_rate_limit(headers, source):
 
 def fetchUrl(url,headers=None):
     try:
-        response = requests.get(url, headers=headers, timeout=60)
+        response = requests.get(url, headers=headers, timeout=120)
         # Detect Rate Limiting (429 Error)
         if response.status_code == 429:
             print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]⚠️ Rate limit hit! on {url}: {response.text}")
