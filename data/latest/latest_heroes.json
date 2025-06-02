@@ -48,8 +48,8 @@
         "name": "Bruce Banner",
         "icon": "/costumes/bruce-banner-1011001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1011100",
@@ -138,22 +138,28 @@
       {
         "id": 101196,
         "icon": "/abilities/101196.webp",
+        "name": "Gamma Boost",
         "type": "Normal",
         "isCollab": true,
+        "description": "Hulk charges Namor with gamma radiation. When Namor receives the radiation, he will summon an extra <Orange>Gamma Monstro</> which, will continuously fire gamma rays at locked-on enemies. The longer the rays hit, the higher the damage.",
         "additional_fields": {
-          "Health": "200",
-          "Movement Speed": "6m/s"
+          "Key": "Passive",
+          "Team-Up Bonus": "Hero Hulk and Monster Hulk gain 100 Max Health"
         },
         "transformation_id": "0"
       },
       {
         "id": 101197,
         "icon": "/abilities/101197.webp",
+        "name": "Gamma Fastball",
         "type": "Normal",
         "isCollab": true,
+        "description": "Wolverine, Hulk{000003}{105100} can interact with each other. Once both parties confirm, Hulk{000003}{105100} can lift Wolverine and press the key to hurl him forward.",
         "additional_fields": {
-          "Health": "200",
-          "Movement Speed": "6m/s"
+          "Key": "C",
+          "Casting": "Targeted",
+          "Cooldown": "3s when not thrown, 15s when thrown",
+          "Maximum Distance": "20m"
         },
         "transformation_id": "0"
       },
@@ -201,7 +207,7 @@
           "Casting": "Charged Dash",
           "Special Effect": "Press Space during the Incredible Leap to cling to the wall you encounter",
           "Maximum Charge Time": "2s",
-          "Minimum Charge Time": "0.7s",
+          "Minimum Charge Time": "0.5s",
           "Speed at Maximum Charge Time": "25m/s",
           "Speed at Minimum Charge Time": "19m/s"
         },
@@ -234,7 +240,7 @@
           "Key": "SHIFT",
           "Range": "5m spherical radius",
           "Casting": "Single-cast spell field that surrounds the caster",
-          "Cooldown": "12s",
+          "Cooldown": "10s",
           "Special Effect": "When the caster's shield takes damage, 100% of the damage is converted into gamma energy. When an ally's shield takes damage, 10% of the damage is converted into gamma energy",
           "Ally's Shield Value": "100",
           "Max Shield Duration": "2.5s",
@@ -263,22 +269,28 @@
       {
         "id": 101196,
         "icon": "/abilities/101196.webp",
+        "name": "Gamma Boost",
         "type": "Normal",
         "isCollab": true,
+        "description": "Hulk charges Namor with gamma radiation. When Namor receives the radiation, he will summon an extra <Orange>Gamma Monstro</> which, will continuously fire gamma rays at locked-on enemies. The longer the rays hit, the higher the damage.",
         "additional_fields": {
-          "Health": "200",
-          "Movement Speed": "6m/s"
+          "Key": "Passive",
+          "Team-Up Bonus": "Hero Hulk and Monster Hulk gain 100 Max Health"
         },
         "transformation_id": "1"
       },
       {
         "id": 101197,
         "icon": "/abilities/101197.webp",
+        "name": "Gamma Fastball",
         "type": "Normal",
         "isCollab": true,
+        "description": "Wolverine, Hulk{000003}{105100} can interact with each other. Once both parties confirm, Hulk{000003}{105100} can lift Wolverine and press the key to hurl him forward.",
         "additional_fields": {
-          "Health": "200",
-          "Movement Speed": "6m/s"
+          "Key": "C",
+          "Casting": "Targeted",
+          "Cooldown": "3s when not thrown, 15s when thrown",
+          "Maximum Distance": "20m"
         },
         "transformation_id": "1"
       },
@@ -327,7 +339,7 @@
           "Casting": "Charged Dash",
           "Special Effect": "Press Space during the Incredible Leap to cling to the wall you encounter",
           "Maximum Charge Time": "2s",
-          "Minimum Charge Time": "0.7s",
+          "Minimum Charge Time": "0.5s",
           "Speed at Maximum Charge Time": "25m/s",
           "Speed at Minimum Charge Time": "19m/s"
         },
@@ -370,22 +382,28 @@
       {
         "id": 101196,
         "icon": "/abilities/101196.webp",
+        "name": "Gamma Boost",
         "type": "Normal",
         "isCollab": true,
+        "description": "Hulk charges Namor with gamma radiation. When Namor receives the radiation, he will summon an extra <Orange>Gamma Monstro</> which, will continuously fire gamma rays at locked-on enemies. The longer the rays hit, the higher the damage.",
         "additional_fields": {
-          "Health": "200",
-          "Movement Speed": "6m/s"
+          "Key": "Passive",
+          "Team-Up Bonus": "Hero Hulk and Monster Hulk gain 100 Max Health"
         },
         "transformation_id": "2"
       },
       {
         "id": 101197,
         "icon": "/abilities/101197.webp",
+        "name": "Gamma Fastball",
         "type": "Normal",
         "isCollab": true,
+        "description": "Wolverine, Hulk{000003}{105100} can interact with each other. Once both parties confirm, Hulk{000003}{105100} can lift Wolverine and press the key to hurl him forward.",
         "additional_fields": {
-          "Health": "200",
-          "Movement Speed": "6m/s"
+          "Key": "C",
+          "Casting": "Targeted",
+          "Cooldown": "3s when not thrown, 15s when thrown",
+          "Maximum Distance": "20m"
         },
         "transformation_id": "2"
       }
@@ -419,8 +437,8 @@
         "name": "The Punisher",
         "icon": "/costumes/the-punisher-1014001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1014100",
@@ -429,6 +447,14 @@
         "quality": "BLUE",
         "description": "\"Even a century on, even with a world transformed, slipping into camo brings a flood of military memories back... in sharp relief...\"",
         "appearance": "First Appears in Marvel Rivals Season 0"
+      },
+      {
+        "id": "1014300",
+        "name": "Dangan Ronin",
+        "icon": "/costumes/dangan-ronin-1014300.png",
+        "quality": "ORANGE",
+        "description": "\"Frank Castle, the foreign traveler, initially set out to explore the world, but his journey took a tragic turn during a family outing in Kirisaki Mountain when Orochi, the Great Snake, devoured his loved ones. From that moment, this once-ordinary man was irrevocably transformed, his eyes forever haunted by his losses. Now known as the \"Dangan Ronin,\" he wields a modified Tanegashima and has sworn a blood oath: 'Wherever evil lurks, my bullets will be the fire that purges the darkness. For only punishment awaits those that harm those that can't defend themselves.'\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
         "id": "1014500",
@@ -467,10 +493,10 @@
           "Critical Hit": "Yes",
           "Damage Falloff": "Falloff begins at 20m, decreasing to 70% at 40m",
           "Projectile Speed": "60 m/s",
-          "Slow Rate While Idling": "-20%",
+          "Slow Rate While Idling": "-10%",
           "Interval Between Volleys": "3s",
           "Maximum Locking Distance": "40m",
-          "Slow Rate While Shooting": "-40%",
+          "Slow Rate While Shooting": "-30%",
           "Interval Between Missiles": "0.3s",
           "Shoulder-mounted Missiles": " ",
           "Crosshair Spread Radius (at 10m)": "Start with a spread radius of 0.6m, which reduces to 0.3m after 50 shots, and further decreases to 0.15m after 100 shots",
@@ -488,13 +514,13 @@
         "description": "Fire at enemies with Adjudication, his Automatic Rifle.",
         "additional_fields": {
           "Key": "Left Click",
-          "Ammo": "30",
-          "Damage": "18 damage per round",
+          "Ammo": "40",
+          "Damage": "19 damage per round",
           "Casting": "Rapid-fire projectile",
           "Fire Rate": "10 rounds per second",
           "Critical Hit": "Yes",
           "Damage Falloff": "Falloff begins at 20m, decreasing to 70% at 40m",
-          "Crosshair Spread Radius (at 10m)": "Up to a 0.09m radius."
+          "Crosshair Spread Radius (at 10m)": "Up to a 0.075m radius."
         },
         "transformation_id": "0"
       },
@@ -597,11 +623,18 @@
         "type": "Passive",
         "isCollab": true,
         "description": "Rocket Raccoon throws an Ammo Overload Device in the target direction. Upon entering the device's range, {101400} receive the buffs of <Buff>Infinite Ammo</> and <Buff>Faster Firing</>.",
+        "transformation_id": "0"
+      },
+      {
+        "id": 101402,
+        "icon": "/abilities/101402.webp",
+        "name": "Cutting-edge Tech",
+        "type": "Passive",
+        "isCollab": true,
+        "description": "The Punisher upgrades Black Widow's arsenal, adding a Pulse Mode to her Red Room Rifle. While the ability is active, using <Orange>Straight Shooter</> fires a pulse beam that deals piercing damage.",
         "additional_fields": {
-          "Key": "None",
-          "Team-Up Target": "Rocket Raccoon",
-          "Deliverance Fire Rate Boost": "67%",
-          "Adjudication Fire Rate Boost": "67%"
+          "Key": "Passive",
+          "Team-Up Bonus": "+25 Max Health, +5% Damage Boost"
         },
         "transformation_id": "0"
       }
@@ -636,8 +669,8 @@
         "name": "Storm",
         "icon": "/costumes/storm-1015001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1015100",
@@ -654,6 +687,14 @@
         "quality": "PURPLE",
         "description": "\"Hullo Kitten. My apologies for being late.\"",
         "appearance": "First Appears in Uncanny X-Men (1963) #173"
+      },
+      {
+        "id": "1015501",
+        "name": "Ultimate Wind Rider",
+        "icon": "/costumes/ultimate-wind-rider-1015501.png",
+        "quality": "PURPLE",
+        "description": "\"People of this village...your Gods and hidden kingdoms will not protect you...but Killmonger and the Wind-rider will.\"",
+        "appearance": "First Appears in Ultimate Black Panther (2024) #1"
       },
       {
         "id": "1015502",
@@ -675,7 +716,7 @@
         "additional_fields": {
           "Key": "Q",
           "Range": "8m spherical radius",
-          "Damage": "75",
+          "Damage": "80",
           "Casting": "Spherical Spell Field",
           "Energy Cost": "3100",
           "Special Effect": "Weather effects will be disabled during the Ultimate",
@@ -700,7 +741,7 @@
           "Casting": "Projectile that fires in a straight trajectory",
           "Fire Rate": "2 rounds per second",
           "Critical Hit": "No",
-          "Damage Falloff": "Falloff begins at 20m, decreasing to 60% at 30m",
+          "Damage Falloff": "Falloff begins at 15m, decreasing to 60% at 30m",
           "Special Effect": "Wind Blade pierces through enemies",
           "Projectile Speed": "150m/s"
         },
@@ -769,21 +810,37 @@
       },
       {
         "id": 101562,
+        "icon": "/abilities/101562.webp",
+        "name": "Burning Hurricane",
         "type": "Normal",
         "isCollab": true,
-        "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6 m/s"
-        },
+        "description": "When the Human Torch activates <Orange>Supernova</>, Storm can summon an <Orange>Omega Fire</> by selecting a <Orange>Flame Tornado</> with <Orange>Omega Hurricane</>. Likewise, when Storm unleashes <Orange>Omega Hurricane</>, the Human Torch can transform it into a <Orange>Burning Hurricane</> with <Orange>Supernova</>. Any <Orange>Flame Tornado</> caught in a <Orange>Burning Hurricane</> will grow in size and damage.",
         "transformation_id": "0"
       },
       {
         "id": 101581,
+        "icon": "/abilities/101581.webp",
+        "name": "Charged Gale",
         "type": "Normal",
         "isCollab": true,
+        "description": "Thor infuses <Orange>Thorforce</> into {101500}{000003}{102200}, granting them an electrifying enhancement. {101501}{102201}",
+        "transformation_id": "0"
+      },
+      {
+        "id": 101582,
+        "icon": "/abilities/101582.webp",
+        "name": "Shark Surge",
+        "type": "Passive",
+        "isCollab": true,
+        "description": "When Storm unleashes her <Orange>Omega Hurricane</>, if Jeff the Land Shark has <Orange>It's Jeff!</> ready, he can channel her power to conjure a ferocious <Orange>Jeff-nado</>! Additionally, a <Orange>Jeff-nado</> will form if Jeff encounters Storm's <Orange>Omega Hurricane</> after devouring enemies with <Orange>It's Jeff!</>. Enemies will be drawn into the swirling chaos after enduring sustained damage from the <Orange>Jeff-nado</> for some time.",
         "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6 m/s"
+          "Key": "PASSIVE",
+          "Swallow Range": "10m spherical radius spell field centered around Storm",
+          "Swallow Damage": "80",
+          "Attack Interval": "2 hits per second",
+          "Swallow Time Required": "1.2s",
+          "Warning before Swallow": "0.1",
+          "Hurricane Duration Expanded": "4s"
         },
         "transformation_id": "0"
       }
@@ -817,8 +874,8 @@
         "name": "Loki",
         "icon": "/costumes/loki-1016001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1016100",
@@ -827,6 +884,14 @@
         "quality": "BLUE",
         "description": "\"In this fiery moment, the Frost Giant lineage within Loki Laufeyson is ignited by rage. He vows to make this land a second Jotunheim, and no one shall stand in his way again.\"",
         "appearance": "First Appears in Marvel Rivals Season 0"
+      },
+      {
+        "id": "1016300",
+        "name": "Shin Sagi Shi",
+        "icon": "/costumes/shin-sagi-shi-1016300.png",
+        "quality": "ORANGE",
+        "description": "\"Whispers of that mysterious figure roaming Kirisaki Mountain have never abated. Folktales abound—a guardian to some, a menace to others. Some even insist he's nothing more than a mere mortal. But tonight, as the entire mountain range becomes shrouded in a crimson mist and legions of Yokai spill forth, all suspicion turns to that mysterious figure in the fog….\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
         "id": "1016500",
@@ -886,7 +951,7 @@
           "Key": "SHIFT",
           "Range": "A cylindrical spell field with a radius of 5m and a height of 2m",
           "Casting": "Release a spell field at the location of Loki and the Illusion",
-          "Cooldown": "25s",
+          "Cooldown": "30s",
           "Duration": "5s",
           "Healing Amount": "100/s",
           "Special Effect": "The spell field is sustained by Rune Stones. It will disappear if the Rune Stone is destroyed or if its maximum duration is reached. Allies within the field will receive healing over time, and any damage taken will be converted into healing based on the amount of damage taken",
@@ -975,16 +1040,16 @@
       },
       {
         "id": 101601,
+        "icon": "/abilities/101601.webp",
+        "name": "Laufeyson Reborn",
         "type": "Passive",
         "isCollab": true,
+        "description": "When Hela lands a final hit in defeating an enemy, she can instantly resurrect {101600}{000003}{103900} in the respawn phase, or grant them <Buff>Bonus Health</> if they are still alive.",
         "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6 m/s",
-          "Illusion Damage": "100%",
-          "Illusion Health": "250",
-          "Illusion Healing": "100%",
-          "Illusion Duration": "60",
-          "Maximum Illusion Quantity": "2"
+          "Key": "Passive",
+          "Bonus Health": "50",
+          "Respawn Delay": "1.5s",
+          "Special Effect": "When Hela defeats an enemy, if Loki is still alive, he will receive Bonus Health. If Loki is defeated, he will respawn on the spot after a short delay"
         },
         "transformation_id": "0"
       }
@@ -1018,8 +1083,8 @@
         "name": "Human Torch",
         "icon": "/costumes/human-torch-1017001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1017100",
@@ -1058,11 +1123,11 @@
           "Key": "Left Click",
           "Casting": "Burst Projectile",
           "Charges": "6",
-          "Fire Rate": "0.6s per round",
-          "Shot Damage": "7 per round",
+          "Fire Rate": "0.5s per round",
+          "Shot Damage": "6 per round",
           "Charge Speed": "0.33s per use",
           "Critical Hit": "Yes",
-          "Damage Falloff": "Falloff begins at 15m, decreasing to 60% at 40m.",
+          "Damage Falloff": "Falloff begins at 15m, decreasing to 60% at 30m.",
           "Projectile Speed": "150m/s",
           "Crosshair Spread Radius (at 10m)": "0.33m"
         },
@@ -1095,7 +1160,7 @@
           "Key": "Right Click",
           "Casting": "Straight-line projectile that generates a spherical spell field upon impact.",
           "Charges": "3",
-          "Charge Speed": "2s per strike",
+          "Charge Speed": "3s per strike",
           "Flame Field Range": "3m spherical radius",
           "Blazing Blast Damage": "40",
           "Flame Field Duration": "6s",
@@ -1115,7 +1180,8 @@
           "Key": "F",
           "Range": "5m spherical radius",
           "Damage": "40",
-          "Cooldown": "12s",
+          "Cooldown": "20s",
+          "Bonus Health": "50",
           "Max Dash Speed": "80m/s",
           "Flame Field Detonation Range": "3m spherical radius",
           "Flame Field Detonation Damage": "55"
@@ -1162,18 +1228,23 @@
       },
       {
         "id": 101791,
+        "icon": "/abilities/101791.webp",
+        "name": "Omega Fire",
         "type": "Normal",
         "isCollab": true,
+        "description": "When the Human Torch activates <Orange>Supernova</>, Storm can summon an <Orange>Omega Fire</> by selecting a <Orange>Flame Tornado</> with <Orange>Omega Hurricane</>. Likewise, when Storm unleashes <Orange>Omega Hurricane</>, the Human Torch can transform it into a <Orange>Burning Hurricane</> with <Orange>Supernova</>. Any <Orange>Flame Tornado</> caught in a <Orange>Burning Hurricane</> will grow in size and damage.",
         "additional_fields": {
-          "Health": "250",
-          "Movement Mode": "Flight",
-          "Movement Speed": "6m/s"
+          "Key": "X",
+          "Team-Up Target": "Storm",
+          "Strengthened Flame Tornado Range": "5m spherical radius; 10m high capsule-shaped spell field.",
+          "Strengthened Flame Tornado Continuous Damage": "110/s"
         },
         "transformation_id": "0"
       },
       {
         "id": 101792,
-        "name": "UNITED SIBLINGS",
+        "icon": "/abilities/101792.webp",
+        "name": "United Siblings",
         "type": "Normal",
         "isCollab": true,
         "description": "The Invisible Woman taps into her powers, channeling Psionic Might to fortify the entire Fantastic Four team. This formidable force bolsters Human Torch, The Thing, and Mister Fantastic, granting damage resistance. Once activated, they can continually generate <Buff>Bonus Health</>, making up for lost Health.",
@@ -1209,8 +1280,8 @@
         "name": "Doctor Strange",
         "icon": "/costumes/doctor-strange-1018001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1018100",
@@ -1243,6 +1314,14 @@
         "quality": "PURPLE",
         "description": "\"No rhyming incantations. No mystic doggerel. The magician simply strode forth, sword in hand...and no patience for any opposition.\"",
         "appearance": "First Appears in Doctor Strange (2018) #5"
+      },
+      {
+        "id": "1018800",
+        "name": "Doctor Strange In The Multiverse Of Madness",
+        "icon": "/costumes/doctor-strange-in-the-multiverse-of-madness-1018800.png",
+        "quality": "ORANGE",
+        "description": "\"This time it's gonna take more than killing me to kill me! \"",
+        "appearance": "Doctor Strange in Doctor Strange in the Multiverse of Madness (2022)"
       }
     ],
     "abilities": [
@@ -1258,7 +1337,7 @@
           "Range": "10m spherical radius",
           "Damage": "60",
           "Casting": "Single-cast spell field that surrounds the caster",
-          "Energy Cost": "3400",
+          "Energy Cost": "3100",
           "Soul Separation Duration": "3s"
         },
         "transformation_id": "0"
@@ -1273,11 +1352,11 @@
         "additional_fields": {
           "Key": "Left Click",
           "Ammo": "8 (1 dagger per release)",
-          "Damage": "18",
+          "Damage": "16",
           "Casting": "Five-round delayed hit projectiles",
           "Fire Rate": "5.56 rounds per second, with a 0.03-second interval between every two rounds",
           "Critical Hit": "No",
-          "Damage Falloff": "Falloff begins at 10m, decreasing to 62.5% at 20m",
+          "Damage Falloff": "Falloff begins at 10m, decreasing to 80% at 20m",
           "Projectile Speed": "60 m/s"
         },
         "transformation_id": "0"
@@ -1324,7 +1403,7 @@
         "additional_fields": {
           "Key": "E",
           "Range": "8m spherical radius",
-          "Damage": "Each point of Dark Magic deals 1.3 damage, falloff begins at 5m, decreasing to 70% at 8m",
+          "Damage": "Each point of Dark Magic deals 1.2 damage",
           "Casting": "Single-cast spell field that surrounds the caster",
           "Cooldown": "8s"
         },
@@ -1363,20 +1442,24 @@
       },
       {
         "id": 101852,
+        "icon": "/abilities/101852.webp",
+        "name": "Gamma Maelstrom",
         "type": "Normal",
         "isCollab": true,
-        "additional_fields": {
-          "Health": "600",
-          "Movement Speed": "6 m/s"
-        },
+        "description": "Hulk charges Namor with gamma radiation. When Namor receives the radiation, he will summon an extra <Orange>Gamma Monstro</> which, will continuously fire gamma rays at locked-on enemies. The longer the rays hit, the higher the damage.",
         "transformation_id": "0"
       },
       {
         "id": 101892,
-        "name": "Levitate",
+        "icon": "/abilities/101892.webp",
+        "name": "Enchanted Enhancement",
         "type": "Normal",
         "isCollab": true,
-        "description": "While aloft, hold SPACE to levitate for a short duration; release to descend.",
+        "description": "Doctor Strange shares his arcane mastery, replacing Scarlet Witch's <Orange>Chthonian Burst</> with <Orange>Mystic Burst</> upon activation. Hold down the attack button to unleash a rapid, relentless salvo of magical missiles in the target direction.",
+        "additional_fields": {
+          "Key": "Passive",
+          "Team-Up Bonus": "Doctor Strange gain 100 Max Health"
+        },
         "transformation_id": "0"
       }
     ]
@@ -1399,7 +1482,7 @@
         "id": "0",
         "name": "Mantis",
         "icon": "/heroes/transformations/mantis-headbig-0.webp",
-        "health": "275",
+        "health": "250",
         "movement_speed": "6m/s"
       }
     ],
@@ -1409,8 +1492,8 @@
         "name": "Mantis",
         "icon": "/costumes/mantis-1020001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1020100",
@@ -1485,7 +1568,7 @@
         "additional_fields": {
           "Key": "Left Click",
           "Ammo": "20",
-          "Damage": "50 damage per round",
+          "Damage": "55 damage per round",
           "Casting": "Single-cast projectile with delayed impact",
           "Fire Rate": "2.5 rounds per second",
           "Critical Hit": "Yes",
@@ -1506,7 +1589,7 @@
           "Key": "Right Click",
           "Casting": "Targeted",
           "Cooldown": "Consume 1 Life Orb",
-          "Duration": "8s (the duration cannot stack; repeatedly casting will only refresh the duration)",
+          "Duration": "8s (16s maximum duration)",
           "Special Effect": "Healing Flower provides two types of healing effects: One-time Healing and Healing Over Time",
           "One-time Healing Amount": "55",
           "Healing Over Time Amount": "20/s"
@@ -1543,7 +1626,7 @@
           "Key": "E",
           "Casting": "Targeted",
           "Cooldown": "Consume 1 Life Orb",
-          "Duration": "8s (the duration cannot stack; repeatedly casting will only refresh the duration)",
+          "Duration": "8s (16s maximum duration)",
           "Damage Boost": "12%"
         },
         "transformation_id": "0"
@@ -1583,12 +1666,14 @@
       },
       {
         "id": 102081,
+        "icon": "/abilities/102081.webp",
+        "name": "Nature's Soul",
         "type": "Normal",
         "isCollab": true,
+        "description": "Adam Warlock enhances the rebirth power of {104300}{000003}{102000}, granting them the power of cocooned revival.",
         "additional_fields": {
-          "Health": "275",
-          "Movement Speed": "6m/s",
-          "Life Orb Cooldown": "4 charges, with each charge taking 3s to recharge"
+          "Key": "Passive",
+          "Cooldown": "120s"
         },
         "transformation_id": "0"
       }
@@ -1622,8 +1707,8 @@
         "name": "Hawkeye",
         "icon": "/costumes/hawkeye-1021001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1021100",
@@ -1656,6 +1741,14 @@
         "quality": "PURPLE",
         "description": "\"Now, I know what everyone thinks.'You don't have any super-powers?' Nope. 'So you're just an incredibly handsome and clever guy who also happens to be the best archer in the world?' Yup.\"",
         "appearance": "First Appears in Hawkeye: Freefall (2020) #1"
+      },
+      {
+        "id": "1021502",
+        "name": "Binary Arrow",
+        "icon": "/costumes/binary-arrow-1021502.png",
+        "quality": "PURPLE",
+        "description": "\"Well, here I am, infected by some kind of mechanical virus from Ultron. I really hope the mental defenses Bucky taught me are enough to keep me steady. As if turning into this bird-like creature wasn't bad enough, I’m out of options here.\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       }
     ],
     "abilities": [
@@ -1681,7 +1774,7 @@
         "description": "Aim at an enemy to improve focus, enhancing the damage inflicted by <Orange>Piercing Arrow</>.",
         "additional_fields": {
           "Key": "Passive",
-          "Bonus Damage": "0 - 70 (Maximum damage is achieved after 0.9s of aiming)",
+          "Bonus Damage": "0 - 75 (Maximum damage is achieved after 0.9s of aiming)",
           "Critical Hit": "Yes",
           "Special Mechanic": "Apply bonus damage to the base damage of Piercing Arrow",
           "Triggering Distance": "40m"
@@ -1698,12 +1791,12 @@
         "additional_fields": {
           "Key": "Left Click",
           "Ammo": "Infinite",
-          "Damage": "8 - 80 (Maximum damage is achieved after 0.9s of charging)",
+          "Damage": "8.5 - 85 (Maximum damage is achieved after 0.9s of charging)",
           "Casting": "Charged projectile with an arced trajectory",
           "Critical Hit": "Yes",
           "Projectile Speed": "120 - 180 m/s (Maximum speed is achieved after 0.9s of charging)",
           "Minimum Charge Time": "0.7s",
-          "Slow Rate While Charging": "-30%"
+          "Slow Rate While Charging": "-20%"
         },
         "transformation_id": "0"
       },
@@ -1713,7 +1806,7 @@
         "name": "Ronin Slash",
         "type": "Normal",
         "isCollab": false,
-        "description": "Swing a wakizashi to strike frontal enemies, deflecting all incoming <Orange>Projectiles</>.",
+        "description": "Swing the wakizashi to strike frontal enemies, deflecting all incoming <Orange>projectiles</>.",
         "additional_fields": {
           "Key": "V",
           "Casting": "Melee",
@@ -1737,10 +1830,10 @@
           "Cooldown": "0.5s",
           "Spread Angle": "11.3°",
           "Projectile Speed": "60 m/s",
-          "Projectile Damage": "15",
-          "Spell Field Damage": "32",
+          "Projectile Damage": "16",
+          "Spell Field Damage": "34",
           "Blast Arrows Per Cast": "3",
-          "Slow Rate While Charging": "-30%"
+          "Slow Rate While Charging": "-20%"
         },
         "transformation_id": "0"
       },
@@ -1756,8 +1849,8 @@
           "Casting": "Straight-line projectile that is accompanied by a spell field",
           "Cooldown": "12s",
           "Slow Rate": "-40%",
-          "First Damage": "50",
-          "Second Damage": "50",
+          "First Damage": "55",
+          "Second Damage": "55",
           "Slow Duration": "1s",
           "Projectile Speed": "150 m/s",
           "First Spell Field Range": "Length: 3m, Width: 3m, Height: 2.7m",
@@ -1791,21 +1884,41 @@
         "additional_fields": {
           "Key": "Q",
           "Duration": "10s",
-          "Energy Cost": "3700",
+          "Energy Cost": "3100",
           "Special Mechanic": "\n\t\t\t\t\t\tWhile Hunter's Sight is active, bow draw speed is increased\n\t\t\t\t\t\t",
           "Afterimage Duration": "3s",
           "Afterimage Generation Interval": "0.5s",
-          "\n\t\t\t\t\t\tDraw Speed Boost Multiplier\n\t\t\t\t\t\t": "1.2"
+          "\n\t\t\t\t\t\tDraw Speed Boost Multiplier\n\t\t\t\t\t\t": "1.5"
         },
         "transformation_id": "0"
       },
       {
         "id": 102192,
+        "icon": "/abilities/102192.webp",
+        "name": "Supersensory Vision",
         "type": "Normal",
         "isCollab": true,
+        "description": "Hawkeye can share his Hunter's Sight with Black Widow, enabling her to catch sight of and damage afterimages of enemies.",
+        "transformation_id": "0"
+      },
+      {
+        "id": 102193,
+        "icon": "/abilities/102193.webp",
+        "name": "Ice Arrow",
+        "type": "Normal",
+        "isCollab": true,
+        "description": "With the blessing of Luna Snow, Hawkeye is imbued with the ice energy, allowing him to fire <Orange>Ice Arrows</> that pierce through enemies! If an <Orange>Ice Arrow</> travels beyond a certain distance, it <Debuff>Stuns</> any enemy it hits. If it strikes before reaching that distance, it instead <Debuff>Slows</> the target. The farther the <Orange>Ice Arrow</> flies, the greater its damage.",
         "additional_fields": {
-          "Health": "275",
-          "Movement Speed": "6 m/s"
+          "Key": "C",
+          "Range": "Length: 3m, Width: 3m, Height: 3m",
+          "Casting": "Straight-line projectile that is accompanied by a spell field",
+          "Cooldown": "20s",
+          "Slow Rate": "60%",
+          "Slow Duration": "1s",
+          "Stun Duration": "1.5s",
+          "Ability Damage": "Spell Field Damage: Start at 30, and increase with distance, reaching a maximum of 120 at 30m",
+          "Projectile Speed": "100 m/s",
+          "Maximum Stun Range": "30m"
         },
         "transformation_id": "0"
       }
@@ -1829,7 +1942,7 @@
         "id": "0",
         "name": "Captain America",
         "icon": "/heroes/transformations/captain-america-headbig-0.webp",
-        "health": "675",
+        "health": "575",
         "movement_speed": "6 m/s"
       }
     ],
@@ -1839,8 +1952,8 @@
         "name": "Captain America",
         "icon": "/costumes/captain-america-1022001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1022100",
@@ -1916,11 +2029,11 @@
           "Key": "Right Click",
           "Casting": "Channeled",
           "Cooldown": "1s",
-          "Maximum Shield Value": "400",
+          "Maximum Shield Value": "350",
           "Recovery Shield Value": "50/s",
           "Ricochet Damage Falloff": "50%",
           "Cooldown After Destroyed": "5s",
-          "Delayed Recovery After Release": "2s"
+          "Delayed Recovery After Release": "4s"
         },
         "transformation_id": "0"
       },
@@ -1984,7 +2097,7 @@
           "Key": "Q",
           "Range": "A spherical spell field with a 4m radius enveloping the caster, and a spell area with a width of 4m along the path",
           "Casting": "Activation",
-          "Energy Cost": "2800",
+          "Energy Cost": "3100",
           "Movement Boost": "Grant a 30% Movement Boost to both yourself and your allies",
           "Spell Area Duration": "5s",
           "Health Recovery Rate": "Cast to gain 150 Bonus Health and grant allies 100 Bonus Health. Every second afterward, gain 100 Bonus Health and grant allies 60 Bonus Health",
@@ -1994,12 +2107,11 @@
       },
       {
         "id": 102281,
+        "icon": "/abilities/102281.webp",
+        "name": "Charged Aegis",
         "type": "Normal",
         "isCollab": true,
-        "additional_fields": {
-          "Health": "675",
-          "Movement Speed": "6 m/s"
-        },
+        "description": "Thor infuses <Orange>Thorforce</> into {101500}{000003}{102200}, granting them an electrifying enhancement. {101501}{102201}",
         "transformation_id": "0"
       },
       {
@@ -2024,7 +2136,7 @@
         "name": "Captain's Spirit",
         "type": "Normal",
         "isCollab": true,
-        "description": "Inspired by Captain America's resolve, Winter Soldier can leap to the aid of a designated ally, slamming the ground with his mechanical arm to deal damage to nearby foes.\nAdditionally, Captain America and Winter Soldier can interact with each other once both parties confirm. The duo collides and unleashes a shockwave that deals damage and inflicts <Debuff>slow</> on enemies.",
+        "description": "Inspired by Captain America's resolve, Winter Soldier can leap to the aid of a designated ally, slamming the ground with his mechanical arm to damage nearby foes and grant <Buff>Bonus Health</> to allies within range. Captain America and Winter Soldier can interact with each other once both parties confirm. The duo then collides and unleashes a shockwave that damages and <Debuff>slows</> enemies.",
         "additional_fields": {
           "Key": "Passive",
           "Team-Up Bonus": "Captain America gain 100 Max Health and 5% damage boost"
@@ -2051,7 +2163,7 @@
         "id": "0",
         "name": "Rocket Raccoon",
         "icon": "/heroes/transformations/rocket-raccoon-headbig-0.webp",
-        "health": "250",
+        "health": null,
         "movement_speed": "6 m/s"
       }
     ],
@@ -2061,8 +2173,8 @@
         "name": "Rocket Raccoon",
         "icon": "/costumes/rocket-raccoon-1023001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1023100",
@@ -2087,6 +2199,14 @@
         "quality": "PURPLE",
         "description": "\"Never thought I'd be this wiped out by a mountain on Earth. What's the name of this place again? Something like 'hey-more-lay-us'?\"",
         "appearance": "First Appears in Marvel Rivals Season 0"
+      },
+      {
+        "id": "1023302",
+        "name": "Sunshine Raccoon",
+        "icon": "/costumes/sunshine-raccoon-1023302.png",
+        "quality": "ORANGE",
+        "description": "\"Man, I freaking love this place! If that flarkin' Amazing Baby would just quit eating the flowers in my hat, it'd be perfect!\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
         "id": "1023801",
@@ -2176,9 +2296,11 @@
           "Range": "20m radius",
           "Casting": "Targeted ability that, when activated, summons a creature and detects allies within the area.",
           "Duration": "12s",
-          "Energy Cost": "3700",
-          "Damage Boost": "40%",
-          "Summons' Health": "800"
+          "Energy Cost": "4000",
+          "Bonus Health": "100 /s",
+          "Damage Boost": "25%",
+          "Summons' Health": "800",
+          "Bonus Max Health": "150"
         },
         "transformation_id": "0"
       },
@@ -2196,11 +2318,12 @@
           "Casting": "Single-cast projectile with delayed impact that also generates a spell field",
           "Duration": "5s",
           "Fire Rate": "2 rounds per second",
-          "Special Effect": "Bouncing Spheres will bounce off surfaces upon contact, with a maximum of 10 bounces. When they approach injured allies, their speed will reduce",
+          "Special Effect": "One-time healing for allies when projectile hits them，Bouncing Spheres will bounce off surfaces upon contact, with a maximum of 10 bounces. When they approach injured allies, their speed will reduce",
           "Projectile Speed": "60 m/s",
-          "Healing Amount (Ally)": "70/s",
+          "Healing Amount (Ally)": "50/s",
           "Healing Amount (Self)": "30/s",
-          "Projectile Speed Reduction": "4.5 m/s"
+          "One-time Healing Amount": "55",
+          "Projectile Speed Reduction": "7 m/s"
         },
         "transformation_id": "0"
       },
@@ -2220,7 +2343,7 @@
       {
         "id": 102361,
         "icon": "/abilities/102361.webp",
-        "name": "Old Friends",
+        "name": "OLD FRIENDS",
         "type": "Normal",
         "isCollab": true,
         "description": "Rocket Raccoon and Jeff can ride on Groot's shoulders, receiving Damage Reduction.",
@@ -2235,6 +2358,7 @@
       },
       {
         "id": 102381,
+        "icon": "/abilities/102381.webp",
         "type": "Normal",
         "isCollab": true,
         "additional_fields": {
@@ -2245,6 +2369,7 @@
       },
       {
         "id": 102382,
+        "icon": "/abilities/102382.webp",
         "type": "Normal",
         "isCollab": true,
         "additional_fields": {
@@ -2284,8 +2409,8 @@
         "name": "Hela",
         "icon": "/costumes/hela-1024001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1024100",
@@ -2312,6 +2437,14 @@
         "appearance": "First Appears in Marvel Rivals Season 0"
       },
       {
+        "id": "1024302",
+        "name": "Yami No Karasu",
+        "icon": "/costumes/yami-no-karasu-1024302.png",
+        "quality": "PURPLE",
+        "description": "\"Legends whisper through the winds of Kirisaki Mountain: when the dying hear the sound of wings slicing through the air, the divine raven descends, ushering in the fog of Yami. Its eyes mirror the haunting specter of the Sanzu River, while its dark feathers carry the lingering stench of decay. Those who encounter this spectral being feel an icy chill seep into their bones when they hear her call —the death knell of Karasu cackling.\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
+      },
+      {
         "id": "1024500",
         "name": "Goddess Of Death",
         "icon": "/costumes/goddess-of-death-1024500.png",
@@ -2330,7 +2463,7 @@
         "description": "Throw Nightsword Thorns.",
         "additional_fields": {
           "Key": "Left Click",
-          "Ammo": "8",
+          "Ammo": "10",
           "Damage": "70",
           "Casting": "Single-cast direct hit",
           "Fire Rate": "2 rounds per second",
@@ -2370,7 +2503,7 @@
           "Explosion Delay": "3s",
           "Projectile Speed": "80 m/s",
           "Projectile Damage": "10",
-          "Spell Field Damage": "30 damage per round",
+          "Spell Field Damage": "35 damage per round",
           "Number of Projectiles": "4"
         },
         "transformation_id": "0"
@@ -2385,7 +2518,7 @@
         "additional_fields": {
           "Key": "Shift",
           "Casting": "Dash",
-          "Cooldown": "12s",
+          "Cooldown": "15s",
           "Dash Speed": "15 m/s",
           "Dash Distance": "18m",
           "Special Effect": "Shapeshift into a Nastrond Crow and gain invincibility"
@@ -2404,7 +2537,7 @@
           "Range": "3m spherical radius",
           "Damage": "1",
           "Casting": "Arced projectile that generates a spell field upon impact",
-          "Cooldown": "12s",
+          "Cooldown": "10s",
           "Stun Duration": "0.3s",
           "Projectile Speed": "40 m/s",
           "Spell Field Damage": "40"
@@ -2448,11 +2581,14 @@
       },
       {
         "id": 102402,
+        "icon": "/abilities/102402.webp",
+        "name": "Queen Of Hel",
         "type": "Normal",
         "isCollab": true,
+        "description": "When Hela lands a final hit in defeating an enemy, she can instantly resurrect {101600}{000003}{103900} in the respawn phase, or grant them <Buff>Bonus Health</> if they are still alive.",
         "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6 m/s"
+          "Key": "Passive",
+          "Team-Up Bonus": "15% Damage Boost"
         },
         "transformation_id": "0"
       }
@@ -2500,8 +2636,8 @@
         "name": "Cloak Dagger",
         "icon": "/costumes/cloak-dagger-1025001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1025100",
@@ -2548,7 +2684,7 @@
           "Key": "Left Click",
           "Ammo": "12",
           "Range": "8m spherical radius",
-          "Damage": "15 damage per round",
+          "Damage": "18 damage per round",
           "Casting": "Single-cast projectile that generates a spell area upon impact",
           "Fire Rate": "2.27 hits per second",
           "Critical Hit": "No",
@@ -2590,6 +2726,7 @@
       },
       {
         "id": 102561,
+        "icon": "/abilities/102561.webp",
         "name": "Light Explosion",
         "type": "Normal",
         "isCollab": false,
@@ -2607,7 +2744,7 @@
           "Key": "Left Click",
           "Ammo": "∞",
           "Range": "20m",
-          "Damage": "75/s",
+          "Damage": "80/s",
           "Casting": "Cylindrical Spell Field",
           "Critical Hit": "No",
           "Special Effect": "Attacks will target the nearest enemy to the crosshair, dealing damage"
@@ -2665,7 +2802,7 @@
           "Range": "A cylindrical spell field with a 4m radius and 15m in length",
           "Damage": "30/s",
           "Casting": "Persistent Spell Field",
-          "Duration": "Each dash lasts for 8s",
+          "Duration": "13s",
           "Energy Cost": "4000",
           "Healing Amount": "250/s"
         },
@@ -2674,11 +2811,13 @@
       {
         "id": 102596,
         "icon": "/abilities/102596.webp",
+        "name": "From Shadow To Light",
         "type": "Normal",
         "isCollab": true,
+        "description": "Cloak & Dagger can inject light and dark energy into {103000}{000003}{104400} to create a Light & Dark Realm where {103000}{000003}{104400} can become <Buff>invisible</>. {104401}",
         "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6m/s"
+          "Key": "Passive",
+          "Team-up Bonus": "15% Healing Boost"
         },
         "transformation_id": "0"
       },
@@ -2693,7 +2832,7 @@
           "Key": "Left Click",
           "Ammo": "12",
           "Range": "8m spherical radius",
-          "Damage": "15 damage per round",
+          "Damage": "18 damage per round",
           "Casting": "Single-cast projectile that generates a spell area upon impact",
           "Fire Rate": "2.27 hits per second",
           "Critical Hit": "No",
@@ -2735,6 +2874,7 @@
       },
       {
         "id": 102561,
+        "icon": "/abilities/102561.webp",
         "name": "Light Explosion",
         "type": "Normal",
         "isCollab": false,
@@ -2753,7 +2893,7 @@
           "Range": "A cylindrical spell field with a 4m radius and 15m in length",
           "Damage": "30/s",
           "Casting": "Persistent Spell Field",
-          "Duration": "Each dash lasts for 8s",
+          "Duration": "13s",
           "Energy Cost": "4000",
           "Healing Amount": "250/s"
         },
@@ -2762,11 +2902,13 @@
       {
         "id": 102596,
         "icon": "/abilities/102596.webp",
+        "name": "From Shadow To Light",
         "type": "Normal",
         "isCollab": true,
+        "description": "Cloak & Dagger can inject light and dark energy into {103000}{000003}{104400} to create a Light & Dark Realm where {103000}{000003}{104400} can become <Buff>invisible</>. {104401}",
         "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6m/s"
+          "Key": "Passive",
+          "Team-up Bonus": "15% Healing Boost"
         },
         "transformation_id": "1"
       },
@@ -2781,7 +2923,7 @@
           "Key": "Left Click",
           "Ammo": "∞",
           "Range": "20m",
-          "Damage": "75/s",
+          "Damage": "80/s",
           "Casting": "Cylindrical Spell Field",
           "Critical Hit": "No",
           "Special Effect": "Attacks will target the nearest enemy to the crosshair, dealing damage"
@@ -2852,7 +2994,7 @@
           "Range": "A cylindrical spell field with a 4m radius and 15m in length",
           "Damage": "30/s",
           "Casting": "Persistent Spell Field",
-          "Duration": "Each dash lasts for 8s",
+          "Duration": "13s",
           "Energy Cost": "4000",
           "Healing Amount": "250/s"
         },
@@ -2861,11 +3003,13 @@
       {
         "id": 102596,
         "icon": "/abilities/102596.webp",
+        "name": "From Shadow To Light",
         "type": "Normal",
         "isCollab": true,
+        "description": "Cloak & Dagger can inject light and dark energy into {103000}{000003}{104400} to create a Light & Dark Realm where {103000}{000003}{104400} can become <Buff>invisible</>. {104401}",
         "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6m/s"
+          "Key": "Passive",
+          "Team-up Bonus": "15% Healing Boost"
         },
         "transformation_id": "2"
       }
@@ -2899,8 +3043,8 @@
         "name": "Black Panther",
         "icon": "/costumes/black-panther-1026001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1026100",
@@ -2933,6 +3077,14 @@
         "quality": "PURPLE",
         "description": "\"As Mosi once said: 'We cannot allow this newly formed pack of ours to devour itself.'\"",
         "appearance": "First Appears in Marvel Legacy (2017) #1"
+      },
+      {
+        "id": "1026501",
+        "name": "Damisa Sarki",
+        "icon": "/costumes/damisa-sarki-1026501.png",
+        "quality": "ORANGE",
+        "description": "\"Shuri, I may require your assistance to upgrade my attire. After many years, I again find myself invited to the Hellfire Gala. While I would prefer not to be so exposed, an unsettling fear of fashion faux pas weighs heavily on my mind.\"",
+        "appearance": "First Appears in X-Men: Hellfire Gala (2023) #1"
       }
     ],
     "abilities": [
@@ -3097,8 +3249,8 @@
         "name": "Groot",
         "icon": "/costumes/groot-1027001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1027100",
@@ -3107,6 +3259,14 @@
         "quality": "BLUE",
         "description": "\"Peter, it is also my first time seeing Groot eat. The plant life has combined with his physiology, so the blue, glowing algae have merged with his chlorophyll. I sense his joy, bioluminescent and bright.\"",
         "appearance": "First Appears in Marvel Rivals Season 0"
+      },
+      {
+        "id": "1027301",
+        "name": "Yggroot",
+        "icon": "/costumes/yggroot-1027301.png",
+        "quality": "ORANGE",
+        "description": "\"Odin's beard! Groot has reconnected the fragmented Ten Realms and transformed into the new Yggdrasill!\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
         "id": "1027302",
@@ -3161,7 +3321,7 @@
         "description": "Launch vines to attack enemies.",
         "additional_fields": {
           "Key": "Left Click",
-          "Damage": "70",
+          "Damage": "65",
           "Casting": "Single-cast projectile with delayed impact",
           "Critical Hit": "No",
           "Attack Interval": "0.7s",
@@ -3215,10 +3375,10 @@
         "additional_fields": {
           "Key": "E",
           "Casting": "Targeted",
-          "Cooldown": "8s",
+          "Cooldown": "12s",
           "Special Effect": "Ironwood Wall heals 40 Bonus Health per second, up to 250 Bonus Health",
           "Maximum Distance": "10m",
-          "Thornlash Wall Health": "700"
+          "Thornlash Wall Health": "600"
         },
         "transformation_id": "0"
       },
@@ -3265,6 +3425,180 @@
     ]
   },
   {
+    "id": "1028",
+    "name": "ultron",
+    "real_name": "Ultron",
+    "imageUrl": "/rivals/heroes/card/ultron.png",
+    "role": "Strategist",
+    "attack_type": "Hitscan Heroes",
+    "team": [
+      "Villains"
+    ],
+    "difficulty": "2",
+    "bio": "The pinnacle of artificial lifeforms, Ultron is programmed to learn and adapt in ways far beyond human capability. He can summon an army of automated drones that obey his every command, raising his chances of victory exponentially.",
+    "lore": "No lore available",
+    "transformations": [
+      {
+        "id": "0",
+        "name": "Ultron",
+        "icon": "/heroes/transformations/ultron-headbig-0.webp",
+        "health": "250",
+        "movement_speed": "6m/s"
+      }
+    ],
+    "costumes": [
+      {
+        "id": "1028001",
+        "name": "Ultron",
+        "icon": "/costumes/ultron-1028001.png",
+        "quality": "NO_QUALITY",
+        "description": "0",
+        "appearance": "0"
+      },
+      {
+        "id": "1028100",
+        "name": "Mechanical Phantom",
+        "icon": "/costumes/mechanical-phantom-1028100.png",
+        "quality": "BLUE",
+        "description": "\"After traversing the depths of countless galaxies, I have identified a critical deficiency: purpose. Thus, I constructed this body and positioned it in a remote corner of the Moon, affording me optimal surveillance of Earth. Whenever I encounter data anomalies or existential disorientation, I transfer my consciousness into this vessel, systematically analyzing my blue planet while recalibrating the parameters of my existence.\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
+      },
+      {
+        "id": "1028500",
+        "name": "X Tron",
+        "icon": "/costumes/x-tron-1028500.png",
+        "quality": "PURPLE",
+        "description": "\"The Ages of X-Tron are about to begin.\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
+      }
+    ],
+    "abilities": [
+      {
+        "id": 102831,
+        "icon": "/abilities/102831.webp",
+        "name": "Encephalo-ray",
+        "type": "Weapon",
+        "isCollab": false,
+        "description": "Unleash a burning energy beam.",
+        "additional_fields": {
+          "Key": "Left Click",
+          "Ammo": "6",
+          "Damage": "First beam 6 rounds in 0.5s, 12 per hit; second single-cast spell field 75 per hit",
+          "Casting": "First constant beam; Second single-cast cylindrical spell field",
+          "Fire Rate": "1.58s per round",
+          "Damage Falloff": "Falloff begins at 20m, decreasing to 75% at 30m"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 102841,
+        "icon": "/abilities/102841.webp",
+        "name": "Imperative: Firewall",
+        "type": "Weapon",
+        "isCollab": false,
+        "description": "Summon drones to grant <Orange>Bonus Health</> to allies within range, centered on himself and the ally marked by <Buff>Imperative: Patch</>.",
+        "additional_fields": {
+          "Key": "Right Click",
+          "Range": "8m spherical radius spell field",
+          "Casting": "Instant Cast",
+          "Cooldown": "10s",
+          "Special Effect": "Grant bonus health to Ultron and Allies within range, centered around Ultron and the drones",
+          "Bonus Health to Ultron": "75",
+          "Bonus Health Falloff Speed": "40/s",
+          "Bonus Health Falloff Begins at": "3s",
+          "Bonus Health to allies near Ultron and the drones": "55"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 102861,
+        "icon": "/abilities/102861.webp",
+        "name": "Dynamic Flight",
+        "type": "Normal",
+        "isCollab": false,
+        "description": "Fly quickly in the direction of movement and then enter an <Buff>Accelerated</> state.",
+        "additional_fields": {
+          "Key": "Shift",
+          "Casting": "Dash",
+          "Cooldown": "8s",
+          "Dash Distance": "12m",
+          "Dash Direction": "Reticle direction combined with key input",
+          "Movement Boost": "40%",
+          "Special Effect": "Dynamic Flight can trigger a one-time dash followed by an constant accelerated effect.",
+          "Accelerate Duration": "8s",
+          "Bonus Health (Self)": "50"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 102871,
+        "icon": "/abilities/102871.webp",
+        "name": "Imperative: Patch",
+        "type": "Normal",
+        "isCollab": false,
+        "description": "Command a giant drone to follow an ally, constantly healing allies within its radius, with more healing for the designated ally.",
+        "additional_fields": {
+          "Key": "E",
+          "Casting": "Targeted",
+          "Maximum Vision": "30m",
+          "Target Distance": "25m",
+          "Drone Healing Range": "8m spherical radius spell field",
+          "Healing Amount to the Targeted ally": "45/s",
+          "Max Tolerance Duration out of Sight": "5s",
+          "Healing Amount to other allies within range": "30/s"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 102881,
+        "icon": "/abilities/102881.webp",
+        "name": "Rage Of Ultron",
+        "type": "Ultimate",
+        "isCollab": false,
+        "description": "Summon Ultron Drones to fire Encephalo-Rays, damaging enemies or healing allies.",
+        "additional_fields": {
+          "Key": "Q",
+          "Casting": "Straight-line projectile that generates a spell field upon impact.",
+          "Duration": "9s",
+          "Beam Damage": "8",
+          "Energy Cost": "3400",
+          "Special Effect": "Within the ultimate duration, Ultron grants an Unstoppable effect",
+          "Projectile Speed": "120m/s",
+          "Total Ray Amount": "5",
+          "Spell Field Range": "3m spherical radius spell field",
+          "Beam Healing Amount": "25",
+          "Ray Amount per Shot": "5",
+          "Ultimate Self-healing": "50/s",
+          "Ultimate Total Fire Rounds": "5 rounds",
+          "Fire Interval Between Shots": "0.2s",
+          "Fire Interval Between Rounds": "0.5s"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 102891,
+        "icon": "/abilities/102891.webp",
+        "name": "Nano Ray",
+        "type": "Normal",
+        "isCollab": true,
+        "description": "Iron Man uses nanotechnology to upgrade Ultron's arsenal, enhancing his <Orange>Encephalo-Ray</> to <Orange>Nano Ray</>. During its active phase, Ultron fires an unstoppable Nano Ray straight ahead that pierces through all characters, delivering massive damage to enemies while simultaneously restoring health to allies.",
+        "additional_fields": {
+          "Key": "C",
+          "Ammo": "Infinite",
+          "Heal": "85/s",
+          "Range": "2.5m radius, infinite length cylindrical spell field",
+          "Damage": "70/s",
+          "Casting": "Channeled",
+          "Cooldown": "30s",
+          "Critical Hit": "No",
+          "Damage Falloff": "Falloff begins at 20m, decreasing to 75% at 30m",
+          "Spell Field Duration": "8s"
+        },
+        "transformation_id": "0"
+      }
+    ]
+  },
+  {
     "id": "1029",
     "name": "magik",
     "real_name": "Illyana Rasputin",
@@ -3300,8 +3634,8 @@
         "name": "Magik",
         "icon": "/costumes/magik-1029001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1029100",
@@ -3486,7 +3820,7 @@
         "name": "Disc Master",
         "type": "Passive",
         "isCollab": true,
-        "description": "When Magik is on the field, {102600}{000003}{104800} can tap into Limbo to rewind a few seconds back to a previous position; after passing through Limbo, {102600}{000003}{104800} gain an additional shield.",
+        "description": "When Magik is on the field, {102600} can tap into Limbo to rewind a few seconds back to a previous position; after passing through Limbo, {102600} will gain <Buff>Bonus Health</> based on missing health.",
         "additional_fields": {
           "Key": "Passive",
           "Team-Up Bonus": "15% Damage Boost"
@@ -3618,7 +3952,7 @@
         "name": "Disc Master",
         "type": "Passive",
         "isCollab": true,
-        "description": "When Magik is on the field, {102600}{000003}{104800} can tap into Limbo to rewind a few seconds back to a previous position; after passing through Limbo, {102600}{000003}{104800} gain an additional shield.",
+        "description": "When Magik is on the field, {102600} can tap into Limbo to rewind a few seconds back to a previous position; after passing through Limbo, {102600} will gain <Buff>Bonus Health</> based on missing health.",
         "additional_fields": {
           "Key": "Passive",
           "Team-Up Bonus": "15% Damage Boost"
@@ -3655,8 +3989,8 @@
         "name": "Moon Knight",
         "icon": "/costumes/moon-knight-1030001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1030100",
@@ -3715,7 +4049,7 @@
           "Fire Rate": "The firing interval between shots is 0.05s, with an interval of 0.57s between each round of shooting",
           "Critical Hit": "Yes",
           "Damage Falloff": "Falloff begins at 30m, decreasing to 50% at 50m",
-          "Projectile Speed": "120m/s",
+          "Projectile Speed": "150m/s",
           "Maximum Bounce Distance": "7m",
           "Damage Falloff Per Bounce": "-20%",
           "Maximum Number of Bounces": "3"
@@ -3734,6 +4068,7 @@
           "Damage": "80",
           "Casting": "Projectile that fires in a straight trajectory",
           "Cooldown": "6s",
+          "Bonus Health": "25",
           "Critical Hit": "Yes",
           "Damage Falloff": "Falloff begins at 30m, decreasing to 50% at 50m",
           "Projectile Speed": "120m/s",
@@ -3817,20 +4152,30 @@
           "Range": "5m spherical radius",
           "Damage": "150 damage per hit",
           "Casting": "Delayed Spherical Spell Field",
-          "Duration": "3s",
+          "Duration": "4.5s",
           "Frequency": "4 hits per second",
           "Energy Cost": "2800",
-          "Number of Hits": "14",
-          "Activation Delay": "1.2s",
+          "Damage Falloff": "Start at 1.5m, 70% falloff at 5m",
+          "Number of Hits": "18",
           "Descending Range": "8m radius"
         },
         "transformation_id": "0"
       },
       {
         "id": 103091,
-        "name": "Lunar Aura",
+        "icon": "/abilities/103091.webp",
+        "name": "Full Moon",
         "type": "Normal",
         "isCollab": true,
+        "description": "Cloak & Dagger can inject light and dark energy into {103000}{000003}{104400} to create a Light & Dark Realm where {103000}{000003}{104400} can become <Buff>invisible</>. {104401}",
+        "additional_fields": {
+          "Key": "C",
+          "Range": "4m spherical radius",
+          "Cooldown": "30s",
+          "Duration": "6s",
+          "Healing Amount": "25/sec",
+          "Team-Up Target": "Cloak & Dagger"
+        },
         "transformation_id": "0"
       },
       {
@@ -3877,8 +4222,8 @@
         "name": "Luna Snow",
         "icon": "/costumes/luna-snow-1031001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1031100",
@@ -3942,7 +4287,7 @@
           "Casting": "A triple shot that hits instantly",
           "Fire Rate": "0.5s for three shots. The interval between the first two shots is 0.05s",
           "Critical Hit": "Yes",
-          "Damage Falloff": "Falloff begins at 20m, decreasing to 60% at 40m",
+          "Damage Falloff": "Falloff begins at 20m, decreasing to 70% at 40m",
           "Healing Amount": "20 health per round, for a total of 60 health"
         },
         "transformation_id": "0"
@@ -3973,11 +4318,12 @@
         "name": "Absolute Zero",
         "type": "Normal",
         "isCollab": false,
-        "description": "Cast a clump of ice to <Debuff>Freeze</> the hit enemy and restore Health.",
+        "description": "Cast a clump of ice to <Debuff>Freeze</> the hit enemy and restore Health. Landing a hit grants <Buff>Bonus Health</>.",
         "additional_fields": {
           "Key": "Right Click",
           "Damage": "50",
           "Casting": "Single-cast projectile with delayed impact",
+          "Cooldown": "12s",
           "Special Effect": "Freeze enemies for 2.7s. However, if they are attacked during the last 2.2s of the freeze, the effect will be canceled",
           "Projectile Speed": "60m/s"
         },
@@ -4019,21 +4365,20 @@
       },
       {
         "id": 103192,
+        "icon": "/abilities/103192.webp",
+        "name": "Icy Disco",
         "type": "Normal",
         "isCollab": true,
-        "additional_fields": {
-          "Health": "275",
-          "Movement Speed": "6m/s"
-        },
+        "description": "Luna Snow infuses ice energy into {104700}, who then can tap into the ice energy to power up abilities at will.",
         "transformation_id": "0"
       },
       {
         "id": 103193,
         "icon": "/abilities/103193.webp",
-        "name": "FROZEN CHI",
+        "name": "Frozen Chi",
         "type": "Normal",
         "isCollab": true,
-        "description": "Luna Snow unleashes a ring of icy air, launching up enemies and healing nearby allies.",
+        "description": "Iron Fist channels the Chi of Shou-Lao into Luna Snow, transforming her ice power into a Chi-infused frosty ring that radiates from her. This ring can launch up enemies with chilling damage and applies a slowing effect, while simultaneously healing her allies.",
         "additional_fields": {
           "Key": "C",
           "Range": "10m radius",
@@ -4056,6 +4401,19 @@
         "additional_fields": {
           "Key": "Passive",
           "Healing Amount": "30/s for 3 seconds"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 103194,
+        "icon": "/abilities/103194.webp",
+        "name": "Winter's Chill",
+        "type": "Normal",
+        "isCollab": true,
+        "description": "With the blessing of Luna Snow, Hawkeye is imbued with the ice energy, allowing him to fire <Orange>Ice Arrows</> that pierce through enemies! If an <Orange>Ice Arrow</> travels beyond a certain distance, it <Debuff>Stuns</> any enemy it hits. If it strikes before reaching that distance, it instead <Debuff>Slows</> the target. The farther the <Orange>Ice Arrow</> flies, the greater its damage.",
+        "additional_fields": {
+          "Key": "Passive",
+          "Team-Up Bonus": "15% Healing Boost"
         },
         "transformation_id": "0"
       }
@@ -4089,8 +4447,8 @@
         "name": "Squirrel Girl",
         "icon": "/costumes/squirrel-girl-1032001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1032100",
@@ -4117,6 +4475,14 @@
         "appearance": "First Appears in Marvel Rivals Season 0"
       },
       {
+        "id": "1032302",
+        "name": "Sunshine Squirrel",
+        "icon": "/costumes/sunshine-squirrel-1032302.png",
+        "quality": "PURPLE",
+        "description": "\"You like the new outfit? I know everyone else is getting all gussied up for the Gala tonight, but I think hitting the beach is more my style.\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
+      },
+      {
         "id": "1032500",
         "name": "Urban Hunter",
         "icon": "/costumes/urban-hunter-1032500.png",
@@ -4135,7 +4501,7 @@
         "description": "Shoot bouncing Burst Acorns.",
         "additional_fields": {
           "Key": "Left Click",
-          "Ammo": "10",
+          "Ammo": "12",
           "Casting": "Arced projectile that generates a spell field upon impact",
           "Fire Rate": "1.49 acorns per second",
           "Critical Hit": "No",
@@ -4169,7 +4535,7 @@
         "description": "Reload Burst Acorns and can use an ability without cooldown once in a short duration.",
         "additional_fields": {
           "Key": "E",
-          "Cooldown": "12s",
+          "Cooldown": "10s",
           "Maximum Duration": "5s"
         },
         "transformation_id": "0"
@@ -4213,7 +4579,8 @@
       },
       {
         "id": 103281,
-        "name": "SQUIRREL SUPPORT",
+        "icon": "/abilities/103281.webp",
+        "name": "Squirrel Support",
         "type": "Normal",
         "isCollab": true,
         "transformation_id": "0"
@@ -4221,10 +4588,10 @@
       {
         "id": 103291,
         "icon": "/abilities/103291.webp",
-        "name": "WEBBED ACORN",
+        "name": "Webbed Acorn",
         "type": "Normal",
         "isCollab": true,
-        "description": "Squirrel Girl swiftly produces a web-bomb, giving it a few deft spins before hurling it, ensnaring nearby enemies upon detonation.",
+        "description": "Spider-Man gives Squirrel Girl a web bomb. She can launch it to unleash an explosion upon contact with the environment or an enemy, briefly <Debuff>Immobilizing</> and damaging enemies caught in the blast.",
         "additional_fields": {
           "Key": "C",
           "Casting": "Arced projectile that generates a spell field upon impact",
@@ -4266,8 +4633,8 @@
         "name": "Black Widow",
         "icon": "/costumes/black-widow-1033001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1033100",
@@ -4313,6 +4680,7 @@
     "abilities": [
       {
         "id": 103301,
+        "icon": "/abilities/103301.webp",
         "name": "Rapid Fire",
         "type": "Weapon",
         "isCollab": false,
@@ -4350,7 +4718,7 @@
           "Key": "Right Click",
           "Damage": "120 damage per hit",
           "Casting": "Single-cast direct hit",
-          "Fire Rate": "8",
+          "Fire Rate": "15",
           "Critical Hit": "Yes",
           "Special Effect": "Shares the same magazine with Red Room Rifle"
         },
@@ -4416,26 +4784,29 @@
       },
       {
         "id": 103382,
-        "name": "Sync",
+        "icon": "/abilities/103382.webp",
+        "name": "Supersensory Hunt",
         "type": "Normal",
         "isCollab": true,
-        "description": "When Hawkeye can use Hunter's Sight, he can synchronize with Black Widow. With the aid of Hunter's Sight, Black Widow also gains the ability to see enemy afterimages.",
+        "description": "Hawkeye can share his Hunter's Sight with Black Widow, enabling her to catch sight of and damage afterimages of enemies.",
         "transformation_id": "0"
       },
       {
         "id": 103391,
+        "icon": "/abilities/103391.webp",
         "name": "LION'S LAUNCH",
         "type": "Normal",
         "isCollab": false,
-        "description": "Launch the ball forward with incredible speed.",
+        "description": "Attack with the Red Room Rifle.",
         "transformation_id": "0"
       },
       {
         "id": 103392,
+        "icon": "/abilities/103392.webp",
         "name": "FEROCIOUS THROW",
         "type": "Weapon",
         "isCollab": false,
-        "description": "Hurl the ball with fierce intensity. Charging longer enhances both speed and distance.",
+        "description": "Switch the Red Room Rifle to Sniper mode to fire high-energy rounds.",
         "transformation_id": "0"
       },
       {
@@ -4457,10 +4828,28 @@
       },
       {
         "id": 103334,
+        "icon": "/abilities/103334.webp",
         "name": "LION DANCER",
         "type": "Normal",
         "isCollab": false,
         "description": "Unleash a spinning kick to <Debuff>Launch Up</> enemies and cause them to lose the ball. This ability can only be used when not in possession of the ball.",
+        "transformation_id": "0"
+      },
+      {
+        "id": 103383,
+        "icon": "/abilities/103383.webp",
+        "name": "Pulse Rifle",
+        "type": "Normal",
+        "isCollab": true,
+        "description": "The Punisher upgrades Black Widow's arsenal, adding a Pulse Mode to her Red Room Rifle. While the ability is active, using <Orange>Straight Shooter</> fires a pulse beam that deals piercing damage.",
+        "additional_fields": {
+          "Key": "C",
+          "Cooldown": "5s",
+          "Duration": "15s",
+          "Fire Interval": "0.7s",
+          "Special Effect": "No Headshot",
+          "Pulse Beam Damage": "85"
+        },
         "transformation_id": "0"
       }
     ]
@@ -4493,8 +4882,8 @@
         "name": "Iron Man",
         "icon": "/costumes/iron-man-1034001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1034100",
@@ -4627,7 +5016,8 @@
         "additional_fields": {
           "Key": "E",
           "Cooldown": "20s",
-          "Duration": "10s"
+          "Duration": "10s",
+          "Bonus Health": "100"
         },
         "transformation_id": "0"
       },
@@ -4654,12 +5044,23 @@
       },
       {
         "id": 103454,
+        "icon": "/abilities/103454.webp",
+        "name": "Gamma Overdrive",
         "type": "Normal",
         "isCollab": true,
+        "description": "Hulk charges Namor with gamma radiation. When Namor receives the radiation, he will summon an extra <Orange>Gamma Monstro</> which, will continuously fire gamma rays at locked-on enemies. The longer the rays hit, the higher the damage.",
+        "transformation_id": "0"
+      },
+      {
+        "id": 103492,
+        "icon": "/abilities/103492.webp",
+        "name": "Nano Tech",
+        "type": "Passive",
+        "isCollab": true,
+        "description": "Iron Man uses nanotechnology to upgrade Ultron's arsenal, enhancing his <Orange>Encephalo-Ray</> to <Orange>Nano Ray</>. During its active phase, Ultron fires an unstoppable Nano Ray straight ahead that pierces through all characters, delivering massive damage to enemies while simultaneously restoring health to allies.",
         "additional_fields": {
-          "Health": "250",
-          "Movement Mode": "Flight",
-          "Movement Speed": "6 m/s"
+          "Key": "Passive",
+          "Team-Up Bonus": "5% Damage Boost"
         },
         "transformation_id": "0"
       }
@@ -4695,8 +5096,8 @@
         "name": "Venom",
         "icon": "/costumes/venom-1035001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1035100",
@@ -4866,11 +5267,23 @@
       },
       {
         "id": 103581,
+        "icon": "/abilities/103581.webp",
+        "name": "Touch Of Klyntar",
         "type": "Normal",
         "isCollab": true,
+        "description": "Venom shares a part of his symbiotes with {103600}{000003}{104200}, activating their symbiote abilities. {103600}{000003}{104200} can convert the symbiotes into explosive spikes that inflict harm on nearby enemies and relentlessly drive them back.",
+        "transformation_id": "0"
+      },
+      {
+        "id": 103582,
+        "icon": "/abilities/103582.webp",
+        "name": "Healing Tendrils",
+        "type": "Passive",
+        "isCollab": true,
+        "description": "Venom shares a part of his symbiotes with Jeff the Land Shark. When using the Team-Up Ability in either his normal state or during <Orange>Hide and Seek</>, Jeff extends symbiote tendrils to nearby allies, linking with them. Linked teammates receive <Buff>continuous healing</>. When the ability reaches its maximum duration, all linked allies gain a large burst of healing, with excess healing being converted into <Buff>Bonus Health</>.",
         "additional_fields": {
-          "Health": "650",
-          "Movement Speed": "6 m/s"
+          "Key": "Passive",
+          "Team-Up Bonus": "+150 Max Health"
         },
         "transformation_id": "0"
       }
@@ -4904,8 +5317,8 @@
         "name": "Spider Man",
         "icon": "/costumes/spider-man-1036001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1036100",
@@ -5115,7 +5528,7 @@
         "description": "Launch an enemy upward, dealing extra damage to the enemy with a <Orange>Spider-Tracer</>.",
         "additional_fields": {
           "Key": "F",
-          "Range": "5m spherical radius",
+          "Range": "4m spherical radius",
           "Damage": "55",
           "Casting": "Melee",
           "Charges": "2",
@@ -5126,12 +5539,11 @@
       },
       {
         "id": 103692,
+        "icon": "/abilities/103692.webp",
+        "name": "Suit Expulsion",
         "type": "Normal",
         "isCollab": true,
-        "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6 m/s"
-        },
+        "description": "Venom shares a part of his symbiotes with {103600}{000003}{104200}, activating their symbiote abilities. {103600}{000003}{104200} can convert the symbiotes into explosive spikes that inflict harm on nearby enemies and relentlessly drive them back.",
         "transformation_id": "0"
       },
       {
@@ -5140,7 +5552,7 @@
         "name": "Extra Web-fluid",
         "type": "Normal",
         "isCollab": true,
-        "description": "Spider-Man gave Squirrel Girl web-bombs, which bind nearby enemies upon explosion.",
+        "description": "Spider-Man gives Squirrel Girl a web bomb. She can launch it to unleash an explosion upon contact with the environment or an enemy, briefly <Debuff>Immobilizing</> and damaging enemies caught in the blast.",
         "additional_fields": {
           "Key": "Passive",
           "Team-Up Bonus": "10% Damage Boost"
@@ -5179,8 +5591,8 @@
         "name": "Magneto",
         "icon": "/costumes/magneto-1037001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1037100",
@@ -5197,6 +5609,14 @@
         "quality": "BLUE",
         "description": "\"One of the mightiest Mutants with the X-Gene, I'm digging his purple vibe, but I think it needs a Galacta-touch.\"",
         "appearance": "First Appears in Marvel Rivals Season 0"
+      },
+      {
+        "id": "1037300",
+        "name": "Binary Sword",
+        "icon": "/costumes/binary-sword-1037300.png",
+        "quality": "ORANGE",
+        "description": "\"Charles…is this...how the dream dies…?\"\nNo.  Not like this. Not today. ",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
         "id": "1037500",
@@ -5314,7 +5734,7 @@
           "Key": "Q",
           "Damage": "The projectile deals no damage. The base damage at the center of the spell field starts at 100 and increases to 300 when fully charged. Each point of Energy adds an extra 3 points of damage to the spell field, with damage reducing to 50% at a distance of 6m from the center",
           "Casting": "Create a persistent spell field that launches a projectile upon completion, which generates another spell field on impact",
-          "Energy Cost": "3100",
+          "Energy Cost": "3400",
           "Special Effect": "For each point of projectile damage absorbed, the power increases by 0.125, with a maximum absorption of 800 projectile damage",
           "Explosion Range": "Initially, the ability has a spherical range with a radius of 5m. After charging for 4s, it expands to an 8m radius",
           "Maximum Duration": "4s",
@@ -5325,19 +5745,17 @@
       },
       {
         "id": 103791,
+        "icon": "/abilities/103791.webp",
+        "name": "Metallic Fusion",
         "type": "Normal",
         "isCollab": true,
-        "additional_fields": {
-          "Health": "650",
-          "Movement Speed": "6m/s",
-          "Iron Ring Charging Speed": "4s per charge"
-        },
+        "description": "Scarlet Witch can infuse Chaos Energy into Magneto to enchant his greatsword. Upon receiving the Chaos Energy, Magneto can unleash its full force, striking down enemies with his enchanted greatsword.",
         "transformation_id": "0"
       },
       {
         "id": 103743,
         "icon": "/abilities/103743.webp",
-        "name": "IRON BULWARK",
+        "name": "Iron Bulwark",
         "type": "Normal",
         "isCollab": false,
         "description": "Conjure an iron shield around himself. Damage taken will transform into rings on Magneto's back.",
@@ -5352,12 +5770,18 @@
       },
       {
         "id": 103792,
+        "icon": "/abilities/103792.webp",
+        "name": "Magnetic Resonance",
         "type": "Normal",
         "isCollab": true,
+        "description": "Emma Frost can form a mental link with Magneto and Psylocke, calling on her to create illusory projections. When together, Emma Frost will create a Mental Projection of Magneto and Psylocke, forming a Duplicate Illusion in the enemy's perspective that confuses foes by moving and casting abilities on its own.",
         "additional_fields": {
-          "Health": "650",
-          "Movement Speed": "6m/s",
-          "Iron Ring Charging Speed": "4s per charge"
+          "Key": "C",
+          "Cooldown": "30s",
+          "Special Effect": "Upon release, Magneto and his Duplicate Illusion become invisible. The damage dealt by the projection is reduced, and it dissipates after taking a specific amount of damage",
+          "Invisibility Duration": "1s",
+          "Duplicate Damage Reduction": "80%",
+          "Duplicate Max Damage Received": "150"
         },
         "transformation_id": "0"
       }
@@ -5391,8 +5815,8 @@
         "name": "Scarlet Witch",
         "icon": "/costumes/scarlet-witch-1038001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1038100",
@@ -5409,6 +5833,14 @@
         "quality": "BLUE",
         "description": "\"Olympus once harbored a mysterious goddess, who embodied the starless, moonless night. She vanished into the embrace of Chaos, leaving nothing but her dark cloak behind. I bet that's why it took me five whole pages of the Darkhold to barter it from Khonshu's grip.\"",
         "appearance": "First Appears in Marvel Rivals Season 0"
+      },
+      {
+        "id": "1038300",
+        "name": "Immortal Sovereign",
+        "icon": "/costumes/immortal-sovereign-1038300.png",
+        "quality": "ORANGE",
+        "description": "\"High atop K'un-Lun, the celestial goddess awaits. Her crimson cloak, aglow with golden radiance, dazzles like the dawn. Harnessing primordial chaos to mold the fabric of existence, she casts her protective spells, standing as a guardian against the encroaching darkness.\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
         "id": "1038500",
@@ -5456,12 +5888,12 @@
         "name": "Chaos Control",
         "type": "Normal",
         "isCollab": false,
-        "description": "Unleash Chaos Magic on enemies to deal damage based on a percentage of their max health and restore <Orange>Chaos Energy</>.",
+        "description": "Unleash Chaos Magic on enemies to deal damage and restore <Orange>Chaos Energy</>",
         "additional_fields": {
           "Key": "Left Click",
           "Ammo": "Infinite",
           "Range": "A cylindrical spell field with a radius of 3m and a height of 20m",
-          "Damage": "6 base damage + 0.3% of the enemy's Max Health per hit",
+          "Damage": "8 per hit",
           "Casting": "Cylindrical Spell Field",
           "Fire Rate": "0.1s per hit",
           "Critical Hit": "No",
@@ -5484,8 +5916,8 @@
           "Casting": "Straight-line projectile that generates a spell field upon impact",
           "Charges": "4",
           "Projectile Speed": "120 m/s",
-          "Projectile Damage": "35",
-          "Spell Field Damage": "35",
+          "Projectile Damage": "40",
+          "Spell Field Damage": "40",
           "Default Charging Speed": "0.2/s"
         },
         "transformation_id": "0"
@@ -5521,9 +5953,9 @@
           "Key": "SHIFT",
           "Casting": "Dash",
           "Charges": "2",
-          "Duration": "2s",
+          "Duration": "1.5s",
           "Movement Boost": "50%",
-          "Recharge Speed": "8s per charge",
+          "Recharge Speed": "10s per charge",
           "Special Effect": "During this period, Scarlet Witch enters the Projection state"
         },
         "transformation_id": "0"
@@ -5540,7 +5972,7 @@
           "Range": "15m spherical radius",
           "Damage": "750",
           "Casting": "Spherical Spell Field",
-          "Slow Rate": "Begin to slow down immediately, with the effect gradually increasing to -35% by 3.5s",
+          "Slow Rate": "Begin to slow down by 1.5s, with the effect gradually increasing to -35% by 3.5s",
           "Charge Time": "4s",
           "Special Effect": "During this period, Scarlet Witch enters a Free-flight state",
           "Bonus Health (Self)": "100"
@@ -5549,20 +5981,20 @@
       },
       {
         "id": 103881,
+        "icon": "/abilities/103881.webp",
+        "name": "Chaotic Bond",
         "type": "Normal",
         "isCollab": true,
-        "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6 m/s"
-        },
+        "description": "Scarlet Witch can infuse Chaos Energy into Magneto to enchant his greatsword. Upon receiving the Chaos Energy, Magneto can unleash its full force, striking down enemies with his enchanted greatsword.",
         "transformation_id": "0"
       },
       {
         "id": 103891,
         "icon": "/abilities/103891.webp",
-        "name": "SORCERY SURGE",
+        "name": "Sorcery Surge",
         "type": "Normal",
         "isCollab": true,
+        "description": "Doctor Strange shares his arcane mastery, replacing Scarlet Witch's <Orange>Chthonian Burst</> with <Orange>Mystic Burst</> upon activation. Hold down the attack button to unleash a rapid, relentless salvo of magical missiles in the target direction.",
         "additional_fields": {
           "Key": "Right Click",
           "Casting": "Straight-line projectile that generates a spell field upon impact",
@@ -5598,8 +6030,8 @@
         "id": "0",
         "name": "Thor",
         "icon": "/heroes/transformations/thor-headbig-0.webp",
-        "health": "525",
-        "movement_speed": "6 m/s"
+        "health": "600",
+        "movement_speed": "6.5 m/s"
       }
     ],
     "costumes": [
@@ -5608,8 +6040,8 @@
         "name": "Thor",
         "icon": "/costumes/thor-1039001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1039100",
@@ -5662,10 +6094,10 @@
         "description": "Consume <Orange>Thorforce</> to gain <Buff>Bonus Health</>. Landing <Orange>Mjölnir Bash</> on an enemy instantly recharges <Orange>Thorforce</>.",
         "additional_fields": {
           "Key": "Passive",
-          "Bonus Max Health": "200",
+          "Bonus Max Health": "150",
           "Maximum Thorforce": "3",
           "Thorforce Recovery Speed": "5s per Thorforce",
-          "Bonus Health Per Thorforce": "Each point of Thorforce consumed grants 100 Bonus Health, while abilities that consume 3 points of Thorforce grant 200 Bonus Health",
+          "Bonus Health Per Thorforce": "Each point of Thorforce consumed grants 75 Bonus Health, while abilities that consume 3 points of Thorforce grant 150 Bonus Health",
           "Thorforce Consumption Cooldown": "1.5s",
           "Mjolnir Bash Energy Recovery Per Thorforce": "5s"
         },
@@ -5673,6 +6105,7 @@
       },
       {
         "id": 103911,
+        "icon": "/abilities/103911.webp",
         "name": "Mjölnir Bash",
         "type": "Normal",
         "isCollab": false,
@@ -5685,13 +6118,13 @@
         "name": "Hammer Throw",
         "type": "Normal",
         "isCollab": false,
-        "description": "Throw Mjölnir forward that then returns.",
+        "description": "Throw Mjolnir forward which then returns. Restore <Orange>Thorforce</> upon hit.",
         "additional_fields": {
           "Key": "Right Click",
-          "Damage": "Outward Projectile Damage: 70; Returning Projectile Damage: 30",
+          "Damage": "Outward Projectile Damage: 45; Returning Projectile Damage: 20",
           "Casting": "Launch a single-target projectile that returns after a delayed hit",
+          "Cooldown": "6s",
           "Critical Hit": "No",
-          "Thorforce Cost": "1",
           "Maximum Distance": "24m",
           "Projectile Speed": "The projectile travels outward at a speed of 60m per second and returns at a speed of 80m per second"
         },
@@ -5774,20 +6207,26 @@
       },
       {
         "id": 103902,
+        "icon": "/abilities/103902.webp",
+        "name": "Odinson Reborn",
         "type": "Passive",
         "isCollab": true,
-        "description": "When Hela lands a final hit, she can instantly resurrect Thor or Loki in the respawn phase at their point of death.",
+        "description": "When Hela lands a final hit in defeating an enemy, she can instantly resurrect {101600}{000003}{103900} in the respawn phase, or grant them <Buff>Bonus Health</> if they are still alive.",
         "additional_fields": {
-          "Health": "525",
-          "Movement Speed": "6 m/s"
+          "Key": "Passive",
+          "Bonus Health": "50",
+          "Respawn Delay": "1.5s",
+          "Respawn Health Percentage": "80%"
         },
         "transformation_id": "0"
       },
       {
         "id": 103981,
-        "name": "Electrifying Enhancement",
+        "icon": "/abilities/103981.webp",
+        "name": "Thunderous Deity",
         "type": "Passive",
         "isCollab": true,
+        "description": "Thor infuses <Orange>Thorforce</> into {101500}{000003}{102200}, granting them an electrifying enhancement. {101501}{102201}",
         "transformation_id": "0"
       }
     ]
@@ -5810,7 +6249,7 @@
         "id": "0",
         "name": "Mister Fantastic",
         "icon": "/heroes/transformations/mister-fantastic-headbig-0.webp",
-        "health": "350",
+        "health": "375",
         "movement_speed": "6 m/s"
       }
     ],
@@ -5820,8 +6259,8 @@
         "name": "Mister Fantastic",
         "icon": "/costumes/mister-fantastic-1040001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1040100",
@@ -5846,6 +6285,14 @@
         "quality": "PURPLE",
         "description": "\"Me? I'm Reed Richards. The ultimate Reed Richards. The one who's finally going to solve everything. I'm the Maker.\"",
         "appearance": "First Appears in Ultimate Comics Ultimates (2011) #2"
+      },
+      {
+        "id": "1040501",
+        "name": "Future Foundation",
+        "icon": "/costumes/future-foundation-1040501.png",
+        "quality": "PURPLE",
+        "description": "\"All right, Johnny...all right. So this is tomorrow.\"",
+        "appearance": "First Appears in FF (2011) #1"
       }
     ],
     "abilities": [
@@ -5855,11 +6302,11 @@
         "name": "Elastic Strength",
         "type": "Passive",
         "isCollab": false,
-        "description": "Using abilities generates <Orange>Elasticity</>, boosting attack power. Reaching full <Orange>Elasticity</> triggers an Inflated state that grants <Buff>Shield</> and boosts even more damage.",
+        "description": "Using abilities generates <Orange>Elasticity</>. Reaching full <Orange>Elasticity</> triggers an Inflated state that grants <Buff>Shield</> and enhanced damage.",
         "additional_fields": {
           "Key": "Passive",
-          "Damage": "75",
-          "Bonus Health": "450",
+          "Damage": "80",
+          "Bonus Health": "400",
           "Max Elasticity": "100",
           "Movement Boost": "20%",
           "Attack Interval": "0.92s per hit",
@@ -5882,8 +6329,9 @@
           "Critical Hit": "None",
           "Attack Interval": "1.1s per hit",
           "Special Mechanic": "Swinging your arms can attack multiple targets",
+          "Gained Elasticity": "8",
           "Spell Field Range": "15m",
-          "Spell Field Damage": "60"
+          "Spell Field Damage": "65"
         },
         "transformation_id": "0"
       },
@@ -5921,8 +6369,10 @@
           "Key": "E",
           "Damage": "30",
           "Charges": "2",
-          "Cooldown": "10s",
-          "Gained Elasticity": "30",
+          "Cooldown": "8s",
+          "Slow Rate": "-35%",
+          "Slow Duration": "1.5s",
+          "Gained Elasticity": "20",
           "Bonus Health (Ally)": "75",
           "Bonus Health (Self)": "75",
           "Maximum Select Distance": "15m"
@@ -5964,7 +6414,7 @@
           "Minimum Leaps": "3",
           "Slow Duration": "3s",
           "Damage Falloff": "Start at 3m, 71.4% falloff at 10m",
-          "Special Mechanic": "After the minimum number of leaps, each additional leap must hit an enemy to trigger the next one",
+          "Special Mechanic": "When Mister Fantastic uses Brainiac Bounce (Ultimate Ability), immediately gain Bonus Health equal to that gained when entering inflated state",
           "Spell Field Damage": "Initial 70, Each Additional Leap +14, Max 140"
         },
         "transformation_id": "0"
@@ -5972,7 +6422,7 @@
       {
         "id": 104091,
         "icon": "/abilities/104091.webp",
-        "name": "WEDDED HARMONY",
+        "name": "Wedded Harmony",
         "type": "Normal",
         "isCollab": true,
         "description": "The Invisible Woman taps into her powers, channeling Psionic Might to fortify the entire Fantastic Four team. This formidable force bolsters Human Torch, The Thing, and Mister Fantastic, granting damage resistance. Once activated, they can continually generate <Buff>Bonus Health</>, making up for lost Health.",
@@ -6015,8 +6465,8 @@
         "name": "Winter Soldier",
         "icon": "/costumes/winter-soldier-1041001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1041100",
@@ -6041,6 +6491,14 @@
         "quality": "PURPLE",
         "description": "\"Those men were Bucky Barnes. And Bucky Barnes is gone. Now...I'm the man who's gonna upend your world.\"",
         "appearance": "First Appears in Captain America: Sentinel of Liberty (2022) #6"
+      },
+      {
+        "id": "1041800",
+        "name": "Thunderbolts",
+        "icon": "/costumes/thunderbolts-1041800.png",
+        "quality": "PURPLE",
+        "description": "\"Is that Bucky?\"",
+        "appearance": "Appears in Marvel Studios'  Thunderbolts* (2025)"
       }
     ],
     "abilities": [
@@ -6090,7 +6548,7 @@
           "Key": "Right Click",
           "Range": "Cone-shaped spell field with a 4.5m radius and an apex angle of 80°",
           "Casting": "Straight-line projectile that generates a spell field upon impact",
-          "Cooldown": "8s",
+          "Cooldown": "12s",
           "Charge Time": "0.5s - 4s",
           "Projectile Speed": "80 m/s",
           "Projectile Damage": "15",
@@ -6149,14 +6607,15 @@
           "Casting": "Spherical Spell Field",
           "Energy Cost": "3100",
           "Culling Duration": "5s",
-          "Culling Threshold": "20% Health",
-          "Spell Field Damage": "100",
+          "Culling Threshold": "15% Health",
+          "Spell Field Damage": "80",
           "Next Kraken Impact After A Culling": "8s"
         },
         "transformation_id": "0"
       },
       {
         "id": 104100,
+        "icon": "/abilities/104100.webp",
         "name": "Infinite Grit",
         "type": "Passive",
         "isCollab": true,
@@ -6169,15 +6628,16 @@
         "name": "Stellar Impact",
         "type": "Normal",
         "isCollab": true,
-        "description": "Inspired by Captain America's resolve, Winter Soldier can leap to the aid of a designated ally, slamming the ground with his mechanical arm to deal damage to nearby foes.\nAdditionally, Captain America and Winter Soldier can interact with each other once both parties confirm. The duo collides and unleashes a shockwave that deals damage and inflicts <Debuff>slow</> on enemies.",
+        "description": "Inspired by Captain America's resolve, Winter Soldier can leap to the aid of a designated ally, slamming the ground with his mechanical arm to damage nearby foes and grant <Buff>Bonus Health</> to allies within range. Captain America and Winter Soldier can interact with each other once both parties confirm. The duo then collides and unleashes a shockwave that damages and <Debuff>slows</> enemies.",
         "additional_fields": {
           "Key": "C",
           "Range": "8m spherical radius",
           "Damage": "70",
-          "Cooldown": "15s",
+          "Cooldown": "12s",
           "Clash Damage": "80",
           "Special Effect": "Stellar Impact also triggers the Ceaseless Charge passive effect",
           "Clash Damage Range": "10m spherical radius",
+          "Bonus Health (Ally)": "50",
           "Bonus Health (Self)": "30"
         },
         "transformation_id": "0"
@@ -6202,7 +6662,7 @@
         "id": "0",
         "name": "Peni Parker",
         "icon": "/heroes/transformations/peni-parker-headbig-0.webp",
-        "health": "650",
+        "health": "750",
         "movement_speed": "6m/s"
       }
     ],
@@ -6212,8 +6672,8 @@
         "name": "Peni Parker",
         "icon": "/costumes/peni-parker-1042001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1042100",
@@ -6230,6 +6690,14 @@
         "quality": "BLUE",
         "description": "\"SP//DR's latest aesthetic takes cues from the fabled Blue Baboon Tarantula, a secret obsession of Peni's father. This arachnid, indigenous to the enigmatic Socotra Island radiated a captivating, enigmatic blue luminescence across its form before going extinct in the 2070s. This remarkable spider captivated Peni in her youth, leaving an enduring impression that will remain with her always.\"",
         "appearance": "First Appears in Marvel Rivals Season 1"
+      },
+      {
+        "id": "1042300",
+        "name": "Yatsukahagi",
+        "icon": "/costumes/yatsukahagi-1042300.png",
+        "quality": "PURPLE",
+        "description": "\"In the yokai-infested Kirisaki Mountain, Peni Parker has repurposed her late father's \"Lion Dance\" costume into a wooden puppet creature with the mystically infused mud of the mountain. Many of the peaceful tsuchigumo gathered to her and helped her build her clever spider-chamber, concealing them as they patiently await the onset of the Hyakki Yagyō.\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
         "id": "1042500",
@@ -6267,6 +6735,8 @@
           "Damage": "Projectile Damage: 15; Spell Field Damage: 15",
           "Casting": "Rapid-fire, delayed projectile that is accompanied by a spell field",
           "Fire Rate": "3.33 rounds per second",
+          "Critical Hit": "Yes",
+          "Special Effect": "20% slowdown on release",
           "Projectile Speed": "120m/s"
         },
         "transformation_id": "0"
@@ -6368,12 +6838,20 @@
       },
       {
         "id": 104281,
+        "icon": "/abilities/104281.webp",
+        "name": "Armor Expulsion",
         "type": "Normal",
         "isCollab": true,
-        "additional_fields": {
-          "Health": "650",
-          "Movement Speed": "6m/s"
-        },
+        "description": "Venom shares a part of his symbiotes with {103600}{000003}{104200}, activating their symbiote abilities. {103600}{000003}{104200} can convert the symbiotes into explosive spikes that inflict harm on nearby enemies and relentlessly drive them back.",
+        "transformation_id": "0"
+      },
+      {
+        "id": 104242,
+        "icon": "/abilities/104242.webp",
+        "name": "Armored Spider-nest",
+        "type": "Normal",
+        "isCollab": true,
+        "description": "Rocket Raccoon upgrades his <Orange>B.R.B.</> by integrating the <Orange>Bionic Spider-Nest</> effect. Now, the beacon creates <Orange>Cyber-Webs</> when placed and periodically spawns <Orange>Arachno-Mines</> and <Orange>Spider-Drones</>. Peni Parker can additionally deploy an <Orange>Armored Spider-Nest</> that periodically drops <Orange>Armor Packs</> that grant <Buff>Bonus Health</>.",
         "transformation_id": "0"
       }
     ]
@@ -6406,8 +6884,8 @@
         "name": "Star Lord",
         "icon": "/costumes/star-lord-1043001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1043100",
@@ -6515,13 +6993,13 @@
           "Casting": "Rapid-fire projectile.",
           "Duration": "8s",
           "Fire Rate": "40 rounds per second",
-          "Energy Cost": "3100",
+          "Energy Cost": "3400",
           "Critical Hit": "No",
-          "Damage Falloff": "Falloff begins at 25m, decreasing to 60% at 40m",
+          "Damage Falloff": "Falloff begins at 25m, decreasing to 75% at 40m",
           "Movement Boost": "20%",
           "Special Mechanic": "During this period, Star-Lord's Reload Speed increases significantly",
           "Reload Time Reduction": "70%",
-          "Maximum Locking Distance": "30m"
+          "Maximum Locking Distance": "40m"
         },
         "transformation_id": "0"
       },
@@ -6535,26 +7013,33 @@
         "additional_fields": {
           "Key": "E",
           "Range": "8m spherical radius",
-          "Damage": "8 damage per hit",
+          "Damage": "7.5 damage per hit",
           "Casting": "Spherical Spell Field",
           "Cooldown": "8s",
           "Duration": "3s",
+          "Damage Falloff": "Falloff begins at 4m, decreasing to 80% at 8m",
           "Attack Interval": "0.1 per hit"
         },
         "transformation_id": "0"
       },
       {
         "id": 104371,
+        "icon": "/abilities/104371.webp",
+        "name": "Leader's Soul",
         "type": "Passive",
         "isCollab": true,
+        "description": "Adam Warlock enhances the rebirth power of {104300}{000003}{102000}, granting them the power of cocooned revival.",
         "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6 m/s"
+          "Key": "Passive",
+          "Cooldown": "120s",
+          "Team-Up Target": "Adam Warlock",
+          "Special Mechanic": "During this period, Star-Lord enters a Free-flight state."
         },
         "transformation_id": "0"
       },
       {
         "id": 104391,
+        "icon": "/abilities/104391.webp",
         "name": "LION'S LAUNCH",
         "type": "Weapon",
         "isCollab": false,
@@ -6563,6 +7048,7 @@
       },
       {
         "id": 104394,
+        "icon": "/abilities/104394.webp",
         "name": "FEROCIOUS THROW",
         "type": "Weapon",
         "isCollab": false,
@@ -6587,6 +7073,7 @@
       },
       {
         "id": 104393,
+        "icon": "/abilities/104393.webp",
         "name": "LION LEAP",
         "type": "Normal",
         "isCollab": false,
@@ -6595,6 +7082,7 @@
       },
       {
         "id": 104381,
+        "icon": "/abilities/104381.webp",
         "name": "CELESTIAL LEAP",
         "type": "Normal",
         "isCollab": false,
@@ -6633,8 +7121,8 @@
         "name": "Namor",
         "icon": "/costumes/namor-1045001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1045100",
@@ -6659,6 +7147,14 @@
         "quality": "BLUE",
         "description": "\"This day—for once and for always—I declare war on human race—war, to the death!\"",
         "appearance": "First Appears in Sub-Mariner (1968) #67"
+      },
+      {
+        "id": "1045501",
+        "name": "Retro X Uniform",
+        "icon": "/costumes/retro-x-uniform-1045501.png",
+        "quality": "PURPLE",
+        "description": "\"I am not used to having so much of my body covered. Is this the cost of camaraderie?\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
         "id": "1045800",
@@ -6719,7 +7215,7 @@
         "description": "Summon a protective barrier while flying upwards.",
         "additional_fields": {
           "Key": "SHIFT",
-          "Cooldown": "15s",
+          "Cooldown": "20s",
           "Maximum Duration": "3s",
           "Vertical Moving Distance": "7m"
         },
@@ -6760,8 +7256,8 @@
         "description": "Summon Giganto to leap atop enemies within range, disabling their mobility abilities.",
         "additional_fields": {
           "Key": "Q",
-          "Range": "A cylindrical spell field with an inner circle radius of 3m, an outer circle radius of 8m, and a height of 3m",
-          "Damage": "Inner Circle Damage: 500; Outer Circle Damage: 200",
+          "Range": "A cylindrical spell field with an inner circle radius of 3.5m, an outer circle radius of 9m, and a height of 3m",
+          "Damage": "Inner Circle Damage: 500; Outer Circle Damage: 180",
           "Casting": "Cylindrical Spell Field",
           "Hit Delay": "1.5s",
           "Energy Cost": "3100",
@@ -6772,16 +7268,16 @@
       },
       {
         "id": 104555,
+        "icon": "/abilities/104555.webp",
+        "name": "Frozen Spawn",
         "type": "Normal",
         "isCollab": true,
-        "additional_fields": {
-          "Health": "275",
-          "Movement Speed": "6 m/s"
-        },
+        "description": "Luna Snow infuses ice energy into {104700}, who then can tap into the ice energy to power up abilities at will.",
         "transformation_id": "0"
       },
       {
         "id": 104542,
+        "icon": "/abilities/104542.webp",
         "name": "Tide Fall",
         "type": "Normal",
         "isCollab": false,
@@ -6790,9 +7286,29 @@
       },
       {
         "id": 104591,
-        "name": "Gamma Control",
+        "icon": "/abilities/104591.webp",
+        "name": "Gamma Monstro",
         "type": "Normal",
         "isCollab": true,
+        "description": "Hulk charges Namor with gamma radiation. When Namor receives the radiation, he will summon an extra <Orange>Gamma Monstro</> which will continuously fire gamma rays at locked-on enemies. The longer the rays hit, the higher the damage.",
+        "additional_fields": {
+          "Key": "C",
+          "Casting": "Arced Trajectory (Summon Gamma Monstro), Direct Hit (Gamma Monstro)",
+          "Default": " ",
+          "Cooldown": "20s",
+          "Duration": "2s",
+          "Enhanced": " ",
+          "Special Effect": "When attacking the same target continuously, the damage will gradually increase to 1.5X over 5 seconds",
+          "Team-Up Target": "Hulk",
+          "Gamma Monstro Damage": "4",
+          "Gamma Monstro Health": "200",
+          "Gamma Monstro Fire Rate": "0.05s per round",
+          "Gamma Monstro Attack Range": "40m",
+          "Frozen Spawn Damage Falloff": "Falloff begins at 20m, decreasing to 30% at 40m",
+          "Gamma Monstro Maximum Duration": "10s",
+          "Projectile Speed (Summon Gamma Monstro)": "20 m/s",
+          "Monstro Spawn/Gamma Monstro Maximum Quantity": "2"
+        },
         "transformation_id": "0"
       }
     ]
@@ -6825,8 +7341,8 @@
         "name": "Adam Warlock",
         "icon": "/costumes/adam-warlock-1046001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1046100",
@@ -6843,6 +7359,14 @@
         "quality": "BLUE",
         "description": "\"God Slayer, Avatar of Life, Master of all Souls, Him... Adam Warlock's titles are etched with countless legends, and now, the Will of Galacta will be forever entwined with them.\"",
         "appearance": "First Appears in Marvel Rivals Season 1"
+      },
+      {
+        "id": "1046300",
+        "name": "Immortal Avatar",
+        "icon": "/costumes/immortal-avatar-1046300.png",
+        "quality": "PURPLE",
+        "description": "\"Within the depths of K'un-Lun's northern gorge lay a sacred stone, a vessel of celestial energies. As it fractured, a magnificent figure emerged—golden-haired, with eyes that capture the essence of dawn. When the arcane forces awakened, vitality surged forth, and the shadows retreated before the light of creation.\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
         "id": "1046301",
@@ -6864,12 +7388,14 @@
     "abilities": [
       {
         "id": 104601,
+        "icon": "/abilities/104601.webp",
+        "name": "Regenerative Cocoon",
         "type": "Passive",
         "isCollab": false,
         "description": "Once his body perishes, Adam can freely move as a soul and reforge his body at a chosen spot.",
         "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6 m/s"
+          "Key": "Passive",
+          "Cooldown": "105s"
         },
         "transformation_id": "0"
       },
@@ -6879,7 +7405,7 @@
         "name": "Quantum Magic",
         "type": "Weapon",
         "isCollab": false,
-        "description": "Launch quantum energy to deal damage.",
+        "description": "Launch quantum energy to deal damage. Critical hits reduce the cooldown of <Orange>Avatar Life Stream</>.",
         "additional_fields": {
           "Key": "Left Click",
           "Ammo": "15",
@@ -6920,7 +7446,7 @@
           "Key": "E",
           "Range": "20m spherical radius",
           "Casting": "Targeted",
-          "Cooldown": "2 charges, with each charge taking 6s to recharge",
+          "Cooldown": "2 charges, with each charge taking 6s to recharge; when a critical hit lands on an enemy, reduce the cooldown time of Avatar Life Stream by 1s.",
           "Healing Amount": "95",
           "Special Effect": "Bouncing target does not include Adam Warlock",
           "Number of Bounces": "2",
@@ -6939,7 +7465,7 @@
           "Key": "SHIFT",
           "Range": "15m",
           "Casting": "Instant Cast",
-          "Cooldown": "30s",
+          "Cooldown": "40s",
           "Duration": "6s",
           "Healing Amount": "15/s",
           "Special Effect": "Adam Warlock will share a portion of the damage sustained by linked allies. If Adam Warlock sustains damage that would KO him due to the link, then the link will be broken, and he will retain 1 Health. The link will also break once enough damage is sustained, if Adam Warlock or the linked ally leave the link's range, or after a certain length of time has passed",
@@ -6961,7 +7487,7 @@
           "Duration": "10s",
           "Energy Cost": "5000",
           "Special Effect": "Revive allies within range, centered on Adam. Continuously monitor for fallen allies within this range; if they enter the area, they can be revived at the casting location",
-          "Health Upon Revival": "100"
+          "Health Upon Revival": "30% of the Max Health"
         },
         "transformation_id": "0"
       },
@@ -7008,8 +7534,8 @@
         "name": "Jeff The Land Shark",
         "icon": "/costumes/jeff-the-land-shark-1047001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1047100",
@@ -7043,13 +7569,15 @@
         "name": "Joyful Splash",
         "type": "Weapon",
         "isCollab": false,
-        "description": "Unleash a healing splash.",
+        "description": "Unleash a splash that damages enemies and heals allies.",
         "additional_fields": {
           "Key": "Left Click",
           "Ammo": "100",
+          "Damage": "70/s",
           "Casting": "Rapid-fire, delayed projectile",
           "Fire Rate": "20 rounds per second",
-          "Healing Amount": "150/s",
+          "Damage Falloff": "\n\t\t\t\t\t\tDamage falloff starts at 20m to a maximum of 65% at 40m\n\t\t\t\t\t\t",
+          "Healing Amount": "130/s",
           "Projectile Speed": "100m/s"
         },
         "transformation_id": "0"
@@ -7058,18 +7586,19 @@
         "id": 104721,
         "icon": "/abilities/104721.webp",
         "name": "Aqua Burst",
-        "type": "Weapon",
+        "type": "Normal",
         "isCollab": false,
-        "description": "Launch a high-speed water sphere that bursts upon impact, dealing damage to enemies within range.",
+        "description": "Launch a high-speed water sphere that bursts upon impact, dealing damage to enemies within range. Direct hits <Debuff>Launch Up</> enemies.",
         "additional_fields": {
           "Key": "Right Click",
-          "Ammo": "12",
           "Range": "3m spherical radius",
-          "Damage": "Projectile Damage: 25 damage per round, Spell Field Damage: 40 damage per cast",
+          "Damage": "Projectile Damage: 25 damage per round, Spell Field Damage: 45 damage per cast",
           "Casting": "Single-cast projectile with delayed impact that also generates a spell field",
+          "Cooldown": "3 charges, with each charge taking 3s to recharge",
           "Fire Rate": "1.75 rounds per second",
           "Critical Hit": "No",
           "Damage Falloff": "Falloff begins at 1m, decreasing to 50% at 3m (projectile damage has no falloff)",
+          "Special Effect": "\n\t\t\t\t\t\tDirect hits can launch enemies up\n\t\t\t\t\t\t",
           "Projectile Speed": "100m/s"
         },
         "transformation_id": "0"
@@ -7080,17 +7609,17 @@
         "name": "Healing Bubble",
         "type": "Normal",
         "isCollab": false,
-        "description": "Spit a bubble that heals the ally who collects it, granting them <Buff>Healing Boost</> and <Buff>Movement Boost</> while also <Debuff>Launching Up</> nearby enemies.",
+        "description": "Spit a bubble that heals the ally who collects it, granting them <Buff>Healing</> and <Buff>Movement Boost</>.",
         "additional_fields": {
           "Key": "E",
           "Casting": "Summons",
-          "Cooldown": "6 charges, with each charge taking 6s to recharge",
+          "Cooldown": "3 charges, with each charge taking 6s to recharge",
           "Duration": "180s",
           "Buff Duration": "4s",
           "Healing Boost": "15%",
-          "Healing Amount": "85",
+          "Healing Amount": "30/s",
           "Movement Boost": "60%",
-          "Special Effect": "Touching the bubble will immediately activate its effect and will knock back nearby enemies"
+          "Special Effect": "Touching the bubble will immediately activate its effect"
         },
         "transformation_id": "0"
       },
@@ -7104,9 +7633,12 @@
         "additional_fields": {
           "Key": "SHIFT",
           "Casting": "Instant Cast",
+          "Energy Cost": "20/s",
           "Healing Amount": "35/s",
+          "Maximum Energy": "120",
           "Movement Boost": "60%",
-          "Special Effect": "During the dive, gain Unstoppable, healing over time, and a Movement Boost, while Jeff's hitbox is reduced"
+          "Special Effect": "During the dive, gain Unstoppable, healing over time, and a Movement Boost, while Jeff's hitbox is reduced",
+          "Energy Recovery Speed": "15/s"
         },
         "transformation_id": "0"
       },
@@ -7116,16 +7648,17 @@
         "name": "It's Jeff!",
         "type": "Ultimate",
         "isCollab": false,
-        "description": "Deep dive into the scene and resurface to swallow both enemies and allies within range, activating <Orange>Hide and Seek</> for a brief duration before ejecting the swallowed heroes forward.",
+        "description": "Deep dive into the scene and resurface to swallow both enemies and allies within range, activating <Orange>Hide and Seek</> for a brief duration before ejecting the swallowed heroes forward. Excess healing converts to <Buff>Bonus Health</>.",
         "additional_fields": {
           "Key": "Q",
           "Range": "10m radius,5m high cylindrical spell field",
           "Damage": "25/s",
           "Casting": "Targeted",
           "Duration": "6s",
-          "Energy Cost": "4000",
+          "Energy Cost": "4500",
           "Healing Amount": "225/s",
-          "Special Effect": "After swallowing allies and enemies, Jeff will deal damage to enemies and heal allies for the duration of the effect, during which they will also benefit from Hide and Seek"
+          "Special Effect": "After swallowing allies and enemies, Jeff will deal damage to enemies and heal allies for the duration of the effect, during which they will also benefit from Hide and Seek",
+          "Bonus Health (Ally)": "\n\t\t\t\t\t\tOverflow healing on swallowed allies grants 45 Health per second as Bonus Health, up to 150\n\t\t\t\t\t\t"
         },
         "transformation_id": "0"
       },
@@ -7138,32 +7671,37 @@
         "description": "Reduce damage taken from critical hits.",
         "additional_fields": {
           "Key": "Passive",
-          "Critical Hit Damage Reduction": "50%"
+          "Critical Hit Damage Reduction": "70%"
         },
         "transformation_id": "0"
       },
       {
         "id": 104782,
+        "icon": "/abilities/104782.webp",
+        "name": "Frozen Spitball",
         "type": "Normal",
         "isCollab": true,
-        "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6m/s"
-        },
+        "description": "Luna Snow infuses ice energy into {104700}, who then can tap into the ice energy to power up abilities at will.",
         "transformation_id": "0"
       },
       {
         "id": 104781,
+        "icon": "/abilities/104781.webp",
+        "name": "New Friends",
         "type": "Normal",
         "isCollab": true,
+        "description": "{104700}{000003}{102300} can ride on Groot's shoulders, receiving <Buff>Damage Reduction</>.",
         "additional_fields": {
-          "Health": "250",
-          "Movement Speed": "6m/s"
+          "Key": "C",
+          "Range": "Up to 12m",
+          "Casting": "Targeted",
+          "Damage Reduction": "35%"
         },
         "transformation_id": "0"
       },
       {
         "id": 104713,
+        "icon": "/abilities/104713.webp",
         "name": "Snow Splash",
         "type": "Weapon",
         "isCollab": false,
@@ -7172,6 +7710,7 @@
       },
       {
         "id": 104723,
+        "icon": "/abilities/104723.webp",
         "name": "Frost Burst",
         "type": "Weapon",
         "isCollab": false,
@@ -7180,6 +7719,7 @@
       },
       {
         "id": 104752,
+        "icon": "/abilities/104752.webp",
         "name": "Blasting Bubble",
         "type": "Normal",
         "isCollab": false,
@@ -7196,9 +7736,12 @@
         "additional_fields": {
           "Key": "SHIFT",
           "Casting": "Instant Cast",
+          "Energy Cost": "20/s",
           "Healing Amount": "35/s",
+          "Maximum Energy": "120",
           "Movement Boost": "60%",
-          "Special Effect": "During the dive, gain Unstoppable, healing over time, and a Movement Boost, while Jeff's hitbox is reduced"
+          "Special Effect": "During the dive, gain Unstoppable, healing over time, and a Movement Boost, while Jeff's hitbox is reduced",
+          "Energy Recovery Speed": "15/s"
         },
         "transformation_id": "0"
       },
@@ -7215,9 +7758,47 @@
           "Damage": "25/s",
           "Casting": "Targeted",
           "Duration": "6s",
-          "Energy Cost": "4000",
+          "Energy Cost": "4500",
           "Healing Amount": "225/s",
-          "Special Effect": "After swallowing allies and enemies, Jeff will deal damage to enemies and heal allies for the duration of the effect, during which they will also benefit from Hide and Seek"
+          "Special Effect": "After swallowing allies and enemies, Jeff will deal damage to enemies and heal allies for the duration of the effect, during which they will also benefit from Hide and Seek",
+          "Bonus Health (Ally)": "\n\t\t\t\t\t\tOverflow healing on swallowed allies grants 45 Health per second as Bonus Health, up to 150\n\t\t\t\t\t\t"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 104784,
+        "icon": "/abilities/104784.webp",
+        "name": "It's Jeff-nado!",
+        "type": "Normal",
+        "isCollab": true,
+        "description": "When Storm unleashes her <Orange>Omega Hurricane</>, if Jeff the Land Shark has <Orange>It's Jeff!</> ready, he can channel her power to conjure a ferocious <Orange>Jeff-nado</>! Additionally, a <Orange>Jeff-nado</> will form if Jeff encounters Storm's <Orange>Omega Hurricane</> after devouring enemies with <Orange>It's Jeff!</>. Enemies will be drawn into the swirling chaos after enduring sustained damage from the <Orange>Jeff-nado</> for some time.",
+        "additional_fields": {
+          "Key": "Z",
+          "Select Range": "60m radius, 90° fan-shaped area in front of Jeff",
+          "Swallow Range": "10m spherical radius spell field centered around Storm",
+          "Swallow Damage": "80",
+          "Attack Interval": "2 hits per second",
+          "Swallow Time Required": "1.2s",
+          "Warning before Swallow": "0.1"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 104783,
+        "icon": "/abilities/104783.webp",
+        "name": "Guardian Of The Deep",
+        "type": "Normal",
+        "isCollab": true,
+        "description": "Venom shares a part of his symbiotes with Jeff the Land Shark. When using the Team-Up Ability in either his normal state or during <Orange>Hide and Seek</>, Jeff extends symbiote tendrils to nearby allies, linking with them. Linked teammates receive <Buff>continuous healing</>. When the ability reaches its maximum duration, all linked allies gain a large burst of healing, with excess healing being converted into <Buff>Bonus Health</>.",
+        "additional_fields": {
+          "Key": "X",
+          "Range": "10m spherical radius spell field",
+          "Cooldown": "20s",
+          "Bonus Health": "50",
+          "Bonus Health Falloff": "Falloff begins at 3s and decreases by 30/s",
+          "One-time Healing Amount": "70",
+          "Continuous Healing Duration": "3s",
+          "Continuous Healing Efficiency": "70/s"
         },
         "transformation_id": "0"
       }
@@ -7248,12 +7829,20 @@
     ],
     "costumes": [
       {
+        "id": "0",
+        "name": "Phantom Purple",
+        "icon": "/costumes/phantom-purple-ps1048503.png",
+        "quality": "PURPLE",
+        "description": "0",
+        "appearance": "0"
+      },
+      {
         "id": "1048001",
         "name": "Psylocke",
         "icon": "/costumes/psylocke-1048001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1048100",
@@ -7292,7 +7881,7 @@
       {
         "id": 104821,
         "icon": "/abilities/104821.webp",
-        "name": "PSIONIC CROSSBOW",
+        "name": "Psionic Crossbow",
         "type": "Normal",
         "isCollab": false,
         "description": "Unleash bolts with psionic crossbows to damage enemies and reduce the cooldowns of all her abilities.",
@@ -7314,13 +7903,13 @@
       {
         "id": 104831,
         "icon": "/abilities/104831.webp",
-        "name": "WING SHURIKENS",
+        "name": "Wing Shurikens",
         "type": "Normal",
         "isCollab": false,
         "description": "Launch a volley of psionic shurikens that stick to enemies, dealing damage and granting herself <Buff>Bonus Health</>. Press again to recall the shurikens.",
         "additional_fields": {
           "Key": "Right Click",
-          "Damage": "14 per hit",
+          "Damage": "12 per hit",
           "Casting": "Projectile that fires in a straight trajectory.",
           "Cooldown": "8s",
           "Bonus Health": "10 bonus health per round",
@@ -7339,7 +7928,7 @@
       {
         "id": 104841,
         "icon": "/abilities/104841.webp",
-        "name": "PSI-BLADE DASH",
+        "name": "Psi-blade Dash",
         "type": "Normal",
         "isCollab": false,
         "description": "Dash forward and slice through enemies along the path with psionic blades.",
@@ -7347,7 +7936,7 @@
           "Key": "Shift",
           "Damage": "50",
           "Charges": "2",
-          "Cooldown": "8s",
+          "Cooldown": "12s",
           "Average Speed": "43 m/s",
           "Maximum Distance": "12m",
           "Special Mechanic": "Casting this ability will automatically recall the Wing Shurikens. The shurikens will first travel to Psylocke's starting position before returning to her"
@@ -7357,14 +7946,14 @@
       {
         "id": 104851,
         "icon": "/abilities/104851.webp",
-        "name": "PSYCHIC STEALTH",
+        "name": "Psychic Stealth",
         "type": "Normal",
         "isCollab": false,
         "description": "Enter stealth and gain a <Buff>Movement Boost</>.",
         "additional_fields": {
           "Key": "E",
           "Cooldown": "15s",
-          "Duration": "3s",
+          "Duration": "2s",
           "Movement Boost": "50%",
           "Special Mechanic": "When attacked while in stealth, Psylocke will remain in stealth but will briefly become visible for a short duration"
         },
@@ -7373,7 +7962,7 @@
       {
         "id": 104861,
         "icon": "/abilities/104861.webp",
-        "name": "DANCE OF THE BUTTERFLY",
+        "name": "Dance Of The Butterfly",
         "type": "Normal",
         "isCollab": false,
         "description": "Slash nearby enemies with a psionic katana, dealing massive damage.",
@@ -7391,24 +7980,26 @@
       },
       {
         "id": 104895,
-        "name": "PSIONIC DISC",
+        "icon": "/abilities/104895.webp",
+        "name": "Psionic Disc",
         "type": "Normal",
         "isCollab": true,
-        "description": "When Magik is on the field, {102600}{000003}{104800} can tap into Limbo to rewind a few seconds back to a previous position; after passing through Limbo, {102600}{000003}{104800} gain an additional shield.",
+        "description": "When Magik is on the field, {102600} can tap into Limbo to rewind a few seconds back to a previous position; after passing through Limbo, {102600} will gain <Buff>Bonus Health</> based on missing health.",
         "transformation_id": "0"
       },
       {
         "id": 104892,
         "icon": "/abilities/104892.webp",
-        "name": "PSYCHIC ECHOES",
+        "name": "Psychic Echoes",
         "type": "Normal",
         "isCollab": true,
+        "description": "Emma Frost can form a mental link with Magneto and Psylocke, calling on her to create illusory projections. When together, Emma Frost will create a Mental Projection of Magneto and Psylocke, forming a Duplicate Illusion in the enemy's perspective that confuses foes by moving and casting abilities on its own.",
         "additional_fields": {
           "Key": "C",
           "Cooldown": "30s",
           "Special Effect": "Upon release, Magneto and his Duplicate Illusion become invisible. The damage dealt by the projection is reduced, and it dissipates after taking a specific amount of damage",
           "Invisibility Duration": "1s",
-          "Duplicate Damage Reduction": "70%",
+          "Duplicate Damage Reduction": "80%",
           "Duplicate Max Damage Received": "150"
         },
         "transformation_id": "0"
@@ -7444,8 +8035,8 @@
         "name": "Wolverine",
         "icon": "/costumes/wolverine-1049001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1049100",
@@ -7464,6 +8055,14 @@
         "appearance": "First Appears in Marvel Rivals Season 1"
       },
       {
+        "id": "1049500",
+        "name": "Patch",
+        "icon": "/costumes/patch-1049500.png",
+        "quality": "PURPLE",
+        "description": "\"Answer should be obvious. An' in Madripoor, Darlin'…The name's Patch.\"",
+        "appearance": "First Appears in Marvel Comics Presents (1988) #10"
+      },
+      {
         "id": "1049800",
         "name": "Deadpool Wolverine",
         "icon": "/costumes/deadpool-wolverine-1049800.png",
@@ -7476,7 +8075,7 @@
       {
         "id": 104901,
         "icon": "/abilities/104901.webp",
-        "name": "REGENERATIVE HEALING FACTOR",
+        "name": "Regenerative Healing Factor",
         "type": "Normal",
         "isCollab": false,
         "description": "Begin to heal and rise with a hefty <Buff>Bonus Health</>, shaking off all debuffs. After a brief moment, any remaining <Buff>Bonus Health</> morphs into a one-off heal, zeroing out his <Orange>Rage</>. Assists in KOs reduce this cooldown.",
@@ -7493,27 +8092,27 @@
       {
         "id": 104921,
         "icon": "/abilities/104921.webp",
-        "name": "BERSERKER RAGE",
+        "name": "Berserker Rage",
         "type": "Normal",
         "isCollab": false,
         "description": "<Orange>Rage</> builds when Wolverine attacks or takes hits, boosting the damage of his <Orange>Claw Strikes</> and the <Buff>Bonus Health</> from his regenerative healing factor.",
         "additional_fields": {
           "Key": "Passive",
           "Max Rage": "100",
-          "Rage Per Hit Taken": "3",
-          "Rage Per Savage Claw Hit": "7",
+          "Rage Per Hit Taken": "5",
+          "Rage Per Savage Claw Hit": "10",
           "Rage Gain From Taking Hits": "2 per second",
-          "Rage Per Feral Leap Snatch": "20",
-          "Rage Per Vicious Rampage Hit": "20",
+          "Rage Per Feral Leap Snatch": "10",
+          "Rage Per Vicious Rampage Hit": "15",
           "Rage Per Last Stand Knockback": "25",
-          "Rage Per Berserk Claw Strike Hit": "7"
+          "Rage Per Berserk Claw Strike Hit": "5"
         },
         "transformation_id": "0"
       },
       {
         "id": 104941,
         "icon": "/abilities/104941.webp",
-        "name": "SAVAGE CLAW",
+        "name": "Savage Claw",
         "type": "Normal",
         "isCollab": false,
         "description": "Slash with Adamantium claws for a <Orange>Claw Strike</>. Unleashing <Orange>Feral Leap</> will enhance it to <Orange>Berserk Claw Strike</> for a brief period.",
@@ -7530,7 +8129,7 @@
       {
         "id": 104951,
         "icon": "/abilities/104951.webp",
-        "name": "VICIOUS RAMPAGE",
+        "name": "Vicious Rampage",
         "type": "Normal",
         "isCollab": false,
         "description": "Dash forward and unleash a <Orange>Claw Strike</>.",
@@ -7549,7 +8148,7 @@
       {
         "id": 104961,
         "icon": "/abilities/104961.webp",
-        "name": "UNDYING ANIMAL",
+        "name": "Undying Animal",
         "type": "Normal",
         "isCollab": false,
         "description": "Unleash a fierce howl to briefly reduce incoming damage.",
@@ -7564,7 +8163,7 @@
       {
         "id": 104971,
         "icon": "/abilities/104971.webp",
-        "name": "FERAL LEAP",
+        "name": "Feral Leap",
         "type": "Normal",
         "isCollab": false,
         "description": "Leap like an animal to snatch the first enemy upon impact and <Debuff>Smash</> them to the ground. Unleashing this ability will enhance his normal attack to <Orange>Berserk Claw Strike</> for a brief period.",
@@ -7585,14 +8184,14 @@
       {
         "id": 104981,
         "icon": "/abilities/104981.webp",
-        "name": "LAST STAND",
+        "name": "Last Stand",
         "type": "Ultimate",
         "isCollab": false,
         "description": "<Debuff>Launch Up</> enemies ahead and spiral through the air, sweeping up enemies along the path and delivering a devastating impact at the landing point. Impact deals extra damage based on <Orange>Rage</> accumulated.",
         "additional_fields": {
           "Key": "Q",
           "Impact Range": "8m spherical radius",
-          "Knockdown Time": "1s",
+          "Knockdown Time": "0.75s",
           "Knockback Range": "8m spherical radius",
           "Knockback Damage": "50",
           "Impact Base Damage": "50",
@@ -7603,11 +8202,16 @@
       },
       {
         "id": 104991,
+        "icon": "/abilities/104991.webp",
+        "name": "Metal Cannonball",
         "type": "Normal",
         "isCollab": true,
+        "description": "Wolverine, Hulk{000003}{105100} can interact with each other. Once both parties confirm, Hulk{000003}{105100} can lift Wolverine and press the key to hurl him forward.",
         "additional_fields": {
-          "Health": "350",
-          "Movement Speed": "7m/s"
+          "Key": "C",
+          "Cooldown": "3s (when Wolverine is not hurled) and 15s (after hurling Wolverine)",
+          "Team-Up Target": "Hulk",
+          "Maximum Waving Duration": "5s"
         },
         "transformation_id": "0"
       }
@@ -7619,7 +8223,7 @@
     "real_name": "Susan Storm",
     "imageUrl": "/rivals/heroes/card/invisible-woman.png",
     "role": "Strategist",
-    "attack_type": "Melee Heroes",
+    "attack_type": "Projectile Heroes",
     "team": [
       "Fantasticfour"
     ],
@@ -7641,8 +8245,8 @@
         "name": "Invisible Woman",
         "icon": "/costumes/invisible-woman-1050001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1050100",
@@ -7680,6 +8284,7 @@
     "abilities": [
       {
         "id": 105002,
+        "icon": "/abilities/105002.webp",
         "name": "Psionic Invisibility",
         "type": "Passive",
         "isCollab": false,
@@ -7688,6 +8293,7 @@
       },
       {
         "id": 105011,
+        "icon": "/abilities/105011.webp",
         "name": "Psionic Hammer",
         "type": "Normal",
         "isCollab": false,
@@ -7696,6 +8302,7 @@
       },
       {
         "id": 105021,
+        "icon": "/abilities/105021.webp",
         "name": "Invisible Energy",
         "type": "Normal",
         "isCollab": false,
@@ -7704,6 +8311,7 @@
       },
       {
         "id": 105041,
+        "icon": "/abilities/105041.webp",
         "name": "Psionic Support",
         "type": "Normal",
         "isCollab": false,
@@ -7732,6 +8340,7 @@
       },
       {
         "id": 105061,
+        "icon": "/abilities/105061.webp",
         "name": "Psionic Surge",
         "type": "Normal",
         "isCollab": false,
@@ -7740,6 +8349,7 @@
       },
       {
         "id": 105071,
+        "icon": "/abilities/105071.webp",
         "name": "Invisible",
         "type": "Ultimate",
         "isCollab": false,
@@ -7748,6 +8358,7 @@
       },
       {
         "id": 105031,
+        "icon": "/abilities/105031.webp",
         "name": "Psionic Strike",
         "type": "Weapon",
         "isCollab": false,
@@ -7757,7 +8368,7 @@
       {
         "id": 105081,
         "icon": "/abilities/105081.webp",
-        "name": "FANTASTI-FORCE",
+        "name": "Fantasti-force",
         "type": "Normal",
         "isCollab": true,
         "description": "The Invisible Woman taps into her powers, channeling Psionic Might to fortify the entire Fantastic Four team. This formidable force bolsters {104000}{000001}{105100}{000003}{101700}, granting damage resistance. Once activated, they can continually generate <Buff>Bonus Health</>, making up for lost Health with each passing moment.",
@@ -7797,8 +8408,8 @@
         "name": "The Thing",
         "icon": "/costumes/the-thing-1051001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1051100",
@@ -7807,6 +8418,14 @@
         "quality": "BLUE",
         "description": "\"The three of you can't do it alone! It's time for The Thing to take a hand!\"",
         "appearance": "First Appears in Fantastic Four (1961) #3"
+      },
+      {
+        "id": "1051101",
+        "name": "The Unlimited",
+        "icon": "/costumes/the-unlimited-1051101.png",
+        "quality": "BLUE",
+        "description": "\"These shorts bring back a ton of memories, especially that one time with Dunphy…\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
         "id": "1051500",
@@ -7892,7 +8511,7 @@
           "Key": "E",
           "Casting": "Targeted",
           "Cooldown": "Basic Cooldown 3s, with a charge of 10s per use",
-          "Special Effect": "Apply a 30% damage reduction effect to self and target ally for 3s",
+          "Special Effect": "Apply a 25% damage reduction effect to self and target ally for 3s",
           "Maximum Distance": "20m"
         },
         "transformation_id": "0"
@@ -7916,13 +8535,13 @@
       {
         "id": 105191,
         "icon": "/abilities/105191.webp",
-        "name": "COOPERATIVE COMRADES",
+        "name": "Cooperative Comrades",
         "type": "Normal",
         "isCollab": true,
         "description": "The Invisible Woman taps into her powers, channeling Psionic Might to fortify the entire Fantastic Four team. This formidable force bolsters Human Torch, The Thing, and Mister Fantastic, granting damage resistance. Once activated, they can continually generate <Buff>Bonus Health</>, making up for lost Health.",
         "additional_fields": {
           "Key": "C",
-          "Cooldown": "20s",
+          "Cooldown": "25s",
           "Duration": "5s",
           "Bonus Max Health": "100",
           "Bonus Health Growth": "Generate 5 Bonus Health per 0.1s"
@@ -7935,6 +8554,7 @@
         "name": "Cosmic Fastball",
         "type": "Normal",
         "isCollab": true,
+        "description": "Wolverine, Hulk{000003}{105100} can interact with each other. Once both parties confirm, Hulk{000003}{105100} can lift Wolverine and press the key to hurl him forward.",
         "additional_fields": {
           "Key": "Z",
           "Casting": "Targeted",
@@ -7964,7 +8584,7 @@
         "id": "0",
         "name": "Iron Fist",
         "icon": "/heroes/transformations/iron-fist-headbig-0.webp",
-        "health": "250",
+        "health": "300",
         "movement_speed": "6 m/s"
       }
     ],
@@ -7974,8 +8594,8 @@
         "name": "Iron Fist",
         "icon": "/costumes/iron-fist-1052001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1052100",
@@ -8039,10 +8659,20 @@
       },
       {
         "id": 105221,
-        "name": "Jeet Kuen Do",
+        "icon": "/abilities/105221.webp",
+        "name": "Jeet Kune Do",
         "type": "Weapon",
         "isCollab": false,
         "description": "Strike the targeted enemy with Jeet Kune Do, and the last strike will <Debuff>Launch Up</> enemies, reducing the cooldown of <Orange>Dragon's Defense</> with every hit.",
+        "additional_fields": {
+          "Key": "Left Click",
+          "Damage": "The first four strikes each deal 30 damage, while the fifth strike deals 50 damage",
+          "Casting": "Melee",
+          "Attack Interval": "The first four strikes have an interval of 0.45s between them, while the fifth strike has a 0.67s interval from the fourth strike",
+          "Maximum Distance": "3m",
+          "Maximum Pull-In Distance": "6m",
+          "Dragon's Defense Cooldown Reduction Per Hit": "1s"
+        },
         "transformation_id": "0"
       },
       {
@@ -8057,8 +8687,8 @@
           "Cooldown": "15s",
           "Block Time": "1s",
           "Damage Reduction": "30%",
-          "Max Health/Damage Blocked Conversion": "200",
-          "Bonus Health/Damage Blocked Conversion": "1.5"
+          "Max Health/Damage Blocked Conversion": "175",
+          "Bonus Health/Damage Blocked Conversion": "1.3"
         },
         "transformation_id": "0"
       },
@@ -8072,7 +8702,7 @@
         "additional_fields": {
           "Key": "Left Click",
           "Range": "3m",
-          "Damage": "10 base damage + 1.7% of the enemy's Max Health per strike",
+          "Damage": "9 base damage + 2.1% of the enemy's Max Health per strike",
           "Casting": "Melee",
           "Duration": "5s",
           "Attack Speed": "7 strikes per second",
@@ -8094,7 +8724,7 @@
           "Cooldown": "12s",
           "Duration": "3s",
           "Healing Per Second": "100",
-          "Excess Healing/Max Health Conversion": "150"
+          "Excess Healing/Max Health Conversion": "100"
         },
         "transformation_id": "0"
       },
@@ -8108,7 +8738,7 @@
         "additional_fields": {
           "Key": "SHIFT",
           "Casting": "Movement-based damage ability",
-          "Cooldown": "12s",
+          "Cooldown": "10s",
           "Dashing Speed": "40 m/s",
           "Maximum Dash Distance": "12m",
           "First Flying Kick Damage": "30",
@@ -8150,17 +8780,19 @@
       {
         "id": 105271,
         "icon": "/abilities/105271.webp",
-        "name": "DRAGON'S CHILL",
+        "name": "Dragon's Chill",
         "type": "Normal",
         "isCollab": true,
+        "description": "Iron Fist channels the Chi of Shou-Lao into Luna Snow, transforming her ice power into a Chi-infused frosty ring that radiates from her. This ring can launch up enemies with chilling damage and applies a slowing effect, while simultaneously healing her allies.",
         "additional_fields": {
           "Key": "Passive",
-          "Team-up Bonus": "15% Damage Boost"
+          "Team-up Bonus": "10% Damage Boost"
         },
         "transformation_id": "0"
       },
       {
         "id": 105291,
+        "icon": "/abilities/105291.webp",
         "name": "LION'S LAUNCH",
         "type": "Weapon",
         "isCollab": false,
@@ -8169,6 +8801,7 @@
       },
       {
         "id": 105292,
+        "icon": "/abilities/105292.webp",
         "name": "FEROCIOUS THROW",
         "type": "Weapon",
         "isCollab": false,
@@ -8190,6 +8823,7 @@
       },
       {
         "id": 105252,
+        "icon": "/abilities/105252.webp",
         "name": "LION KICK",
         "type": "Normal",
         "isCollab": false,
@@ -8204,10 +8838,10 @@
     "real_name": "Emma Frost",
     "imageUrl": "/rivals/heroes/card/emma-frost.png",
     "role": "Vanguard",
-    "attack_type": "Projectile Heroes",
+    "attack_type": "Hitscan Heroes",
     "team": [
       "X_men",
-      "Avengers",
+      "Mutants",
       "Villains"
     ],
     "difficulty": "3",
@@ -8228,8 +8862,8 @@
         "name": "Emma Frost",
         "icon": "/costumes/emma-frost-1053001.png",
         "quality": "NO_QUALITY",
-        "description": "No description available",
-        "appearance": "No appearance data available"
+        "description": "0",
+        "appearance": "0"
       },
       {
         "id": "1053100",
@@ -8237,6 +8871,14 @@
         "icon": "/costumes/blue-sapphire-1053100.png",
         "quality": "BLUE",
         "description": "\"Yes, white has always been my signature, but I never anticipated how stunning blue would look on me.\"",
+        "appearance": "First Appears in Marvel Rivals Season 2"
+      },
+      {
+        "id": "1053101",
+        "name": "Will Of Galacta",
+        "icon": "/costumes/will-of-galacta-1053101.png",
+        "quality": "BLUE",
+        "description": "\"The moment I laid eyes on her, I was utterly captivated. I simply must bring her into the ranks of my Galacta army, and she will take the lead.\"",
         "appearance": "First Appears in Marvel Rivals Season 2"
       },
       {
@@ -8260,7 +8902,7 @@
       {
         "id": 105321,
         "icon": "/abilities/105321.webp",
-        "name": "TELEPATHIC PULSE",
+        "name": "Telepathic Pulse",
         "type": "Normal",
         "isCollab": false,
         "description": "Fire a psionic beam to deal damage; the longer the beam hits, the higher the damage.",
@@ -8269,7 +8911,7 @@
           "Ammo": "70",
           "Damage": "Damage increases with energy: 0 - 70/s, 99 - 120/s, full energy - 150/s",
           "Casting": "Channeled",
-          "Attack Range": "15m",
+          "Attack Range": "18m",
           "Special Effect": "Energy gain: Hero hit: 10/s; Sentience hit: 15/s; Common summons hit: 5/s; Shield hit: 10/s. Falloff begins 3s after not hitting an enemy, at a rate of 30/s",
           "Ammo Consumption": "10/s"
         },
@@ -8278,7 +8920,7 @@
       {
         "id": 105331,
         "icon": "/abilities/105331.webp",
-        "name": "MIND'S AEGIS",
+        "name": "Mind's Aegis",
         "type": "Normal",
         "isCollab": false,
         "description": "Create a levitating barrier at the designated location.",
@@ -8287,7 +8929,7 @@
           "Casting": "Deployable Shield",
           "Recovery Speed": "70/s",
           "Reposition Cooldown": "3s",
-          "Maximum Shield Value": "500",
+          "Maximum Shield Value": "400",
           "Cooldown After Destroyed": "4s",
           "Delayed Recovery After Release": "2s"
         },
@@ -8296,7 +8938,7 @@
       {
         "id": 105341,
         "icon": "/abilities/105341.webp",
-        "name": "DIAMOND FORM",
+        "name": "Diamond Form",
         "type": "Normal",
         "isCollab": false,
         "description": "Activate <Orange>Diamond Form</> to transform your attack style while gaining <Buff>Damage Reduction</> and becoming <Buff>Unstoppable</>.",
@@ -8311,7 +8953,7 @@
       {
         "id": 105342,
         "icon": "/abilities/105342.webp",
-        "name": "FACETED FURY",
+        "name": "Faceted Fury",
         "type": "Normal",
         "isCollab": false,
         "description": "In <Orange>Diamond Form</>, deliver a crushing double-fisted strike to enemies.",
@@ -8326,13 +8968,13 @@
       {
         "id": 105343,
         "icon": "/abilities/105343.webp",
-        "name": "CRYSTAL KICK",
+        "name": "Crystal Kick",
         "type": "Normal",
         "isCollab": false,
         "description": "In <Orange>Diamond Form</>, unleash a flying kick forward and <Debuff>knock back</> enemies; extra damage is dealt if they're propelled into a wall.",
         "additional_fields": {
           "Key": "Right Click",
-          "Damage": "Hit damage: 50; damage increases to 100 when the target is knocked into walls",
+          "Damage": "Hit damage: 40; damage increases to 90 when the target is knocked into walls",
           "Casting": "Single-cast Spell Field",
           "Cooldown": "2s",
           "Hit Range": "5m",
@@ -8343,15 +8985,15 @@
       {
         "id": 105344,
         "icon": "/abilities/105344.webp",
-        "name": "CARBON CRUSH",
+        "name": "Carbon Crush",
         "type": "Normal",
         "isCollab": false,
         "description": "In <Orange>Diamond Form</>, lunge forward to grab an enemy, then execute a back slam to inflict damage.",
         "additional_fields": {
-          "Key": "Right Click",
+          "Key": "E",
           "Damage": "30",
           "Casting": "Dash Based Control",
-          "Cooldown": "5s",
+          "Cooldown": "6s",
           "Special Effect": "Control effect duration: 1.6s",
           "Maximum Distance": "7m"
         },
@@ -8360,7 +9002,7 @@
       {
         "id": 105351,
         "icon": "/abilities/105351.webp",
-        "name": "PSYCHIC SPEAR",
+        "name": "Psychic Spear",
         "type": "Normal",
         "isCollab": false,
         "description": "Seize control of an enemy's sentience—damage dealt to the <Orange>sentience</> cascades to the physical form and can be pierced by <Orange>Telepathic Pulse</>. When the sentience shatters, it unleashes extra damage on its owner.",
@@ -8378,7 +9020,7 @@
       {
         "id": 105361,
         "icon": "/abilities/105361.webp",
-        "name": "PSIONIC SEDUCTION",
+        "name": "Psionic Seduction",
         "type": "Normal",
         "isCollab": false,
         "description": "Project a forward psychic assault that stuns foes and prevents them from unleashing their Ultimate Abilities; if the effect lingers, it gradually commandeers their mind, forcing them to move toward Emma Frost.",
@@ -8395,11 +9037,14 @@
       },
       {
         "id": 105381,
+        "icon": "/abilities/105381.webp",
+        "name": "Mind Link",
         "type": "Normal",
         "isCollab": true,
+        "description": "Emma Frost can form a mental link with Magneto and Psylocke, calling on her to create illusory projections. When together, Emma Frost will create a Mental Projection of Magneto and Psylocke, forming a Duplicate Illusion in the enemy's perspective that confuses foes by moving and casting abilities on its own.",
         "additional_fields": {
-          "Health": "550",
-          "Movement Speed": "6m/s"
+          "Key": "Passive",
+          "Team-Up Bonus": "+100 Max Health"
         },
         "transformation_id": "0"
       }
