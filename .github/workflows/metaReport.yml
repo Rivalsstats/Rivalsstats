@@ -19,6 +19,7 @@ jobs:
       biggest_negative_hero: ${{ steps.extract_hotlist.outputs.biggest_negative_hero }}
       biggest_negative_winrate: ${{ steps.extract_hotlist.outputs.biggest_negative_winrate }}
       biggest_negative_winrate_shift: ${{ steps.extract_hotlist.outputs.biggest_negative_winrate_shift }}
+      social_text: ${{ steps.gen_social.outputs.social_text }}
     steps:  
       - name: Clone project
         uses: actions/checkout@v3
@@ -47,6 +48,25 @@ jobs:
           echo "biggest_negative_hero=$neg_hero" >> $GITHUB_OUTPUT
           echo "biggest_negative_winrate=$neg_winrate" >> $GITHUB_OUTPUT
           echo "biggest_negative_winrate_shift=$neg_winrate_shift" >> $GITHUB_OUTPUT
+
+      - name: Generate social text with OpenRouter
+        id: gen_social
+        run: |
+          pip install openai openrouter
+          python backend_scripts/llm_post.py \
+            --api-key "${{ secrets.OPENROUTER_API_KEY }}" \
+            --date "${{ steps.get_time.outputs.start_time }}" \
+            --pos-hero "${{ steps.extract_hotlist.outputs.biggest_positive_hero }}" \
+            --pos-shift "${{ steps.extract_hotlist.outputs.biggest_positive_winrate_shift }}" \
+            --pos-winrate "${{ steps.extract_hotlist.outputs.biggest_positive_winrate }}" \
+            --neg-hero "${{ steps.extract_hotlist.outputs.biggest_negative_hero }}" \
+            --neg-shift "${{ steps.extract_hotlist.outputs.biggest_negative_winrate_shift }}" \
+            --neg-winrate "${{ steps.extract_hotlist.outputs.biggest_negative_winrate }}" \
+            > post.txt
+          # set multiline output
+          echo "social_text<<EOF" >> $GITHUB_OUTPUT
+          cat post.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
           
 
 
@@ -62,13 +82,7 @@ jobs:
           token: ${{ secrets.WORKFLOW_TOKEN }} 
       - uses: nearform-actions/github-action-notify-twitter@v1.2.3
         with:
-          message: |
-            🔥 @MarvelRivals Meta Report for ${{ needs.setup.outputs.start_time }} 🔥
-            Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} ${{ needs.setup.outputs.biggest_positive_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
-            Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} ${{ needs.setup.outputs.biggest_negative_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
-            Full data & analysis: https://rivalsstats.com/
-            #MarvelRivals #Tierlist
-
+          message: ${{ needs.setup.outputs.social_text }}
           twitter-app-key: ${{ secrets.TWITTER_APP_KEY }}
           twitter-app-secret: ${{ secrets.TWITTER_APP_SECRET }}
           twitter-access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
@@ -95,9 +109,7 @@ jobs:
             subreddit: ${{ secrets.REDDIT_SUBREDDIT }}
             title: "🔥 Meta Report for ${{ needs.setup.outputs.start_time }}! 🔥"
             message: |
-              Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} ${{ needs.setup.outputs.biggest_positive_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
-              
-              Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} ${{ needs.setup.outputs.biggest_negative_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
+             ${{ needs.setup.outputs.social_text }}
             
               Combined Tierlist: https://rivalsstats.com/rendered/CombinedTierlist.png
 
@@ -129,12 +141,7 @@ jobs:
 
         - uses: myConsciousness/bluesky-post@v5
           with:
-            text: |
-              🔥 @marvel-rivals.bsky.social‬ Meta Report for ${{ needs.setup.outputs.start_time }}! 🔥
-              Biggest Gain - ${{ needs.setup.outputs.biggest_positive_hero }} ${{ needs.setup.outputs.biggest_positive_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_positive_winrate }}%) 
-              Biggest Loss - ${{ needs.setup.outputs.biggest_negative_hero }} ${{ needs.setup.outputs.biggest_negative_winrate_shift }}% (Winrate: ${{ needs.setup.outputs.biggest_negative_winrate }}%)
-              [Full data & analysis](https://rivalsstats.com)
-              #MarvelRivals #Tierlist
+            text: ${{ needs.setup.outputs.social_text }}
             media: "./rendered/CombinedTierlist-compressed.png"
             media-alt: "Combined Tierlist"
             identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
