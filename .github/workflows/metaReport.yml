@@ -62,6 +62,7 @@ jobs:
             --neg-hero "${{ steps.extract_hotlist.outputs.biggest_negative_hero }}" \
             --neg-shift "${{ steps.extract_hotlist.outputs.biggest_negative_winrate_shift }}" \
             --neg-winrate "${{ steps.extract_hotlist.outputs.biggest_negative_winrate }}" \
+            --url "https://rivalsstats.com/" \
             > post.txt
           # set multiline output
           echo "social_text<<EOF" >> $GITHUB_OUTPUT

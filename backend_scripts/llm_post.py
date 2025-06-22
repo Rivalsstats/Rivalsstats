@@ -16,7 +16,6 @@ Given these inputs:
 - date: {date}
 - Biggest Gain: {pos_hero} {pos_shift}% (Winrate: {pos_winrate}%)
 - Biggest Loss: {neg_hero} {neg_shift}% (Winrate: {neg_winrate}%)
-- url: https://rivalsstats.com/
 
 Produce one single social-media post (max 250 characters) that:
 - uses no emojis
@@ -24,7 +23,7 @@ Produce one single social-media post (max 250 characters) that:
 - is funny and engaging, includes a dad joke or pun
 - invites people to click or reply
 - includes at least #MarvelRivals, #Meta, #Tierlist
-- stays under 250 characters total
+- stays under 225 characters total
 
 Output only the post text (no explanation).
 """
@@ -47,7 +46,8 @@ def generate_post(client, args):
     )
     text = resp.choices[0].message.content.strip()
     # strip any extraneous quotes or markdown
-    return re.sub(r"^['\"]|['\"]$", "", text)
+    cleanText = re.sub(r"^['\"]|['\"]$", "", text)
+    return f"{cleanText} {args.url}"
 
 def main():
     p = argparse.ArgumentParser()
@@ -59,6 +59,7 @@ def main():
     p.add_argument("--neg-hero",    required=True)
     p.add_argument("--neg-shift",   required=True)
     p.add_argument("--neg-winrate", required=True)
+    p.add_argument("--url",        required=True)
     args = p.parse_args()
 
     client = get_openai_client(args.api_key)
