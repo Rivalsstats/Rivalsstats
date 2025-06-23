@@ -13,11 +13,9 @@ def get_openai_client(api_key: str):
 PROMPT_TEMPLATE = """
 You are a witty social-media manager with a dad-joke sense of humor for a Marvel Rivals stats site.
 Given these inputs:
-- date: {date}
-- Biggest Gain: {pos_hero} {pos_shift}% (Winrate: {pos_winrate}%)
-- Biggest Loss: {neg_hero} {neg_shift}% (Winrate: {neg_winrate}%)
+{data}
 
-Produce one single social-media post (max 250 characters) that:
+Produce one single social-media post (max 225 characters) that:
 - uses no emojis
 - uses no em-dashes (—); use simple hyphens (-) if needed
 - is funny and engaging, includes a dad joke or pun
@@ -29,16 +27,8 @@ Output only the post text (no explanation).
 """
 
 
-def generate_post(client, args):
-    prompt = PROMPT_TEMPLATE.format(
-        date=args.date,
-        pos_hero=args.pos_hero,
-        pos_shift=args.pos_shift,
-        pos_winrate=args.pos_winrate,
-        neg_hero=args.neg_hero,
-        neg_shift=args.neg_shift,
-        neg_winrate=args.neg_winrate,
-    ).strip()
+def generate_post(client, data, url):
+    prompt = PROMPT_TEMPLATE.format(data=data).strip()
 
     resp = client.chat.completions.create(
         model="deepseek/deepseek-r1:free",
@@ -47,23 +37,17 @@ def generate_post(client, args):
     text = resp.choices[0].message.content.strip()
     # strip any extraneous quotes or markdown
     cleanText = re.sub(r"^['\"]|['\"]$", "", text)
-    return f"{cleanText} {args.url}"
+    return f"{cleanText} {url}"
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--api-key",     required=True)
-    p.add_argument("--date",        required=True)
-    p.add_argument("--pos-hero",    required=True)
-    p.add_argument("--pos-shift",   required=True)
-    p.add_argument("--pos-winrate", required=True)
-    p.add_argument("--neg-hero",    required=True)
-    p.add_argument("--neg-shift",   required=True)
-    p.add_argument("--neg-winrate", required=True)
+    p.add_argument("--data",        required=True)
     p.add_argument("--url",        required=True)
     args = p.parse_args()
 
     client = get_openai_client(args.api_key)
-    post = generate_post(client, args)
+    post = generate_post(client, args.data, args.url)
     print(post)
 
 if __name__ == "__main__":

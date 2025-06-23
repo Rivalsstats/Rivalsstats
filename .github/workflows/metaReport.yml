@@ -12,14 +12,8 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      start_time: ${{ steps.get_time.outputs.start_time }}
-      biggest_positive_hero: ${{ steps.extract_hotlist.outputs.biggest_positive_hero }}
-      biggest_positive_winrate: ${{ steps.extract_hotlist.outputs.biggest_positive_winrate }}
-      biggest_positive_winrate_shift: ${{ steps.extract_hotlist.outputs.biggest_positive_winrate_shift }}
-      biggest_negative_hero: ${{ steps.extract_hotlist.outputs.biggest_negative_hero }}
-      biggest_negative_winrate: ${{ steps.extract_hotlist.outputs.biggest_negative_winrate }}
-      biggest_negative_winrate_shift: ${{ steps.extract_hotlist.outputs.biggest_negative_winrate_shift }}
-      social_text: ${{ steps.gen_social.outputs.social_text }}
+      start_time:    ${{ steps.get_time.outputs.start_time }}
+      social_text:   ${{ steps.gen_social.outputs.social_text }}
     steps:  
       - name: Clone project
         uses: actions/checkout@v3
@@ -49,22 +43,33 @@ jobs:
           echo "biggest_negative_winrate=$neg_winrate" >> $GITHUB_OUTPUT
           echo "biggest_negative_winrate_shift=$neg_winrate_shift" >> $GITHUB_OUTPUT
 
+      - name: Build LLM data blob
+        id: build_data
+        run: |
+          # here we serialize everything into one `data` string
+          data=$(jq -n \
+            --arg date "${{ steps.get_time.outputs.start_time }}" \
+           --arg ph "${{ steps.extract_hotlist.outputs.biggest_positive_hero }}" \
+            --arg pr "${{ steps.extract_hotlist.outputs.biggest_positive_winrate }}" \
+            --arg ps "${{ steps.extract_hotlist.outputs.biggest_positive_winrate_shift }}" \
+            --arg nh "${{ steps.extract_hotlist.outputs.biggest_negative_hero }}" \
+            --arg nr "${{ steps.extract_hotlist.outputs.biggest_negative_winrate }}" \
+            --arg ns "${{ steps.extract_hotlist.outputs.biggest_negative_winrate_shift }}" \
+            '{ date: $date,
+               positive: { hero: $ph, win_rate: ($pr|tonumber), winrate_shift: ($ps|tonumber) },
+               negative: { hero: $nh, win_rate: ($nr|tonumber), winrate_shift: ($ns|tonumber) }
+            }')
+          echo "data_payload=$data" >> $GITHUB_OUTPUT
+
       - name: Generate social text with OpenRouter
         id: gen_social
         run: |
-          pip install openai openrouter
+          pip install openrouter
           python backend_scripts/llm_post.py \
             --api-key "${{ secrets.OPENROUTER_API_KEY }}" \
-            --date "${{ steps.get_time.outputs.start_time }}" \
-            --pos-hero "${{ steps.extract_hotlist.outputs.biggest_positive_hero }}" \
-            --pos-shift "${{ steps.extract_hotlist.outputs.biggest_positive_winrate_shift }}" \
-            --pos-winrate "${{ steps.extract_hotlist.outputs.biggest_positive_winrate }}" \
-            --neg-hero "${{ steps.extract_hotlist.outputs.biggest_negative_hero }}" \
-            --neg-shift "${{ steps.extract_hotlist.outputs.biggest_negative_winrate_shift }}" \
-            --neg-winrate "${{ steps.extract_hotlist.outputs.biggest_negative_winrate }}" \
+            --data "${{ steps.build_data.outputs.data_payload }}" \
             --url "https://rivalsstats.com/" \
             > post.txt
-          # set multiline output
           echo "social_text<<EOF" >> $GITHUB_OUTPUT
           cat post.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
