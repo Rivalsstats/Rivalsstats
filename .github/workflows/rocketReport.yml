@@ -24,25 +24,26 @@ jobs:
         shell: bash
         run: |
           echo "start_time=$(TZ=":Europe/Berlin" date '+%m/%d/%Y')" >> $GITHUB_OUTPUT
+
       - name: Extract rocket info
         id: extract_rocket
         run: |
-              overall=$(jq -r '.rocket_overall_winrate[0]' rendered/data.json | xargs)
-              one_def=$(jq -r '.rocket_win_rate_one_defensive[0]' rendered/data.json | xargs)
-              no_pun=$(jq -r '.rocket_win_rate_no_punisher[0]' rendered/data.json | xargs)
-              with_pun=$(jq -r '.rocket_win_rate_with_punisher[0]' rendered/data.json | xargs)
+          overall=$(jq -r '.rocket_overall_winrate[0]' rendered/data.json | xargs)
+          one_def=$(jq -r '.rocket_win_rate_one_defensive[0]' rendered/data.json | xargs)
+          no_pun=$(jq -r '.rocket_win_rate_no_punisher[0]' rendered/data.json | xargs)
+          with_pun=$(jq -r '.rocket_win_rate_with_punisher[0]' rendered/data.json | xargs)
+      
+          {
+            echo "data<<EOF"
+            echo "Date: $(TZ=':Europe/Berlin' date '+%m/%d/%Y')"
+            echo "Rocket Overall Winrate: $overall%"
+            echo "Winrate with only one Defensive Ult: $one_def%"
+            echo "Winrate without Ammo Overload: $no_pun%"
+            echo "Winrate with Ammo Overload: $with_pun%"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
-              report="Date: ${{ steps.get_time.outputs.start_time }}
-              Rocket Raccoon stats
-              Rocket Overall Winrate: $overall%
-              Winrate with only one Defensive Ult: $one_def%
-              Winrate without Ammo Overload: $no_pun%
-              Winrate with Ammo Overload: $with_pun%"
 
-              # escape newlines for GitHub output
-              report_escaped=$(echo \"$report\")
-
-              echo \"data=$report_escaped\" >> $GITHUB_OUTPUT
           
       - name: Generate Rocket social text with OpenRouter
         id: gen_social
