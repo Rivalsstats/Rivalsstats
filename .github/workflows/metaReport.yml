@@ -46,10 +46,9 @@ jobs:
       - name: Build LLM data blob
         id: build_data
         run: |
-          # here we serialize everything into one `data` string
           data=$(jq -n \
             --arg date "${{ steps.get_time.outputs.start_time }}" \
-           --arg ph "${{ steps.extract_hotlist.outputs.biggest_positive_hero }}" \
+            --arg ph "${{ steps.extract_hotlist.outputs.biggest_positive_hero }}" \
             --arg pr "${{ steps.extract_hotlist.outputs.biggest_positive_winrate }}" \
             --arg ps "${{ steps.extract_hotlist.outputs.biggest_positive_winrate_shift }}" \
             --arg nh "${{ steps.extract_hotlist.outputs.biggest_negative_hero }}" \
@@ -59,7 +58,13 @@ jobs:
                positive: { hero: $ph, win_rate: ($pr|tonumber), winrate_shift: ($ps|tonumber) },
                negative: { hero: $nh, win_rate: ($nr|tonumber), winrate_shift: ($ns|tonumber) }
             }')
-          echo "data_payload=$data" >> $GITHUB_OUTPUT
+      
+          {
+            echo "data_payload<<EOF"
+            echo "$data"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
 
       - name: Generate social text with OpenRouter
         id: gen_social
