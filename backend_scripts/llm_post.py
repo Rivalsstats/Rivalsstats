@@ -15,13 +15,13 @@ You are a witty social-media manager with a dad-joke sense of humor for a Marvel
 Given these inputs:
 {data}
 
-Produce one single social-media post (max 225 characters) that:
+Produce one single social-media post (max 210 characters) that:
 - uses no emojis
 - uses no em-dashes (—); use simple hyphens (-) if needed
 - is funny and engaging, includes a dad joke or pun
 - invites people to click or reply
 - includes at least #MarvelRivals, #Meta, #Tierlist
-- stays under 220 characters total
+- stays under 210 characters total
 
 Output only the post text (no explanation, Comments or Quotation marks).
 """
@@ -37,7 +37,13 @@ def generate_post(client, data, url):
     text = resp.choices[0].message.content.strip()
     # strip any extraneous quotes or markdown
     cleanText = re.sub(r"^['\"]|['\"]$", "", text)
-    return f"{cleanText} {url}"
+    if len(cleanText)+len(url) <250:
+        return f"{cleanText} {url}"
+    elif len(cleanText <=250):
+         return cleanText
+    else :
+        raise ValueError("Generated post is too long, please adjust the input data.")
+    
 
 def main():
     p = argparse.ArgumentParser()
