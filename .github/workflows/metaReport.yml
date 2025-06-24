@@ -69,7 +69,7 @@ jobs:
       - name: Generate social text with OpenRouter
         id: gen_social
         run: |
-          pip install openrouter
+          pip install openrouter openai
           python backend_scripts/llm_post.py \
             --api-key "${{ secrets.OPENROUTER_API_KEY }}" \
             --data "${{ steps.build_data.outputs.data_payload }}" \
