@@ -21,9 +21,9 @@ Produce one single social-media post (max 225 characters) that:
 - is funny and engaging, includes a dad joke or pun
 - invites people to click or reply
 - includes at least #MarvelRivals, #Meta, #Tierlist
-- stays under 225 characters total
+- stays under 220 characters total
 
-Output only the post text (no explanation).
+Output only the post text (no explanation, Comments or Quotation marks).
 """
 
 
