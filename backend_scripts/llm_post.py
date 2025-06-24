@@ -39,7 +39,7 @@ def generate_post(client, data, url):
     cleanText = re.sub(r"^['\"]|['\"]$", "", text)
     if len(cleanText)+len(url) <250:
         return f"{cleanText} {url}"
-    elif len(cleanText <=250):
+    elif len(cleanText) <=250:
          return cleanText
     else :
         raise ValueError("Generated post is too long, please adjust the input data.")
