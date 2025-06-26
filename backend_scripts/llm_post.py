@@ -20,7 +20,7 @@ Produce one single social-media post (max 210 characters) that:
 - uses no em-dashes (—); use simple hyphens (-) if needed
 - is funny and engaging, includes a dad joke or pun
 - invites people to click or reply
-- includes at least #MarvelRivals, #Meta, #Tierlist
+- includes appropriate hashtags like #MarvelRivals, #Meta
 - stays under 210 characters total
 
 Output only the post text (no explanation, Comments or Quotation marks).
