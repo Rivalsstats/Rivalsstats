@@ -9089,5 +9089,171 @@
         "transformation_id": "0"
       }
     ]
+  },
+  {
+    "id": "1054",
+    "name": "Phoenix",
+    "real_name": "Jean Grey",
+    "imageUrl": "/rivals/heroes/card/phoenix.png",
+    "role": "Duelist",
+    "attack_type": "Projectile",
+    "team": [
+      "X_men",
+      "Mutants",
+      "Heroes"
+    ],
+    "difficulty": "3",
+    "bio": "Jean Grey, reborn as the Phoenix, brings fiery justice to the battlefield. Her Spark mechanic rewards precision with powerful AoE bursts and healing, while her mobility and illusions make her a deceptive and deadly duelist.",
+    "lore": "An Omega-level telepath and telekinetic, Jean Grey was already one of the most powerful Mutants on Earth. Her bond with the Phoenix Force — a cosmic entity embodying creation itself — made her one of the most powerful beings in the universe. Jean and the Phoenix left Krakoa before the Timestream Entanglement struck. Their journey took them across the galaxy, saving countless civilizations. Sensing an unusual disturbance in time and space, Jean and the Phoenix decided to travel to Klyntar to eliminate the darkness at its source: Knull, the King in Black.",
+    "transformations": [
+      {
+        "id": "0",
+        "name": "Phoenix",
+        "icon": "/heroes/transformations/phoenix-headbig-0.webp",
+        "health": "275",
+        "movement_speed": "6m/s"
+      }
+    ],
+    "costumes": [
+      {
+        "id": "10540010",
+        "name": "Default Phoenix",
+        "icon": "/costumes/phoenix-10540010.png",
+        "quality": "NO_QUALITY",
+        "description": "Default look of Jean Grey as Phoenix.",
+        "appearance": "Base hero skin"
+      },
+      {
+        "id": "1054100",
+        "name": "The Return of Jean Grey",
+        "icon": "/costumes/the-return-of-jean-grey-1054100.png",
+        "quality": "BLUE",
+        "description": "\"My name is Jean Grey. These are X‑Men. I'm sorry for what you had to go through.\"",
+        "appearance": "First appears in X‑Men: Red (2018) #1"
+      },
+      {
+        "id": "1054101",
+        "name": "Emerald Flames",
+        "icon": "/costumes/emerald-flames-1054101.png",
+        "quality": "BLUE",
+        "description": "\"This is my calling, my destiny, an inescapable truth. And you will meet your end.\"",
+        "appearance": "Shop Skin (Season 3 roadmap)"
+      },
+      {
+        "id": "1054300",
+        "name": "Chaos Phoenix",
+        "icon": "/costumes/chaos-phoenix-1054300.png",
+        "quality": "ORANGE",
+        "description": "\"The perfect fusion of Phoenix Force and Chaos Magic gives rise to an unprecedented harmonious cycle, reminiscent of the endless interplay of yin and yang in the cosmos.\"",
+        "appearance": "Introduced in Season 3 shop"
+      }
+    ],
+    "abilities": [
+      {
+        "id": 105411,
+        "icon": "/abilities/105411.webp",
+        "name": "Cosmic Flames",
+        "type": "Normal",
+        "isCollab": false,
+        "description": "Launch a fiery projectile forward, applying 1 Spark to enemies hit. Critical hits apply 2 Sparks. At 3 Sparks, Phoenix triggers a fiery explosion that applies 1 Spark to enemies around and Healing Over Time to self.",
+        "additional_fields": {
+          "Key": "Left Click",
+          "Damage": "50",
+          "Damage Falloff": "Begins at 10m, decreases to 60% at 30m",
+          "Fire Rate": "0.435s per round",
+          "Special Effect": "Apply 1 Spark per hit (2 on crit). 3 Sparks trigger explosion + AoE Spark + HoT",
+          "Explosion Direct Damage": "40",
+          "Explosion Range Damage": "12",
+          "Explosion Radius": "4m spherical radius",
+          "Self Healing": "10/s for 4s"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 105441,
+        "icon": "/abilities/105441.webp",
+        "name": "Telekinesis Burst",
+        "type": "Normal",
+        "isCollab": false,
+        "description": "Mark a targeted area with psionic energy, followed by a series of fiery explosions. The first blast Stuns enemies, while the subsequent two explosions inflict Slow. Applies 1 Spark to enemies hit.",
+        "additional_fields": {
+          "Key": "Right Click",
+          "Target Explosion Damage": "20",
+          "Target Explosion Range": "2m radius, 4m height cylinder",
+          "Subsequent Explosion Damage": "20",
+          "Subsequent Explosion Range": "3m radius, 6m height cylinder",
+          "Stun Duration": "0.3s",
+          "Slow": "30% for 2s",
+          "Special Effect": "1st blast = Stun, 2nd/3rd = Slow. Each hit applies 1 Spark.",
+          "Cooldown": "10s"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 105451,
+        "icon": "/abilities/105451.webp",
+        "name": "Dark Ascent",
+        "type": "Normal",
+        "isCollab": false,
+        "description": "Merge with the Phoenix, entering a state of free flight. Gain a Movement Boost while continuously replenishing ammunition.",
+        "additional_fields": {
+          "Key": "E",
+          "Special Effect": "Free flight + 50% speed boost + 4 ammo/sec regen",
+          "Maximum Energy": "1200",
+          "Energy Cost": "400/s",
+          "Energy Recovery": "120/s"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 105461,
+        "icon": "/abilities/105461.webp",
+        "name": "Telepathic Illusion",
+        "type": "Movement",
+        "isCollab": false,
+        "description": "Leave behind an illusion and instantly teleport in the desired direction, followed by detonating the illusion. Enemies hit are applied with 1 Spark.",
+        "additional_fields": {
+          "Key": "Shift",
+          "Dash Distance": "8m",
+          "Detonation Damage": "50",
+          "Detonation Range": "3m spherical radius",
+          "Special Effect": "Detonation applies 1 Spark",
+          "Cooldown": "12s"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 105471,
+        "icon": "/abilities/105471.webp",
+        "name": "Endsong Inferno",
+        "type": "Ultimate",
+        "isCollab": false,
+        "description": "Soar into the sky with the Phoenix and crash down onto a selected area, dealing devastating damage to enemies while creating a shockwave that destroys enemy summons, shields, and any Bonus Health. Enemies hit are applied with 1 Spark.",
+        "additional_fields": {
+          "Key": "Q",
+          "Energy Cost": "3100",
+          "Explosion Damage": "140",
+          "Explosion Range": "10m spherical radius",
+          "Shockwave Damage": "50",
+          "Summons' Health Destroyed": "Up to 400 HP",
+          "Special Effect": "Destroys summons, shields, bonus HP. Applies 1 Spark to enemies hit.",
+          "Self Healing": "250"
+        },
+        "transformation_id": "0"
+      },
+      {
+        "id": 100024,
+        "icon": "/abilities/100024.webp",
+        "name": "Mind's Grace",
+        "type": "Passive",
+        "isCollab": true,
+        "description": "JJean Grey imbues Wolverine with the awe-inspiring Phoenix Force. With this power, Wolverine's Feral Leap transforms into Phoenix Warrior. While active, he is enveloped in Phoenix flames that continuously scorch nearby enemies, dealing Percentage Damage. In this state, Wolverine's abilities gain Lifesteal when inflicting damage.",
+        "additional_fields": {
+          "Key": "Passive",
+          "Team-Up Bonus": "10% damage boost"
+        },
+        "transformation_id": "0"
+      }
+    ]
   }
 ]
