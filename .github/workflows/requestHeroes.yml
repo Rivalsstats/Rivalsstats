@@ -71,7 +71,7 @@
              # Download the WebP image temporarily
              curl -sSL "$icon_url" -o tmp_icon.webp
              # Convert the WebP image to PNG format and save with hero name
-             convert tmp_icon.webp "icons/hero_icons/${hero_name}.png"
+             convert tmp_icon.webp "icons/hero_icons/${hero_name,,}.png"
              # Remove the temporary WebP file
              rm tmp_icon.webp
            done
