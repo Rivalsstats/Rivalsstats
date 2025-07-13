@@ -803,6 +803,9 @@ winrate_tierlist <- ggplot(hero_stats_winrate, aes(x = position, y = factor(tier
   ), alpha = 0.3) +  
   scale_fill_manual(values = tier_colors) +
   geom_image(aes(image = icon), size = 0.1) +
+    labs(x = NULL,
+       y = NULL,
+       title = "Winrate") +
    # ADD WATERMARK HERE
   annotate("text", 
            x = max_heroes_per_tier / 2,  
@@ -866,10 +869,13 @@ pickrate_tierlist <- ggplot(hero_stats_pickrate, aes(x = position, y = factor(pi
     xmin = 0.5, xmax = max_heroes_per_tier + 0.5,  # Ensures left alignment
     ymin = as.numeric(factor(pick_rate_tier, levels = rev(tier_order))) - 0.5,
     ymax = as.numeric(factor(pick_rate_tier, levels = rev(tier_order))) + 0.5, 
-    fill = pick_rate_tier
+    fill = pick_rate_tier,
   ), alpha = 0.3) +  
   scale_fill_manual(values = tier_colors) +
   geom_image(aes(image = icon), size = 0.1) +
+  labs(x = NULL,
+       y = NULL,
+       title = "Pickrate") +
    # ADD WATERMARK HERE
   annotate("text", 
            x = max_heroes_per_tier / 2,  
@@ -933,6 +939,9 @@ combined_tierlist <- ggplot(hero_stats_combined, aes(x = position, y = factor(co
   ), alpha = 0.3) +  
   scale_fill_manual(values = tier_colors) +
   geom_image(aes(image = icon), size = 0.1) +
+  labs(x = NULL,
+       y = NULL,
+       title = "Combined") +
    # ADD WATERMARK HERE
   annotate("text", 
            x = max_heroes_per_tier / 2,  
