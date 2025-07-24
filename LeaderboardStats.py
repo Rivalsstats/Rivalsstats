@@ -670,6 +670,7 @@ def save_to_disk():
 
 def process_rate_limit(headers, source):
     print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processing rate limit headers from {source}...")
+    time.sleep(1) # wait for 1 sec between every request see https://discord.com/channels/1323089784348086292/1331723588901933150/1397964437335441409
     if headers.get("X-RateLimit-Remaining") is not None and headers.get("X-RateLimit-Remaining") != "Cache" and headers.get("X-RateLimit-Remaining") != "cache":
         rate_limit = headers.get("X-RateLimit-Limit")
         remaining = headers.get("X-RateLimit-Remaining")
