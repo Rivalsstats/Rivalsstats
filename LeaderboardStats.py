@@ -386,6 +386,7 @@ def process_encountered_players(player_data, timestamp):
                     "losing_team_score": losing_score,
                 }
                 if not cancel_event.is_set() and match_id not in queried_matches:
+                    queried_matches.add(match_id)
                     match_queue.put(match_id)
     else:
         print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Match history not found for player {player_data.get('player_uid', 'UNKNOWN')}")
